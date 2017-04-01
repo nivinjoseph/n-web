@@ -1,0 +1,62 @@
+{
+  "name": "n-web",
+  "version": "1.0.0",
+  "description": "Koa based web application framework",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "ts-build": "tsc -p .",
+    "ts-build-watch": "npm run ts-build -- -w",
+    "ts-build-dist": "tsc -p ./dist",
+    "x-ts-watch-build": "watch 'npm run build' ./src --wait 1 --interval 1",
+    "clean-src": "find ./src -name '*.js' -delete -o -name '*.map' -delete",
+    "clean-test": "find ./test -name '*.js' -delete -o -name '*.map' -delete",
+    "pretest": "npm run ts-build",
+    "test": "mocha --reporter spec --ui tdd --require ts-node/register './test/**/*.test.js' || true",
+    "pretest-ci": "npm run pretest",
+    "test-ci": "mocha --reporter spec --ui tdd --require ts-node/register './test/**/*.test.js'",
+    "prepublish": "npm run ts-build-dist && git add . && git commit -m 'preparing to publish new version'",
+    "publish": "npm version patch",
+    "postpublish": "git push",
+    "prestart": "npm run ts-build",
+    "start": "nodemon --debug ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nivinjoseph/n-web.git"
+  },
+  "keywords": [
+    "koa",
+    "web framework"
+  ],
+  "author": "NiviN",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nivinjoseph/n-web/issues"
+  },
+  "homepage": "https://github.com/nivinjoseph/n-web#readme",
+  "devDependencies": {
+    "@types/koa": "^2.0.39",
+    "@types/koa-bodyparser": "^3.0.23",
+    "@types/koa-router": "^7.0.22",
+    "@types/mocha": "^2.2.39",
+    "@types/node": "^7.0.5",
+    "@types/sinon": "^1.16.35",
+    "mocha": "^3.2.0",
+    "nodemon": "^1.11.0",
+    "sinon": "^2.0.0-pre.6",
+    "ts-node": "^2.1.0",
+    "tslint": "^4.5.1",
+    "typescript": "2.2.1"
+  },
+  "dependencies": {
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.1.1",
+    "n-defensive": "git+https://github.com/nivinjoseph/n-defensive.git",
+    "n-exception": "git+https://github.com/nivinjoseph/n-exception.git",
+    "n-ext": "git+https://github.com/nivinjoseph/n-ext.git",
+    "n-ject": "git+https://github.com/nivinjoseph/n-ject.git",
+    "reflect-metadata": "^0.1.10"
+  }
+}
