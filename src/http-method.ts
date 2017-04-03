@@ -16,21 +16,25 @@ export class HttpMethods
 
 export const httpMethodSymbol = Symbol("httpmethod");
 
+// public
 export function httpGet(target: Function): void
 {
     Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Get, target);
 }
 
+// public
 export function httpPost(target: Function): void
 {
     Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Post, target);
 }
 
+// public
 export function httpPut(target: Function): void
 {
     Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Put, target);
 }
 
+// public
 export function httpDelete(target: Function): void
 {
     Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Delete, target);

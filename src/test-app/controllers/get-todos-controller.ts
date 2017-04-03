@@ -1,13 +1,11 @@
-import { Controller } from "./../../core/controller";
 import { Todo } from "./../models/todo";
-import given from "n-defensive";
+import { given } from "n-defensive";
 import { TodoManager } from "./../services/todo-manager";
-import { httpGet } from "./../../core/http-method";
-import { httpRoute } from "./../../core/http-route";
+import { httpGet, httpRoute, Controller } from "./../../index";
 
 @httpGet
 @httpRoute("/api/Todos")    
-export class GetTodosController extends Controller<void, object[]>
+export class GetTodosController extends Controller
 {
     private readonly _todoManager: TodoManager;
     

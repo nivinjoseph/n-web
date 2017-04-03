@@ -19,7 +19,7 @@
     "publish": "npm version patch",
     "postpublish": "git push",
     "prestart": "npm run ts-build",
-    "start": "nodemon --debug ./src/index.js"
+    "start": "nodemon --debug ./src/test-app/main.js"
   },
   "repository": {
     "type": "git",

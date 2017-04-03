@@ -1,12 +1,10 @@
 import { TodoManager } from "./../services/todo-manager";
-import given from "n-defensive";
-import { Controller } from "./../../core/controller";
-import { httpDelete } from "./../../core/http-method";
-import { httpRoute } from "./../../core/http-route";
+import { given } from "n-defensive";
+import { httpDelete, httpRoute, Controller } from "./../../index";
 
 @httpDelete
 @httpRoute("/api/DeleteTodo")    
-export class DeleteTodoController extends Controller<Model, void>
+export class DeleteTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     

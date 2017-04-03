@@ -1,13 +1,11 @@
 import { TodoManager } from "./../services/todo-manager";
-import given from "n-defensive";
+import { given } from "n-defensive";
 import { Todo } from "./../models/todo";
-import { Controller } from "./../../core/controller";
-import { httpPost } from "./../../core/http-method"; 
-import { httpRoute } from "./../../core/http-route";
+import { httpPut, httpRoute, Controller } from "./../../index";
 
-@httpPost
-@httpRoute("/api/CreateTodo")
-export class CreateTodoController extends Controller<Model, Todo>
+@httpPut
+@httpRoute("/api/UpdateTodo")    
+export class UpdateTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     
@@ -22,12 +20,13 @@ export class CreateTodoController extends Controller<Model, Todo>
     
     public execute(model: Model): Promise<Todo>
     {
-        return this._todoManager.addTodo(model.title, model.description);
+        return this._todoManager.updateTodo(model.id, model.title, model.description);
     }
 }
 
 interface Model
 {
+    id: number;
     title: string;
     description: string;
 }
