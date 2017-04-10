@@ -28,15 +28,6 @@
             ],
             "console": "internalConsole",
             "sourceMaps": true
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Debug App",
-            "address": "localhost",
-            "port": 5858,
-            "sourceMaps": true,
-            "restart": true
         }
     ]
 }

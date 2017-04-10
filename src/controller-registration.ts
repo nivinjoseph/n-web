@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { given } from "n-defensive";
 import { ApplicationException } from "n-exception";
 import { httpMethodSymbol, HttpMethods } from "./http-method";
