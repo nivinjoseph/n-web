@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var n_defensive_1 = require("n-defensive");
 require("n-ext");
 var n_exception_1 = require("n-exception");
-var param_parse_exception_1 = require("./param-parse-exception");
+var http_exception_1 = require("./http-exception");
 var RouteParam = (function () {
     function RouteParam(routeParam) {
         this._order = 0;
@@ -82,7 +82,8 @@ var RouteParam = (function () {
         if (value === undefined || value == null || value.isEmptyOrWhiteSpace()) {
             if (this._isOptional)
                 return null;
-            throw new param_parse_exception_1.ParamParseException("Param is not optional.");
+            //throw new ParamParseException("Param is not optional.");
+            throw new http_exception_1.HttpException(404);
         }
         value = value.trim();
         if (this._paramType === ParamTypes.string || this._paramType === ParamTypes.any)
@@ -91,8 +92,7 @@ var RouteParam = (function () {
             return this._paramType === ParamTypes.number ? this.parseNumber(value) : this.parseBoolean(value);
         }
         catch (error) {
-            var exp = error;
-            if (this._isOptional && exp.name === param_parse_exception_1.ParamParseException.getTypeName())
+            if (this._isOptional)
                 return null;
             throw error;
         }
@@ -105,7 +105,8 @@ var RouteParam = (function () {
             throw "PARSE ERROR";
         }
         catch (error) {
-            throw new param_parse_exception_1.ParamParseException("Unable to parse number.");
+            // throw new ParamParseException("Unable to parse number.");
+            throw new http_exception_1.HttpException(404);
         }
     };
     RouteParam.prototype.parseBoolean = function (value) {
@@ -114,7 +115,8 @@ var RouteParam = (function () {
             return true;
         if (value === "false")
             return false;
-        throw new param_parse_exception_1.ParamParseException("Unable to parse boolean.");
+        // throw new ParamParseException("Unable to parse boolean.");
+        throw new http_exception_1.HttpException(404);
     };
     return RouteParam;
 }());

@@ -6,8 +6,8 @@ import { ControllerRegistration } from "./controller-registration";
 import { Controller } from "./controller";
 import { Exception, ApplicationException } from "n-exception";
 import { Route } from "./route";
-import { ParamParseException } from "./param-parse-exception";
 import { HttpMethods } from "./http-method";
+import { HttpException } from "./http-exception";
 
 export class Router
 {
@@ -102,50 +102,15 @@ export class Router
     private async handleRequest(ctx: KoaRouter.IRouterContext, registration: ControllerRegistration,
         processBody: boolean): Promise<void>
     {
-        let args;
-
-        try 
-        {
-            args = this.createRouteArgs(registration.route, ctx);
-        }
-        catch (error)
-        {
-            let exp = error as Exception;
-            if (exp.name === (<Object>ParamParseException).getTypeName())
-            {
-                ctx.throw(404);
-            }
-
-            throw error;
-        }
+        let args = this.createRouteArgs(registration.route, ctx);
         
         if (processBody)
             args.push(ctx.request.body);
 
-        let scope: Scope;
-        let controllerInstance: Controller;
-        try 
-        {
-            scope = ctx.state.scope as Scope;
-            controllerInstance = scope.resolve<Controller>(registration.name);
-        } catch (error) 
-        {
-            // TODO: do something
-            throw error;
-        }
+        let scope = ctx.state.scope as Scope;
+        let controllerInstance = scope.resolve<Controller>(registration.name);
         
-        let result: any;
-        try 
-        {
-            result = await controllerInstance.execute(...args);
-        }
-        catch (error)
-        {
-            // TODO: do something
-            throw error;
-        }
-        
-        ctx.body = result;
+        ctx.body = await controllerInstance.execute(...args);
     }
     
     private createRouteArgs(route: Route, ctx: KoaRouter.IRouterContext): Array<any>
@@ -167,7 +132,7 @@ export class Router
         {
             let routeParam = route.findRouteParam(key);
             if (!routeParam)
-                throw new ParamParseException("Path param not found.");
+                throw new HttpException(404);
 
             model[routeParam.paramKey] = routeParam.parseParam(pathParams[key]);
         }
@@ -179,7 +144,7 @@ export class Router
             if (value === undefined || model[routeParam.paramKey] == null)
             {
                 if (!routeParam.isOptional)
-                    throw new ParamParseException("Required param not provided.");
+                    throw new HttpException(404);
 
                 value = null;
             }

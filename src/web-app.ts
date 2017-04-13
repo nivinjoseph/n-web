@@ -1,8 +1,12 @@
 import * as Koa from "koa";
 import * as KoaBodyParser from "koa-bodyparser";
-import { Container, ComponentInstaller } from "n-ject";
+import { Container, ComponentInstaller, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { Router } from "./router";
+import { Exception } from "n-exception";
+import { ExceptionLogger } from "./exception-logger";
+import { ExceptionHandler } from "./exception-handler";
+import { HttpException } from "./http-exception";
 
 // public
 export class WebApp
@@ -11,6 +15,10 @@ export class WebApp
     private readonly _koa: Koa;
     private readonly _container: Container;
     private readonly _router: Router;
+    private readonly _exceptionLoggerKey = "$exceptionLogger";
+    private _hasExceptionLogger = false;
+    private readonly _exceptionHandlerKey = "$exceptionHandler";
+    private _hasExceptionHandler = false;
     
     
     public constructor(port: number)
@@ -22,9 +30,9 @@ export class WebApp
         this._router = new Router(this._koa, this._container);
     }
     
-    public registerControllers(...controllers: Function[]): this
+    public registerControllers(...controllerClasses: Function[]): this
     {
-        this._router.registerControllers(...controllers);
+        this._router.registerControllers(...controllerClasses);
         return this;
     }
     
@@ -35,10 +43,32 @@ export class WebApp
         return this;
     }
     
+    public registerExceptionLogger(exceptionLoggerClass: Function): this
+    {
+        given(exceptionLoggerClass, "exceptionLoggerClass").ensureHasValue();
+        this._container.registerScoped(this._exceptionLoggerKey, exceptionLoggerClass);
+        this._hasExceptionLogger = true;
+        return this;
+    }
+    
+    public registerExceptionHandler(exceptionHandlerClass: Function): this
+    {
+        given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
+        this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
+        this._hasExceptionHandler = true;
+        return this;
+    }
+    
     public bootstrap(): void
     {
         this.configureContainer();
         this.configureScoping();
+        this.configureHttpExceptionHandling();
+        this.configureExceptionHandling();
+        this.configureExceptionLogging();
+        this.configureErrorTrapping();
+        // this.configureAuthentication();
+        // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
@@ -58,7 +88,110 @@ export class WebApp
         });
     }
     
-    private configureBodyParser()
+    private configureHttpExceptionHandling(): void
+    {
+        this._koa.use(async (ctx, next) => 
+        {
+            try 
+            {
+                await next();
+            } 
+            catch (error) 
+            {
+                let exp = error as HttpException;
+                if (exp.name !== "HttpException")
+                    throw error;
+                    
+                ctx.status = exp.statusCode;
+                if (exp.body !== null)
+                    ctx.body = exp.body;
+            }
+        });
+    }
+    
+    private configureExceptionHandling(): void
+    {
+        this._koa.use(async (ctx, next) =>
+        {
+            try 
+            {
+                await next();
+            }
+            catch (error)
+            {
+                if (!this._hasExceptionHandler)
+                    throw error;
+                
+                let exp = error as Exception;
+                if (exp.name === "HttpException")
+                    throw error;
+                    
+                let scope = ctx.state.scope as Scope;
+                let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
+                ctx.body = await exceptionHandler.handle(exp);
+            }
+        });
+    }
+    
+    private configureExceptionLogging(): void
+    {
+        this._koa.use(async (ctx, next) =>
+        {
+            try 
+            {
+                await next();
+            }
+            catch (error)
+            {
+                if (!this._hasExceptionLogger)
+                    throw error;    
+                
+                let exp = error as Exception;
+                if (exp.name === "HttpException")
+                    throw error;
+                
+                let scope = ctx.state.scope as Scope;
+                let exceptionLogger = scope.resolve<ExceptionLogger>(this._exceptionLoggerKey);
+                await exceptionLogger.log(exp);
+            }
+        });
+    }
+    
+    // private configureAuthentication(): void
+    // {
+    //     this._koa.use(async (ctx, next) => 
+    //     {
+    //         ctx.he
+    //     });
+    // }
+    
+    // private configureAuthorization(): void
+    // {
+        
+    // }
+    
+    private configureErrorTrapping(): void
+    {
+        this._koa.use(async (ctx, next) =>
+        {
+            try 
+            {
+                await next();
+            }
+            catch (error)
+            {
+                if (error instanceof Error)
+                    throw Exception.fromError(error);
+                
+                if (error instanceof Exception)
+                    throw error;
+                
+                throw new Exception(error.toString());
+            }
+        });
+    }
+    
+    private configureBodyParser(): void
     {
         this._koa.use(KoaBodyParser({strict: true}));
     }

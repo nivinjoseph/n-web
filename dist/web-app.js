@@ -40,9 +40,14 @@ var KoaBodyParser = require("koa-bodyparser");
 var n_ject_1 = require("n-ject");
 var n_defensive_1 = require("n-defensive");
 var router_1 = require("./router");
+var n_exception_1 = require("n-exception");
 // public
 var WebApp = (function () {
     function WebApp(port) {
+        this._exceptionLoggerKey = "$exceptionLogger";
+        this._hasExceptionLogger = false;
+        this._exceptionHandlerKey = "$exceptionHandler";
+        this._hasExceptionHandler = false;
         n_defensive_1.given(port, "port").ensureHasValue();
         this._port = port;
         this._koa = new Koa();
@@ -50,11 +55,11 @@ var WebApp = (function () {
         this._router = new router_1.Router(this._koa, this._container);
     }
     WebApp.prototype.registerControllers = function () {
-        var controllers = [];
+        var controllerClasses = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            controllers[_i] = arguments[_i];
+            controllerClasses[_i] = arguments[_i];
         }
-        (_a = this._router).registerControllers.apply(_a, controllers);
+        (_a = this._router).registerControllers.apply(_a, controllerClasses);
         return this;
         var _a;
     };
@@ -63,9 +68,27 @@ var WebApp = (function () {
         this._container.install(installer);
         return this;
     };
+    WebApp.prototype.registerExceptionLogger = function (exceptionLoggerClass) {
+        n_defensive_1.given(exceptionLoggerClass, "exceptionLoggerClass").ensureHasValue();
+        this._container.registerScoped(this._exceptionLoggerKey, exceptionLoggerClass);
+        this._hasExceptionLogger = true;
+        return this;
+    };
+    WebApp.prototype.registerExceptionHandler = function (exceptionHandlerClass) {
+        n_defensive_1.given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
+        this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
+        this._hasExceptionHandler = true;
+        return this;
+    };
     WebApp.prototype.bootstrap = function () {
         this.configureContainer();
         this.configureScoping();
+        this.configureHttpExceptionHandling();
+        this.configureExceptionHandling();
+        this.configureExceptionLogging();
+        this.configureErrorTrapping();
+        // this.configureAuthentication();
+        // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
@@ -84,6 +107,127 @@ var WebApp = (function () {
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    WebApp.prototype.configureHttpExceptionHandling = function () {
+        var _this = this;
+        this._koa.use(function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+            var error_1, exp;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, next()];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        exp = error_1;
+                        if (exp.name !== "HttpException")
+                            throw error_1;
+                        ctx.status = exp.statusCode;
+                        if (exp.body !== null)
+                            ctx.body = exp.body;
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    WebApp.prototype.configureExceptionHandling = function () {
+        var _this = this;
+        this._koa.use(function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+            var error_2, exp, scope, exceptionHandler, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 4]);
+                        return [4 /*yield*/, next()];
+                    case 1:
+                        _b.sent();
+                        return [3 /*break*/, 4];
+                    case 2:
+                        error_2 = _b.sent();
+                        if (!this._hasExceptionHandler)
+                            throw error_2;
+                        exp = error_2;
+                        if (exp.name === "HttpException")
+                            throw error_2;
+                        scope = ctx.state.scope;
+                        exceptionHandler = scope.resolve(this._exceptionHandlerKey);
+                        _a = ctx;
+                        return [4 /*yield*/, exceptionHandler.handle(exp)];
+                    case 3:
+                        _a.body = _b.sent();
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    WebApp.prototype.configureExceptionLogging = function () {
+        var _this = this;
+        this._koa.use(function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+            var error_3, exp, scope, exceptionLogger;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 4]);
+                        return [4 /*yield*/, next()];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2:
+                        error_3 = _a.sent();
+                        if (!this._hasExceptionLogger)
+                            throw error_3;
+                        exp = error_3;
+                        if (exp.name === "HttpException")
+                            throw error_3;
+                        scope = ctx.state.scope;
+                        exceptionLogger = scope.resolve(this._exceptionLoggerKey);
+                        return [4 /*yield*/, exceptionLogger.log(exp)];
+                    case 3:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    // private configureAuthentication(): void
+    // {
+    //     this._koa.use(async (ctx, next) => 
+    //     {
+    //         ctx.he
+    //     });
+    // }
+    // private configureAuthorization(): void
+    // {
+    // }
+    WebApp.prototype.configureErrorTrapping = function () {
+        var _this = this;
+        this._koa.use(function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+            var error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, next()];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_4 = _a.sent();
+                        if (error_4 instanceof Error)
+                            throw n_exception_1.Exception.fromError(error_4);
+                        if (error_4 instanceof n_exception_1.Exception)
+                            throw error_4;
+                        throw new n_exception_1.Exception(error_4.toString());
+                    case 3: return [2 /*return*/];
                 }
             });
         }); });

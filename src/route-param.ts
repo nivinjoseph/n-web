@@ -1,7 +1,7 @@
 import { given } from "n-defensive";
 import "n-ext";
 import { Exception, InvalidArgumentException, ApplicationException, InvalidOperationException } from "n-exception";
-import { ParamParseException } from "./param-parse-exception";
+import { HttpException } from "./http-exception";
 
 export class RouteParam
 {
@@ -88,7 +88,8 @@ export class RouteParam
             if (this._isOptional)
                 return null;
             
-            throw new ParamParseException("Param is not optional.");
+            //throw new ParamParseException("Param is not optional.");
+            throw new HttpException(404);
         }
         
         value = value.trim();
@@ -102,8 +103,7 @@ export class RouteParam
         }
         catch (error)
         {
-            let exp = error as Exception;
-            if (this._isOptional && exp.name === (<Object>ParamParseException).getTypeName())
+            if (this._isOptional)
                 return null;
             
             throw error;
@@ -121,7 +121,8 @@ export class RouteParam
         }
         catch (error)
         {
-            throw new ParamParseException("Unable to parse number.");
+            // throw new ParamParseException("Unable to parse number.");
+            throw new HttpException(404);
         }
     }
     
@@ -132,7 +133,8 @@ export class RouteParam
         if (value === "true") return true;
         if (value === "false") return false;
         
-        throw new ParamParseException("Unable to parse boolean.");
+        // throw new ParamParseException("Unable to parse boolean.");
+        throw new HttpException(404);
     }
 }
 

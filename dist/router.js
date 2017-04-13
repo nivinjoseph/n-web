@@ -39,8 +39,8 @@ var KoaRouter = require("koa-router");
 var n_defensive_1 = require("n-defensive");
 var controller_registration_1 = require("./controller-registration");
 var n_exception_1 = require("n-exception");
-var param_parse_exception_1 = require("./param-parse-exception");
 var http_method_1 = require("./http-method");
+var http_exception_1 = require("./http-exception");
 var Router = (function () {
     function Router(koa, container) {
         this._controllers = new Array();
@@ -144,43 +144,19 @@ var Router = (function () {
     };
     Router.prototype.handleRequest = function (ctx, registration, processBody) {
         return __awaiter(this, void 0, void 0, function () {
-            var args, exp, scope, controllerInstance, result, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var args, scope, controllerInstance, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        try {
-                            args = this.createRouteArgs(registration.route, ctx);
-                        }
-                        catch (error) {
-                            exp = error;
-                            if (exp.name === param_parse_exception_1.ParamParseException.getTypeName()) {
-                                ctx.throw(404);
-                            }
-                            throw error;
-                        }
+                        args = this.createRouteArgs(registration.route, ctx);
                         if (processBody)
                             args.push(ctx.request.body);
-                        try {
-                            scope = ctx.state.scope;
-                            controllerInstance = scope.resolve(registration.name);
-                        }
-                        catch (error) {
-                            // TODO: do something
-                            throw error;
-                        }
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        scope = ctx.state.scope;
+                        controllerInstance = scope.resolve(registration.name);
+                        _a = ctx;
                         return [4 /*yield*/, controllerInstance.execute.apply(controllerInstance, args)];
-                    case 2:
-                        result = _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        // TODO: do something
-                        throw error_1;
-                    case 4:
-                        ctx.body = result;
+                    case 1:
+                        _a.body = _b.sent();
                         return [2 /*return*/];
                 }
             });
@@ -199,7 +175,7 @@ var Router = (function () {
         for (var key in pathParams) {
             var routeParam = route.findRouteParam(key);
             if (!routeParam)
-                throw new param_parse_exception_1.ParamParseException("Path param not found.");
+                throw new http_exception_1.HttpException(404);
             model[routeParam.paramKey] = routeParam.parseParam(pathParams[key]);
         }
         var result = [];
@@ -208,7 +184,7 @@ var Router = (function () {
             var value = model[routeParam.paramKey];
             if (value === undefined || model[routeParam.paramKey] == null) {
                 if (!routeParam.isOptional)
-                    throw new param_parse_exception_1.ParamParseException("Required param not provided.");
+                    throw new http_exception_1.HttpException(404);
                 value = null;
             }
             result.push(value);
