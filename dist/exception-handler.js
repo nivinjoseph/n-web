@@ -1,11 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // import { given } from "n-defensive";
-var ExceptionHandler = (function () {
-    function ExceptionHandler() {
-    }
-    return ExceptionHandler;
-}());
+class ExceptionHandler {
+}
 exports.ExceptionHandler = ExceptionHandler;
 // export class ExceptionResult
 // {

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "es2015",
         "noImplicitAny": true,
         "noImplicitThis": true,
         "noImplicitReturns": true,
@@ -12,11 +12,6 @@
         "sourceMap": true,
         "inlineSources": true,
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "lib": [
-            "es2015",
-            "es2015.promise",
-            "es5"
-        ]
+        "emitDecoratorMetadata": true
     }
 }

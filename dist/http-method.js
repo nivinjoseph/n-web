@@ -1,31 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-var HttpMethods = (function () {
-    function HttpMethods() {
-    }
-    Object.defineProperty(HttpMethods, "Get", {
-        get: function () { return this._get; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(HttpMethods, "Post", {
-        get: function () { return this._post; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(HttpMethods, "Put", {
-        get: function () { return this._put; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(HttpMethods, "Delete", {
-        get: function () { return this._delete; },
-        enumerable: true,
-        configurable: true
-    });
-    return HttpMethods;
-}());
+class HttpMethods {
+    static get Get() { return this._get; }
+    static get Post() { return this._post; }
+    static get Put() { return this._put; }
+    static get Delete() { return this._delete; }
+}
 HttpMethods._get = "GET";
 HttpMethods._post = "POST";
 HttpMethods._put = "PUT";

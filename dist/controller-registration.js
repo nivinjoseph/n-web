@@ -1,13 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-var n_defensive_1 = require("n-defensive");
-var n_exception_1 = require("n-exception");
-var http_method_1 = require("./http-method");
-var http_route_1 = require("./http-route");
-var route_1 = require("./route");
-var ControllerRegistration = (function () {
-    function ControllerRegistration(controller) {
+const n_defensive_1 = require("n-defensive");
+const n_exception_1 = require("n-exception");
+const http_method_1 = require("./http-method");
+const http_route_1 = require("./http-route");
+const route_1 = require("./route");
+class ControllerRegistration {
+    get name() { return this._name; }
+    get controller() { return this._controller; }
+    get method() { return this._method; }
+    get route() { return this._route; }
+    constructor(controller) {
         n_defensive_1.given(controller, "controller").ensureHasValue();
         this._name = controller.getTypeName();
         this._controller = controller;
@@ -20,27 +24,6 @@ var ControllerRegistration = (function () {
         this._method = Reflect.getOwnMetadata(http_method_1.httpMethodSymbol, this._controller);
         this._route = new route_1.Route(Reflect.getOwnMetadata(http_route_1.httpRouteSymbol, this._controller));
     }
-    Object.defineProperty(ControllerRegistration.prototype, "name", {
-        get: function () { return this._name; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ControllerRegistration.prototype, "controller", {
-        get: function () { return this._controller; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ControllerRegistration.prototype, "method", {
-        get: function () { return this._method; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ControllerRegistration.prototype, "route", {
-        get: function () { return this._route; },
-        enumerable: true,
-        configurable: true
-    });
-    return ControllerRegistration;
-}());
+}
 exports.ControllerRegistration = ControllerRegistration;
 //# sourceMappingURL=controller-registration.js.map

@@ -1,24 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var n_defensive_1 = require("n-defensive");
+const n_defensive_1 = require("n-defensive");
 require("n-ext");
-var n_exception_1 = require("n-exception");
-var http_exception_1 = require("./http-exception");
-var RouteParam = (function () {
-    function RouteParam(routeParam) {
+const n_exception_1 = require("n-exception");
+const http_exception_1 = require("./http-exception");
+class RouteParam {
+    constructor(routeParam) {
         this._order = 0;
-        n_defensive_1.given(routeParam, "routeParam").ensureHasValue().ensure(function (t) { return !t.isEmptyOrWhiteSpace(); });
-        var param = routeParam.trim();
-        var paramKey;
-        var paramType;
-        var isQuery = false;
-        var isOptional = false;
+        n_defensive_1.given(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        let param = routeParam.trim();
+        let paramKey;
+        let paramType;
+        let isQuery = false;
+        let isOptional = false;
         if (param.endsWith("[Q]")) {
             isQuery = true;
             param = param.replace("[Q]", "");
         }
         if (param.contains(":")) {
-            var splitted = param.split(":");
+            let splitted = param.split(":");
             if (splitted.length > 2 || splitted[0].isEmptyOrWhiteSpace() || splitted[1].isEmptyOrWhiteSpace())
                 throw new n_exception_1.InvalidArgumentException("routeParam");
             paramKey = splitted[0].trim();
@@ -42,43 +42,19 @@ var RouteParam = (function () {
         this._isQuery = isQuery;
         this._isOptional = isOptional;
     }
-    Object.defineProperty(RouteParam.prototype, "param", {
-        get: function () { return this._param; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RouteParam.prototype, "paramKey", {
-        get: function () { return this._paramKey; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RouteParam.prototype, "paramType", {
-        get: function () { return this._paramType; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RouteParam.prototype, "isQuery", {
-        get: function () { return this._isQuery; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RouteParam.prototype, "isOptional", {
-        get: function () { return this._isOptional; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RouteParam.prototype, "order", {
-        get: function () { return this._order; },
-        enumerable: true,
-        configurable: true
-    });
-    RouteParam.prototype.setOrder = function (order) {
+    get param() { return this._param; }
+    get paramKey() { return this._paramKey; }
+    get paramType() { return this._paramType; }
+    get isQuery() { return this._isQuery; }
+    get isOptional() { return this._isOptional; }
+    get order() { return this._order; }
+    setOrder(order) {
         n_defensive_1.given(order, "order").ensureHasValue();
         if (this._order > 0)
             throw new n_exception_1.InvalidOperationException("setOrder");
         this._order = order;
-    };
-    RouteParam.prototype.parseParam = function (value) {
+    }
+    parseParam(value) {
         if (value === undefined || value == null || value.isEmptyOrWhiteSpace()) {
             if (this._isOptional)
                 return null;
@@ -96,10 +72,10 @@ var RouteParam = (function () {
                 return null;
             throw error;
         }
-    };
-    RouteParam.prototype.parseNumber = function (value) {
+    }
+    parseNumber(value) {
         try {
-            var num = value.contains(".") ? Number.parseFloat(value) : Number.parseInt(value);
+            let num = value.contains(".") ? Number.parseFloat(value) : Number.parseInt(value);
             if (!Number.isNaN(num))
                 return num;
             throw "PARSE ERROR";
@@ -108,8 +84,8 @@ var RouteParam = (function () {
             // throw new ParamParseException("Unable to parse number.");
             throw new http_exception_1.HttpException(404);
         }
-    };
-    RouteParam.prototype.parseBoolean = function (value) {
+    }
+    parseBoolean(value) {
         value = value.toLowerCase();
         if (value === "true")
             return true;
@@ -117,35 +93,15 @@ var RouteParam = (function () {
             return false;
         // throw new ParamParseException("Unable to parse boolean.");
         throw new http_exception_1.HttpException(404);
-    };
-    return RouteParam;
-}());
-exports.RouteParam = RouteParam;
-var ParamTypes = (function () {
-    function ParamTypes() {
     }
-    Object.defineProperty(ParamTypes, "boolean", {
-        get: function () { return this._boolean; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ParamTypes, "number", {
-        get: function () { return this._number; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ParamTypes, "string", {
-        get: function () { return this._string; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ParamTypes, "any", {
-        get: function () { return this._any; },
-        enumerable: true,
-        configurable: true
-    });
-    return ParamTypes;
-}());
+}
+exports.RouteParam = RouteParam;
+class ParamTypes {
+    static get boolean() { return this._boolean; }
+    static get number() { return this._number; }
+    static get string() { return this._string; }
+    static get any() { return this._any; }
+}
 ParamTypes._boolean = "boolean";
 ParamTypes._number = "number";
 ParamTypes._string = "string";

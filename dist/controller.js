@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("n-ext");
-var n_defensive_1 = require("n-defensive");
-var route_1 = require("./route");
+const n_defensive_1 = require("n-defensive");
+const route_1 = require("./route");
 // public
-var Controller = (function () {
-    function Controller() {
-    }
-    Controller.prototype.generateUrl = function (route, params, baseUrl) {
-        n_defensive_1.given(route, "route").ensureHasValue().ensure(function (t) { return !t.isEmptyOrWhiteSpace(); });
+class Controller {
+    generateUrl(route, params, baseUrl) {
+        n_defensive_1.given(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         route = route.trim();
         if (baseUrl !== undefined && baseUrl != null) {
             baseUrl = baseUrl.trim();
@@ -19,8 +17,7 @@ var Controller = (function () {
         if (params == null)
             return route;
         return new route_1.Route(route).generateUrl(params);
-    };
-    return Controller;
-}());
+    }
+}
 exports.Controller = Controller;
 //# sourceMappingURL=controller.js.map
