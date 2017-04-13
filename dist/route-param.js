@@ -82,7 +82,7 @@ var RouteParam = (function () {
         if (value === undefined || value == null || value.isEmptyOrWhiteSpace()) {
             if (this._isOptional)
                 return null;
-            //throw new ParamParseException("Param is not optional.");
+            // throw new ParamParseException("Param is not optional.");
             throw new http_exception_1.HttpException(404);
         }
         value = value.trim();
