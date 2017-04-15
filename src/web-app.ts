@@ -181,7 +181,7 @@ export class WebApp
             catch (error)
             {
                 if (error instanceof Error)
-                    throw Exception.fromError(error);
+                    throw new Exception("Caught Error.", error);
                 
                 if (error instanceof Exception)
                     throw error;

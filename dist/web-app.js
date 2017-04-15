@@ -136,7 +136,7 @@ class WebApp {
             }
             catch (error) {
                 if (error instanceof Error)
-                    throw n_exception_1.Exception.fromError(error);
+                    throw new n_exception_1.Exception("Caught Error.", error);
                 if (error instanceof n_exception_1.Exception)
                     throw error;
                 throw new n_exception_1.Exception(error.toString());
