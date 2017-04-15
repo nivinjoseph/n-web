@@ -12,6 +12,7 @@ export class Route
     private readonly _routeParamsRegistry: { [index: string]: RouteParam } = {};
     private readonly _koaRoute: string;
     
+    
     public get route(): string { return this._routeTemplate; }
     public get koaRoute(): string { return this._koaRoute; }
     public get params(): ReadonlyArray<RouteParam> { return this._routeParams; }

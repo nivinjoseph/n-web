@@ -88,7 +88,6 @@ export class RouteParam
             if (this._isOptional)
                 return null;
             
-            // throw new ParamParseException("Param is not optional.");
             throw new HttpException(404);
         }
         
@@ -121,7 +120,6 @@ export class RouteParam
         }
         catch (error)
         {
-            // throw new ParamParseException("Unable to parse number.");
             throw new HttpException(404);
         }
     }
@@ -130,10 +128,12 @@ export class RouteParam
     {
         value = value.toLowerCase();
         
-        if (value === "true") return true;
-        if (value === "false") return false;
+        if (value === "true")
+            return true;
         
-        // throw new ParamParseException("Unable to parse boolean.");
+        if (value === "false")
+            return false;
+        
         throw new HttpException(404);
     }
 }

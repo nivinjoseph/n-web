@@ -75,7 +75,7 @@ export class WebApp
     }
     
     private configureContainer(): void
-    {
+    { 
         this._container.bootstrap();
     }
     
@@ -98,10 +98,10 @@ export class WebApp
             } 
             catch (error) 
             {
+                if (!(error instanceof HttpException))
+                    throw error;   
+                
                 let exp = error as HttpException;
-                if (exp.name !== "HttpException")
-                    throw error;
-                    
                 ctx.status = exp.statusCode;
                 if (exp.body !== null)
                     ctx.body = exp.body;
@@ -122,13 +122,12 @@ export class WebApp
                 if (!this._hasExceptionHandler)
                     throw error;
                 
-                let exp = error as Exception;
-                if (exp.name === "HttpException")
-                    throw error;
+                if (error instanceof HttpException)
+                    throw error;   
                     
                 let scope = ctx.state.scope as Scope;
                 let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
-                ctx.body = await exceptionHandler.handle(exp);
+                ctx.body = await exceptionHandler.handle(error);
             }
         });
     }
@@ -144,31 +143,18 @@ export class WebApp
             catch (error)
             {
                 if (!this._hasExceptionLogger)
-                    throw error;    
+                    throw error; 
                 
-                let exp = error as Exception;
-                if (exp.name === "HttpException")
-                    throw error;
+                if (error instanceof HttpException)
+                    throw error;    
                 
                 let scope = ctx.state.scope as Scope;
                 let exceptionLogger = scope.resolve<ExceptionLogger>(this._exceptionLoggerKey);
-                await exceptionLogger.log(exp);
+                await exceptionLogger.log(error);
+                throw error;
             }
         });
     }
-    
-    // private configureAuthentication(): void
-    // {
-    //     this._koa.use(async (ctx, next) => 
-    //     {
-    //         ctx.he
-    //     });
-    // }
-    
-    // private configureAuthorization(): void
-    // {
-        
-    // }
     
     private configureErrorTrapping(): void
     {
@@ -181,10 +167,7 @@ export class WebApp
             catch (error)
             {
                 if (error instanceof Error)
-                    throw new Exception("Caught Error.", error);
-                
-                if (error instanceof Exception)
-                    throw error;
+                    throw error;    
                 
                 throw new Exception(error.toString());
             }

@@ -58,7 +58,6 @@ class RouteParam {
         if (value === undefined || value == null || value.isEmptyOrWhiteSpace()) {
             if (this._isOptional)
                 return null;
-            // throw new ParamParseException("Param is not optional.");
             throw new http_exception_1.HttpException(404);
         }
         value = value.trim();
@@ -81,7 +80,6 @@ class RouteParam {
             throw "PARSE ERROR";
         }
         catch (error) {
-            // throw new ParamParseException("Unable to parse number.");
             throw new http_exception_1.HttpException(404);
         }
     }
@@ -91,7 +89,6 @@ class RouteParam {
             return true;
         if (value === "false")
             return false;
-        // throw new ParamParseException("Unable to parse boolean.");
         throw new http_exception_1.HttpException(404);
     }
 }

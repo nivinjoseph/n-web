@@ -14,6 +14,7 @@ const n_ject_1 = require("n-ject");
 const n_defensive_1 = require("n-defensive");
 const router_1 = require("./router");
 const n_exception_1 = require("n-exception");
+const http_exception_1 = require("./http-exception");
 // public
 class WebApp {
     constructor(port) {
@@ -76,9 +77,9 @@ class WebApp {
                 yield next();
             }
             catch (error) {
-                let exp = error;
-                if (exp.name !== "HttpException")
+                if (!(error instanceof http_exception_1.HttpException))
                     throw error;
+                let exp = error;
                 ctx.status = exp.statusCode;
                 if (exp.body !== null)
                     ctx.body = exp.body;
@@ -93,12 +94,11 @@ class WebApp {
             catch (error) {
                 if (!this._hasExceptionHandler)
                     throw error;
-                let exp = error;
-                if (exp.name === "HttpException")
+                if (error instanceof http_exception_1.HttpException)
                     throw error;
                 let scope = ctx.state.scope;
                 let exceptionHandler = scope.resolve(this._exceptionHandlerKey);
-                ctx.body = yield exceptionHandler.handle(exp);
+                ctx.body = yield exceptionHandler.handle(error);
             }
         }));
     }
@@ -110,25 +110,15 @@ class WebApp {
             catch (error) {
                 if (!this._hasExceptionLogger)
                     throw error;
-                let exp = error;
-                if (exp.name === "HttpException")
+                if (error instanceof http_exception_1.HttpException)
                     throw error;
                 let scope = ctx.state.scope;
                 let exceptionLogger = scope.resolve(this._exceptionLoggerKey);
-                yield exceptionLogger.log(exp);
+                yield exceptionLogger.log(error);
+                throw error;
             }
         }));
     }
-    // private configureAuthentication(): void
-    // {
-    //     this._koa.use(async (ctx, next) => 
-    //     {
-    //         ctx.he
-    //     });
-    // }
-    // private configureAuthorization(): void
-    // {
-    // }
     configureErrorTrapping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -136,8 +126,6 @@ class WebApp {
             }
             catch (error) {
                 if (error instanceof Error)
-                    throw new n_exception_1.Exception("Caught Error.", error);
-                if (error instanceof n_exception_1.Exception)
                     throw error;
                 throw new n_exception_1.Exception(error.toString());
             }
