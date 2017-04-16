@@ -1,6 +1,7 @@
 import "n-ext";
 import { given } from "n-defensive";
 import { Route } from "./route";
+import { HttpRedirectException } from "./http-redirect-exception";
 
 // public
 export abstract class Controller
@@ -26,5 +27,11 @@ export abstract class Controller
             return route;
         
         return new Route(route).generateUrl(params);
+    }
+    
+    protected redirect(url: string): void
+    {
+        given(url, "url").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        throw new HttpRedirectException(url.trim());
     }
 }

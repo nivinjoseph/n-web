@@ -8,6 +8,7 @@ import { Exception, ApplicationException } from "n-exception";
 import { Route } from "./route";
 import { HttpMethods } from "./http-method";
 import { HttpException } from "./http-exception";
+import { HttpRedirectException } from "./http-redirect-exception";
 
 export class Router
 {
@@ -110,7 +111,28 @@ export class Router
         let scope = ctx.state.scope as Scope;
         let controllerInstance = scope.resolve<Controller>(registration.name);
         
-        ctx.body = await controllerInstance.execute(...args);
+        let result: any;
+        
+        try 
+        {
+            result = await controllerInstance.execute(...args);
+        }
+        catch (error)
+        {
+            if (!(error instanceof HttpRedirectException))
+                throw error;    
+            
+            ctx.redirect((error as HttpRedirectException).url);
+            return;
+        }
+        
+        if (registration.view !== null)
+        {
+            let vm = result;
+            result = eval("`" + registration.view + "`");
+        }
+        
+        ctx.body = result;
     }
     
     private createRouteArgs(route: Route, ctx: KoaRouter.IRouterContext): Array<any>

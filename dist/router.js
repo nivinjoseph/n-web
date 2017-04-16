@@ -14,6 +14,7 @@ const controller_registration_1 = require("./controller-registration");
 const n_exception_1 = require("n-exception");
 const http_method_1 = require("./http-method");
 const http_exception_1 = require("./http-exception");
+const http_redirect_exception_1 = require("./http-redirect-exception");
 class Router {
     constructor(koa, container) {
         this._controllers = new Array();
@@ -80,7 +81,21 @@ class Router {
                 args.push(ctx.request.body);
             let scope = ctx.state.scope;
             let controllerInstance = scope.resolve(registration.name);
-            ctx.body = yield controllerInstance.execute(...args);
+            let result;
+            try {
+                result = yield controllerInstance.execute(...args);
+            }
+            catch (error) {
+                if (!(error instanceof http_redirect_exception_1.HttpRedirectException))
+                    throw error;
+                ctx.redirect(error.url);
+                return;
+            }
+            if (registration.view !== null) {
+                let vm = result;
+                result = eval("`" + registration.view + "`");
+            }
+            ctx.body = result;
         });
     }
     createRouteArgs(route, ctx) {

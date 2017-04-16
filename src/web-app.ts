@@ -3,10 +3,15 @@ import * as KoaBodyParser from "koa-bodyparser";
 import { Container, ComponentInstaller, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { Router } from "./router";
-import { Exception } from "n-exception";
+import { Exception, ArgumentException } from "n-exception";
 import { ExceptionLogger } from "./exception-logger";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
+import * as serve from "koa-static";
+import * as fs from "fs";
+import * as path from "path";
+import "n-ext";
+import * as cors from "kcors";
 
 // public
 export class WebApp
@@ -19,6 +24,8 @@ export class WebApp
     private _hasExceptionLogger = false;
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
+    private readonly _staticFilePaths = new Array<string>();
+    private _enableCors = false;
     
     
     public constructor(port: number)
@@ -28,6 +35,36 @@ export class WebApp
         this._koa = new Koa();
         this._container = new Container();
         this._router = new Router(this._koa, this._container);
+    }
+    
+    public enableCors(): this
+    {
+        this._enableCors = true;
+        return this;
+    }
+    
+    public registerStaticFilePaths(...filePaths: string[]): this
+    {
+        for (let filePath of filePaths)
+        {
+            filePath = filePath.trim().toLowerCase();
+            if (filePath.startsWith("/"))
+            {
+                if (filePath.length === 1)
+                    throw new ArgumentException("filePath[{0}]".format(filePath), "is root");    
+                filePath = filePath.substr(1);
+            }
+            
+            filePath = path.join(process.cwd(), filePath);
+            if (!fs.existsSync(filePath))
+                throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");    
+            
+            if (this._staticFilePaths.some(t => t === filePath))
+                throw new ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
+            
+            this._staticFilePaths.push(filePath);
+        }    
+        return this;
     }
     
     public registerControllers(...controllerClasses: Function[]): this
@@ -61,17 +98,25 @@ export class WebApp
     
     public bootstrap(): void
     {
+        this.configureCors();
         this.configureContainer();
         this.configureScoping();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureExceptionLogging();
         this.configureErrorTrapping();
+        this.configureStaticFileServing();
         // this.configureAuthentication();
         // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
+    }
+    
+    private configureCors(): void
+    {
+        if (this._enableCors)
+            this._koa.use(cors());    
     }
     
     private configureContainer(): void
@@ -172,6 +217,12 @@ export class WebApp
                 throw new Exception(error.toString());
             }
         });
+    }
+    
+    private configureStaticFileServing(): void
+    {
+        for (let path of this._staticFilePaths)
+            this._koa.use(serve(path));
     }
     
     private configureBodyParser(): void

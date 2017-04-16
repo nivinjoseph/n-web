@@ -1,9 +1,13 @@
 import "reflect-metadata";
 import { given } from "n-defensive";
-import { ApplicationException } from "n-exception";
+import { ApplicationException, ArgumentException } from "n-exception";
 import { httpMethodSymbol, HttpMethods } from "./http-method";
 import { httpRouteSymbol } from "./http-route";
 import { Route } from "./route";
+import { viewSymbol } from "./view";
+import "n-ext";
+import * as fs from "fs";
+import * as path from "path";
 
 export class ControllerRegistration
 {
@@ -11,12 +15,14 @@ export class ControllerRegistration
     private readonly _controller: Function;
     private readonly _method: string;
     private readonly _route: Route;
+    private readonly _view: string = null;
 
 
     public get name(): string { return this._name; }
     public get controller(): Function { return this._controller; }
     public get method(): string { return this._method; }
     public get route(): Route { return this._route; }
+    public get view(): string { return this._view; }
 
 
     public constructor(controller: Function)
@@ -36,5 +42,15 @@ export class ControllerRegistration
 
         this._method = Reflect.getOwnMetadata(httpMethodSymbol, this._controller);
         this._route = new Route(Reflect.getOwnMetadata(httpRouteSymbol, this._controller));
+        
+        if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
+        {
+            let filePath = Reflect.getOwnMetadata(viewSymbol, this._controller);
+            filePath = path.join(process.cwd(), filePath);
+            if (!fs.existsSync(filePath))
+                throw new ArgumentException("viewFilePath[{0}]".format(filePath), "does not exist");
+            
+            this._view = fs.readFileSync(filePath, "utf8");
+        }    
     }
 }

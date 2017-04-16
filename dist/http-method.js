@@ -12,7 +12,7 @@ HttpMethods._post = "POST";
 HttpMethods._put = "PUT";
 HttpMethods._delete = "DELETE";
 exports.HttpMethods = HttpMethods;
-exports.httpMethodSymbol = Symbol("httpmethod");
+exports.httpMethodSymbol = Symbol("httpMethod");
 // public
 function httpGet(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Get, target);

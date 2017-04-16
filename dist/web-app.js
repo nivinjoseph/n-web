@@ -15,6 +15,11 @@ const n_defensive_1 = require("n-defensive");
 const router_1 = require("./router");
 const n_exception_1 = require("n-exception");
 const http_exception_1 = require("./http-exception");
+const serve = require("koa-static");
+const fs = require("fs");
+const path = require("path");
+require("n-ext");
+const cors = require("kcors");
 // public
 class WebApp {
     constructor(port) {
@@ -22,11 +27,34 @@ class WebApp {
         this._hasExceptionLogger = false;
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
+        this._staticFilePaths = new Array();
+        this._enableCors = false;
         n_defensive_1.given(port, "port").ensureHasValue();
         this._port = port;
         this._koa = new Koa();
         this._container = new n_ject_1.Container();
         this._router = new router_1.Router(this._koa, this._container);
+    }
+    enableCors() {
+        this._enableCors = true;
+        return this;
+    }
+    registerStaticFilePaths(...filePaths) {
+        for (let filePath of filePaths) {
+            filePath = filePath.trim().toLowerCase();
+            if (filePath.startsWith("/")) {
+                if (filePath.length === 1)
+                    throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
+                filePath = filePath.substr(1);
+            }
+            filePath = path.join(process.cwd(), filePath);
+            if (!fs.existsSync(filePath))
+                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+            if (this._staticFilePaths.some(t => t === filePath))
+                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
+            this._staticFilePaths.push(filePath);
+        }
+        return this;
     }
     registerControllers(...controllerClasses) {
         this._router.registerControllers(...controllerClasses);
@@ -50,17 +78,23 @@ class WebApp {
         return this;
     }
     bootstrap() {
+        this.configureCors();
         this.configureContainer();
         this.configureScoping();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureExceptionLogging();
         this.configureErrorTrapping();
+        this.configureStaticFileServing();
         // this.configureAuthentication();
         // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
+    }
+    configureCors() {
+        if (this._enableCors)
+            this._koa.use(cors());
     }
     configureContainer() {
         this._container.bootstrap();
@@ -130,6 +164,10 @@ class WebApp {
                 throw new n_exception_1.Exception(error.toString());
             }
         }));
+    }
+    configureStaticFileServing() {
+        for (let path of this._staticFilePaths)
+            this._koa.use(serve(path));
     }
     configureBodyParser() {
         this._koa.use(KoaBodyParser({ strict: true }));

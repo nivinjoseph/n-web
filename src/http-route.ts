@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { given } from "n-defensive";
 import "n-ext";
 
-export const httpRouteSymbol = Symbol("route");
+export const httpRouteSymbol = Symbol("httpRoute");
 
 // public
 export function httpRoute(route: string): Function
