@@ -148,7 +148,7 @@ export class WebApp
                 
                 let exp = error as HttpException;
                 ctx.status = exp.statusCode;
-                if (exp.body !== null)
+                if (exp.body !== undefined && exp.body !== null)
                     ctx.body = exp.body;
             }
         });

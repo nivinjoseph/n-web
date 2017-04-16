@@ -115,7 +115,7 @@ class WebApp {
                     throw error;
                 let exp = error;
                 ctx.status = exp.statusCode;
-                if (exp.body !== null)
+                if (exp.body !== undefined && exp.body !== null)
                     ctx.body = exp.body;
             }
         }));
