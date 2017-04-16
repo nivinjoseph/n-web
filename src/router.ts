@@ -129,7 +129,11 @@ export class Router
         if (registration.view !== null)
         {
             let vm = result;
-            result = eval("`" + registration.view + "`");
+            let view = registration.view;
+            if (registration.viewLayout !== null)
+                view = eval("`" + registration.viewLayout + "`");
+            
+            result = eval("`" + view + "`");
         }
         
         ctx.body = result;

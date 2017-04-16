@@ -7,12 +7,14 @@ const http_method_1 = require("./http-method");
 const http_route_1 = require("./http-route");
 const route_1 = require("./route");
 const view_1 = require("./view");
+const view_layout_1 = require("./view-layout");
 require("n-ext");
 const fs = require("fs");
 const path = require("path");
 class ControllerRegistration {
     constructor(controller) {
         this._view = null;
+        this._viewLayout = null;
         n_defensive_1.given(controller, "controller").ensureHasValue();
         this._name = controller.getTypeName();
         this._controller = controller;
@@ -30,6 +32,13 @@ class ControllerRegistration {
             if (!fs.existsSync(filePath))
                 throw new n_exception_1.ArgumentException("viewFilePath[{0}]".format(filePath), "does not exist");
             this._view = fs.readFileSync(filePath, "utf8");
+            if (Reflect.hasOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller)) {
+                let filePath = Reflect.getOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller);
+                filePath = path.join(process.cwd(), filePath);
+                if (!fs.existsSync(filePath))
+                    throw new n_exception_1.ArgumentException("viewLayoutFilePath[{0}]".format(filePath), "does not exist");
+                this._viewLayout = fs.readFileSync(filePath, "utf8");
+            }
         }
     }
     get name() { return this._name; }
@@ -37,6 +46,7 @@ class ControllerRegistration {
     get method() { return this._method; }
     get route() { return this._route; }
     get view() { return this._view; }
+    get viewLayout() { return this._viewLayout; }
 }
 exports.ControllerRegistration = ControllerRegistration;
 //# sourceMappingURL=controller-registration.js.map

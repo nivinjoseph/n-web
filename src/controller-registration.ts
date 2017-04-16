@@ -5,6 +5,7 @@ import { httpMethodSymbol, HttpMethods } from "./http-method";
 import { httpRouteSymbol } from "./http-route";
 import { Route } from "./route";
 import { viewSymbol } from "./view";
+import { viewLayoutSymbol } from "./view-layout";
 import "n-ext";
 import * as fs from "fs";
 import * as path from "path";
@@ -16,6 +17,7 @@ export class ControllerRegistration
     private readonly _method: string;
     private readonly _route: Route;
     private readonly _view: string = null;
+    private readonly _viewLayout: string = null;
 
 
     public get name(): string { return this._name; }
@@ -23,6 +25,7 @@ export class ControllerRegistration
     public get method(): string { return this._method; }
     public get route(): Route { return this._route; }
     public get view(): string { return this._view; }
+    public get viewLayout(): string { return this._viewLayout; }
 
 
     public constructor(controller: Function)
@@ -51,6 +54,16 @@ export class ControllerRegistration
                 throw new ArgumentException("viewFilePath[{0}]".format(filePath), "does not exist");
             
             this._view = fs.readFileSync(filePath, "utf8");
+            
+            if (Reflect.hasOwnMetadata(viewLayoutSymbol, this._controller))
+            {
+                let filePath = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
+                filePath = path.join(process.cwd(), filePath);
+                if (!fs.existsSync(filePath))
+                    throw new ArgumentException("viewLayoutFilePath[{0}]".format(filePath), "does not exist");
+
+                this._viewLayout = fs.readFileSync(filePath, "utf8");
+            }
         }    
     }
 }
