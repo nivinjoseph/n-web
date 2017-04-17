@@ -23,8 +23,6 @@ const cors = require("kcors");
 // public
 class WebApp {
     constructor(port) {
-        this._exceptionLoggerKey = "$exceptionLogger";
-        this._hasExceptionLogger = false;
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
         this._staticFilePaths = new Array();
@@ -65,12 +63,6 @@ class WebApp {
         this._container.install(installer);
         return this;
     }
-    registerExceptionLogger(exceptionLoggerClass) {
-        n_defensive_1.given(exceptionLoggerClass, "exceptionLoggerClass").ensureHasValue();
-        this._container.registerScoped(this._exceptionLoggerKey, exceptionLoggerClass);
-        this._hasExceptionLogger = true;
-        return this;
-    }
     registerExceptionHandler(exceptionHandlerClass) {
         n_defensive_1.given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
@@ -83,7 +75,6 @@ class WebApp {
         this.configureScoping();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
-        this.configureExceptionLogging();
         this.configureErrorTrapping();
         this.configureStaticFileServing();
         // this.configureAuthentication();
@@ -133,23 +124,6 @@ class WebApp {
                 let scope = ctx.state.scope;
                 let exceptionHandler = scope.resolve(this._exceptionHandlerKey);
                 ctx.body = yield exceptionHandler.handle(error);
-            }
-        }));
-    }
-    configureExceptionLogging() {
-        this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield next();
-            }
-            catch (error) {
-                if (!this._hasExceptionLogger)
-                    throw error;
-                if (error instanceof http_exception_1.HttpException)
-                    throw error;
-                let scope = ctx.state.scope;
-                let exceptionLogger = scope.resolve(this._exceptionLoggerKey);
-                yield exceptionLogger.log(error);
-                throw error;
             }
         }));
     }

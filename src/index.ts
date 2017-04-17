@@ -5,7 +5,6 @@ import { httpGet, httpPost, httpPut, httpDelete } from "./http-method";
 import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { HttpException } from "./http-exception";
-import { ExceptionLogger } from "./exception-logger";
 import { ExceptionHandler } from "./exception-handler";
 
 export
@@ -17,6 +16,5 @@ export
     view,
     viewLayout,
     HttpException,
-    ExceptionLogger,
     ExceptionHandler
 };

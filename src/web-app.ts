@@ -4,7 +4,6 @@ import { Container, ComponentInstaller, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { Router } from "./router";
 import { Exception, ArgumentException } from "n-exception";
-import { ExceptionLogger } from "./exception-logger";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
 import * as serve from "koa-static";
@@ -20,8 +19,6 @@ export class WebApp
     private readonly _koa: Koa;
     private readonly _container: Container;
     private readonly _router: Router;
-    private readonly _exceptionLoggerKey = "$exceptionLogger";
-    private _hasExceptionLogger = false;
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
     private readonly _staticFilePaths = new Array<string>();
@@ -80,14 +77,6 @@ export class WebApp
         return this;
     }
     
-    public registerExceptionLogger(exceptionLoggerClass: Function): this
-    {
-        given(exceptionLoggerClass, "exceptionLoggerClass").ensureHasValue();
-        this._container.registerScoped(this._exceptionLoggerKey, exceptionLoggerClass);
-        this._hasExceptionLogger = true;
-        return this;
-    }
-    
     public registerExceptionHandler(exceptionHandlerClass: Function): this
     {
         given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
@@ -103,7 +92,6 @@ export class WebApp
         this.configureScoping();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
-        this.configureExceptionLogging();
         this.configureErrorTrapping();
         this.configureStaticFileServing();
         // this.configureAuthentication();
@@ -173,30 +161,6 @@ export class WebApp
                 let scope = ctx.state.scope as Scope;
                 let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
                 ctx.body = await exceptionHandler.handle(error);
-            }
-        });
-    }
-    
-    private configureExceptionLogging(): void
-    {
-        this._koa.use(async (ctx, next) =>
-        {
-            try 
-            {
-                await next();
-            }
-            catch (error)
-            {
-                if (!this._hasExceptionLogger)
-                    throw error; 
-                
-                if (error instanceof HttpException)
-                    throw error;    
-                
-                let scope = ctx.state.scope as Scope;
-                let exceptionLogger = scope.resolve<ExceptionLogger>(this._exceptionLoggerKey);
-                await exceptionLogger.log(error);
-                throw error;
             }
         });
     }
