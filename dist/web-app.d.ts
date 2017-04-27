@@ -15,7 +15,7 @@ export declare class WebApp {
     enableCors(): this;
     registerStaticFilePaths(...filePaths: string[]): this;
     registerControllers(...controllerClasses: Function[]): this;
-    registerInstaller(installer: ComponentInstaller): this;
+    useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
     useViewResolutionRoot(path: string): this;
     bootstrap(): void;

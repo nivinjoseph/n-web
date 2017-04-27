@@ -14,7 +14,7 @@ import { AppExceptionHandler } from "./exceptions/app-exception-handler";
 import { ConfigurationManager } from "n-config";
 
 
-export class AppInstaller implements ComponentInstaller
+class AppInstaller implements ComponentInstaller
 {
     public install(registry: Registry): void
     {
@@ -32,7 +32,7 @@ const controllers = [GetTodosController, GetTodoController, CreateTodoController
 const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
     .useViewResolutionRoot("test-app/controllers/web")
-    .registerInstaller(new AppInstaller())
+    .useInstaller(new AppInstaller())
     .registerControllers(...controllers)
     .registerExceptionHandler(AppExceptionHandler);
 

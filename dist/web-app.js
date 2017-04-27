@@ -65,7 +65,7 @@ class WebApp {
         this._router.registerControllers(...controllerClasses);
         return this;
     }
-    registerInstaller(installer) {
+    useInstaller(installer) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerInstaller");
         n_defensive_1.given(installer, "installer").ensureHasValue();

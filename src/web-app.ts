@@ -83,7 +83,7 @@ export class WebApp
         return this;
     }
     
-    public registerInstaller(installer: ComponentInstaller): this
+    public useInstaller(installer: ComponentInstaller): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerInstaller");
