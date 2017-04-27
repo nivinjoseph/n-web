@@ -9,12 +9,15 @@ export declare class WebApp {
     private _hasExceptionHandler;
     private readonly _staticFilePaths;
     private _enableCors;
+    private _viewResolutionRoot;
+    private _isBootstrapped;
     constructor(port: number);
     enableCors(): this;
     registerStaticFilePaths(...filePaths: string[]): this;
     registerControllers(...controllerClasses: Function[]): this;
     registerInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
+    useViewResolutionRoot(path: string): this;
     bootstrap(): void;
     private configureCors();
     private configureContainer();

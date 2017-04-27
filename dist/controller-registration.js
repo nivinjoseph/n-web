@@ -23,6 +23,15 @@ class ControllerRegistration {
         n_defensive_1.given(controller, "controller").ensureHasValue();
         this._name = controller.getTypeName();
         this._controller = controller;
+    }
+    get name() { return this._name; }
+    get controller() { return this._controller; }
+    get method() { return this._method; }
+    get route() { return this._route; }
+    get view() { return this.retrieveView(); }
+    get viewLayout() { return this.retrieveViewLayout(); }
+    complete(viewResolutionRoot) {
+        viewResolutionRoot = viewResolutionRoot ? path.join(process.cwd(), viewResolutionRoot) : process.cwd();
         if (!Reflect.hasOwnMetadata(http_method_1.httpMethodSymbol, this._controller))
             throw new n_exception_1.ApplicationException("Controller '{0}' does not have http method applied."
                 .format(this._name));
@@ -33,7 +42,7 @@ class ControllerRegistration {
         this._route = new route_info_1.RouteInfo(Reflect.getOwnMetadata(route_1.httpRouteSymbol, this._controller));
         if (Reflect.hasOwnMetadata(view_1.viewSymbol, this._controller)) {
             let viewFileName = Reflect.getOwnMetadata(view_1.viewSymbol, this._controller);
-            let viewFilePath = this.resolvePath(process.cwd(), viewFileName);
+            let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
             if (viewFilePath === null)
                 throw new n_exception_1.ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
             this._viewFileName = viewFileName;
@@ -42,7 +51,7 @@ class ControllerRegistration {
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
             if (Reflect.hasOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller)) {
                 let viewLayoutFileName = Reflect.getOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller);
-                let viewLayoutFilePath = this.resolvePath(process.cwd(), viewLayoutFileName);
+                let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
                 if (viewLayoutFilePath === null)
                     throw new n_exception_1.ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
                 this._viewLayoutFileName = viewLayoutFileName;
@@ -52,12 +61,6 @@ class ControllerRegistration {
             }
         }
     }
-    get name() { return this._name; }
-    get controller() { return this._controller; }
-    get method() { return this._method; }
-    get route() { return this._route; }
-    get view() { return this.retrieveView(); }
-    get viewLayout() { return this.retrieveViewLayout(); }
     resolvePath(startPoint, fileName) {
         if (startPoint.endsWith(fileName))
             return startPoint;

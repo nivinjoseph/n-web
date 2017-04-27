@@ -10,7 +10,7 @@ export declare class Router {
     private readonly _controllers;
     constructor(koa: Koa, container: Container);
     registerControllers(...controllers: Function[]): void;
-    configureRouting(): void;
+    configureRouting(viewResolutionRoot: string): void;
     private configureGet(registration);
     private configurePost(registration);
     private configurePut(registration);

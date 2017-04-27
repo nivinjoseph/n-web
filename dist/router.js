@@ -34,8 +34,9 @@ class Router {
             this._container.registerScoped(registration.name, registration.controller);
         }
     }
-    configureRouting() {
+    configureRouting(viewResolutionRoot) {
         for (let registration of this._controllers) {
+            registration.complete(viewResolutionRoot);
             switch (registration.method) {
                 case http_method_1.HttpMethods.Get:
                     this.configureGet(registration);

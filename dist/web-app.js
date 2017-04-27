@@ -27,6 +27,7 @@ class WebApp {
         this._hasExceptionHandler = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
+        this._isBootstrapped = false;
         n_defensive_1.given(port, "port").ensureHasValue();
         this._port = port;
         this._koa = new Koa();
@@ -34,10 +35,14 @@ class WebApp {
         this._router = new router_1.Router(this._koa, this._container);
     }
     enableCors() {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableCors");
         this._enableCors = true;
         return this;
     }
     registerStaticFilePaths(...filePaths) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
         for (let filePath of filePaths) {
             filePath = filePath.trim().toLowerCase();
             if (filePath.startsWith("/")) {
@@ -55,21 +60,36 @@ class WebApp {
         return this;
     }
     registerControllers(...controllerClasses) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerControllers");
         this._router.registerControllers(...controllerClasses);
         return this;
     }
     registerInstaller(installer) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerInstaller");
         n_defensive_1.given(installer, "installer").ensureHasValue();
         this._container.install(installer);
         return this;
     }
     registerExceptionHandler(exceptionHandlerClass) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerExceptionHandler");
         n_defensive_1.given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
         this._hasExceptionHandler = true;
         return this;
     }
+    useViewResolutionRoot(path) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("useViewResolutionRoot");
+        n_defensive_1.given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        this._viewResolutionRoot = path.trim();
+        return this;
+    }
     bootstrap() {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("bootstrap");
         this.configureCors();
         this.configureContainer();
         this.configureScoping();
@@ -82,6 +102,7 @@ class WebApp {
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
+        this._isBootstrapped = true;
     }
     configureCors() {
         if (this._enableCors)
@@ -147,7 +168,7 @@ class WebApp {
         this._koa.use(KoaBodyParser({ strict: true }));
     }
     configureRouting() {
-        this._router.configureRouting();
+        this._router.configureRouting(this._viewResolutionRoot);
     }
 }
 exports.WebApp = WebApp;
