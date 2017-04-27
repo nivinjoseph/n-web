@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { given } from "n-defensive";
 import { ApplicationException, ArgumentException } from "n-exception";
-import { httpMethodSymbol, HttpMethods } from "./http-method";
+import { httpMethodSymbol } from "./http-method";
 import { httpRouteSymbol } from "./route";
 import { RouteInfo } from "./route-info";
 import { viewSymbol } from "./view";
@@ -84,16 +84,18 @@ export class ControllerRegistration
         if (startPoint.endsWith(fileName))
             return startPoint;
         
-        if (!fs.statSync(startPoint).isDirectory())
-            return null;
-        
-        let files = fs.readdirSync(startPoint);
-        for (let file of files)
+        if (fs.statSync(startPoint).isDirectory())
         {
-            startPoint = path.join(startPoint, file);
-            let resolvedPath = this.resolvePath(startPoint, fileName);
-            if (resolvedPath != null)
-                return resolvedPath;    
+            let files = fs.readdirSync(startPoint);
+            for (let file of files)
+            {
+                if (file.startsWith(".") || file.startsWith("node_modules"))
+                    continue;
+                
+                let resolvedPath = this.resolvePath(path.join(startPoint, file), fileName);
+                if (resolvedPath != null)
+                    return resolvedPath;
+            }
         }    
         
         return null;

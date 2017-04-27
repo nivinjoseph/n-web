@@ -61,14 +61,15 @@ class ControllerRegistration {
     resolvePath(startPoint, fileName) {
         if (startPoint.endsWith(fileName))
             return startPoint;
-        if (!fs.statSync(startPoint).isDirectory())
-            return null;
-        let files = fs.readdirSync(startPoint);
-        for (let file of files) {
-            startPoint = path.join(startPoint, file);
-            let resolvedPath = this.resolvePath(startPoint, fileName);
-            if (resolvedPath != null)
-                return resolvedPath;
+        if (fs.statSync(startPoint).isDirectory()) {
+            let files = fs.readdirSync(startPoint);
+            for (let file of files) {
+                if (file.startsWith(".") || file.startsWith("node_modules"))
+                    continue;
+                let resolvedPath = this.resolvePath(path.join(startPoint, file), fileName);
+                if (resolvedPath != null)
+                    return resolvedPath;
+            }
         }
         return null;
     }

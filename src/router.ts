@@ -4,7 +4,7 @@ import { Container, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { ControllerRegistration } from "./controller-registration";
 import { Controller } from "./controller";
-import { Exception, ApplicationException } from "n-exception";
+import { ApplicationException } from "n-exception";
 import { RouteInfo } from "./route-info";
 import { HttpMethods } from "./http-method";
 import { HttpException } from "./http-exception";
