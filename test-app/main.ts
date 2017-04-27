@@ -31,6 +31,7 @@ const controllers = [GetTodosController, GetTodoController, CreateTodoController
 
 const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
+    .useViewResolutionRoot("test-app/controllers/web")
     .registerInstaller(new AppInstaller())
     .registerControllers(...controllers)
     .registerExceptionHandler(AppExceptionHandler);

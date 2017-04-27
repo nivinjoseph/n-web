@@ -16,14 +16,14 @@ export class ControllerRegistration
 {
     private readonly _name: string;
     private readonly _controller: Function;
-    private readonly _method: string;
-    private readonly _route: RouteInfo;
-    private readonly _viewFileName: string = null;
-    private readonly _viewFilePath: string = null;
-    private readonly _viewFileData: string = null;
-    private readonly _viewLayoutFileName: string = null;
-    private readonly _viewLayoutFilePath: string = null;
-    private readonly _viewLayoutFileData: string = null;
+    private _method: string;
+    private _route: RouteInfo;
+    private _viewFileName: string = null;
+    private _viewFilePath: string = null;
+    private _viewFileData: string = null;
+    private _viewLayoutFileName: string = null;
+    private _viewLayoutFilePath: string = null;
+    private _viewLayoutFileData: string = null;
 
 
     public get name(): string { return this._name; }
@@ -40,7 +40,13 @@ export class ControllerRegistration
 
         this._name = (<Object>controller).getTypeName();
         this._controller = controller;
-
+    }
+    
+    
+    public complete(viewResolutionRoot: string): void
+    {
+        viewResolutionRoot = viewResolutionRoot ? path.join(process.cwd(), viewResolutionRoot) : process.cwd();
+        
         if (!Reflect.hasOwnMetadata(httpMethodSymbol, this._controller))
             throw new ApplicationException("Controller '{0}' does not have http method applied."
                 .format(this._name));
@@ -51,32 +57,32 @@ export class ControllerRegistration
 
         this._method = Reflect.getOwnMetadata(httpMethodSymbol, this._controller);
         this._route = new RouteInfo(Reflect.getOwnMetadata(httpRouteSymbol, this._controller));
-        
+
         if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
         {
             let viewFileName = Reflect.getOwnMetadata(viewSymbol, this._controller);
-            let viewFilePath = this.resolvePath(process.cwd(), viewFileName);
+            let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
             if (viewFilePath === null)
                 throw new ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
-            
+
             this._viewFileName = viewFileName;
             this._viewFilePath = viewFilePath;
             if (!this.isDev())
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
-            
+
             if (Reflect.hasOwnMetadata(viewLayoutSymbol, this._controller))
             {
                 let viewLayoutFileName = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
-                let viewLayoutFilePath = this.resolvePath(process.cwd(), viewLayoutFileName);
+                let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
                 if (viewLayoutFilePath === null)
                     throw new ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
-                
+
                 this._viewLayoutFileName = viewLayoutFileName;
                 this._viewLayoutFilePath = viewLayoutFilePath;
                 if (!this.isDev())
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
-        }    
+        }
     }
     
     private resolvePath(startPoint: string, fileName: string): string

@@ -1,1 +1,0 @@
-{"version":3,"file":"config-service.js","sourceRoot":"","sources":["config-service.ts"],"names":[],"mappings":"","sourcesContent":["export interface ConfigService\n{\n    getBaseUrl(): Promise<string>;\n}"]}

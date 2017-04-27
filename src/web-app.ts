@@ -3,7 +3,7 @@ import * as KoaBodyParser from "koa-bodyparser";
 import { Container, ComponentInstaller, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { Router } from "./router";
-import { Exception, ArgumentException } from "n-exception";
+import { Exception, ArgumentException, InvalidOperationException } from "n-exception";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
 import * as serve from "koa-static";
@@ -11,6 +11,7 @@ import * as fs from "fs";
 import * as path from "path";
 import "n-ext";
 import * as cors from "kcors";
+
 
 // public
 export class WebApp
@@ -23,6 +24,8 @@ export class WebApp
     private _hasExceptionHandler = false;
     private readonly _staticFilePaths = new Array<string>();
     private _enableCors = false;
+    private _viewResolutionRoot: string;
+    private _isBootstrapped: boolean = false;
     
     
     public constructor(port: number)
@@ -34,14 +37,21 @@ export class WebApp
         this._router = new Router(this._koa, this._container);
     }
     
+    
     public enableCors(): this
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("enableCors");
+        
         this._enableCors = true;
         return this;
     }
     
     public registerStaticFilePaths(...filePaths: string[]): this
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerStaticFilePaths");
+        
         for (let filePath of filePaths)
         {
             filePath = filePath.trim().toLowerCase();
@@ -66,12 +76,18 @@ export class WebApp
     
     public registerControllers(...controllerClasses: Function[]): this
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerControllers");
+        
         this._router.registerControllers(...controllerClasses);
         return this;
     }
     
     public registerInstaller(installer: ComponentInstaller): this
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerInstaller");
+        
         given(installer, "installer").ensureHasValue();
         this._container.install(installer);
         return this;
@@ -79,14 +95,30 @@ export class WebApp
     
     public registerExceptionHandler(exceptionHandlerClass: Function): this
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerExceptionHandler");
+        
         given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
         this._hasExceptionHandler = true;
         return this;
     }
     
+    public useViewResolutionRoot(path: string): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("useViewResolutionRoot");
+        
+        given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        this._viewResolutionRoot = path.trim();
+        return this;
+    }
+    
     public bootstrap(): void
     {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("bootstrap");
+        
         this.configureCors();
         this.configureContainer();
         this.configureScoping();
@@ -98,8 +130,11 @@ export class WebApp
         // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
+        
         this._koa.listen(this._port);
+        this._isBootstrapped = true;
     }
+    
     
     private configureCors(): void
     {
@@ -196,6 +231,6 @@ export class WebApp
     
     private configureRouting(): void
     {
-        this._router.configureRouting();
+        this._router.configureRouting(this._viewResolutionRoot);
     }
 }

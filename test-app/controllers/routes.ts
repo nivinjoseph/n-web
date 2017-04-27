@@ -4,5 +4,5 @@ export const createTodo = "/api/CreateTodo";
 export const updateTodo = "/api/UpdateTodo/{id: number}";
 export const deleteTodo = "/api/DeleteTodo/{id: number}";
 
-export const home = "/Home";
+export const home = "/";
 export const homeWithLayout = "/HomeWithLayout";

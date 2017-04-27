@@ -43,10 +43,12 @@ export class Router
         }
     }
     
-    public configureRouting(): void
+    public configureRouting(viewResolutionRoot: string): void
     {
         for (let registration of this._controllers)
         {
+            registration.complete(viewResolutionRoot);
+            
             switch (registration.method)
             {
                 case HttpMethods.Get:
