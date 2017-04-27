@@ -8,6 +8,7 @@ import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { HttpException } from "./http-exception";
 import { ExceptionHandler } from "./exception-handler";
+import { ClientViewTemplateBundler } from "./client-view-template-bundler";
 
 export
 {
@@ -18,5 +19,6 @@ export
     query, command,
     view, viewLayout,
     HttpException,
-    ExceptionHandler
+    ExceptionHandler,
+    ClientViewTemplateBundler
 };

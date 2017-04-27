@@ -8,4 +8,5 @@ import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { HttpException } from "./http-exception";
 import { ExceptionHandler } from "./exception-handler";
-export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, HttpException, ExceptionHandler };
+import { ClientViewTemplateBundler } from "./client-view-template-bundler";
+export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, HttpException, ExceptionHandler, ClientViewTemplateBundler };
