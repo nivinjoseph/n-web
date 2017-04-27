@@ -54,15 +54,3 @@
         }
     ]
 }
-// {
-//     "type": "node",
-//     "request": "launch",
-//     "name": "Debug Program",
-//     "program": "${workspaceRoot}/src/program.js",
-//     "cwd": "${workspaceRoot}",
-//     "runtimeArgs": [
-//         "--nolazy"
-//     ],
-//     "console": "internalConsole",
-//     "sourceMaps": true
-// }
