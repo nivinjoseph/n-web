@@ -1,6 +1,6 @@
 import "n-ext";
 import { given } from "n-defensive";
-import { Route } from "./route";
+import { RouteInfo } from "./route-info";
 import { HttpRedirectException } from "./http-redirect-exception";
 
 // public
@@ -26,7 +26,7 @@ export abstract class Controller
         if (params == null)
             return route;
         
-        return new Route(route).generateUrl(params);
+        return new RouteInfo(route).generateUrl(params);
     }
     
     protected redirect(url: string): void

@@ -1,1 +1,0 @@
-{"version":3,"file":"exception-logger.js","sourceRoot":"","sources":["../src/exception-logger.ts"],"names":[],"mappings":";;AAEA;CAGC;AAHD,0CAGC","sourcesContent":["import { Exception } from \"n-exception\";\n\nexport abstract class ExceptionLogger\n{\n    public abstract log(exp: Exception): Promise<void>;\n}"]}

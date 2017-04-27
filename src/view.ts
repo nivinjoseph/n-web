@@ -2,13 +2,17 @@ import "reflect-metadata";
 import { given } from "n-defensive";
 import "n-ext";
 
-export const viewSymbol = Symbol("view");
+
+export const viewSymbol = Symbol("webView");
 
 // public
-export function view(filePath: string): Function
+export function view(file: string): Function
 {
-    given(filePath, "filePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+    given(file, "file")
+        .ensureHasValue()
+        .ensure(t => !t.isEmptyOrWhiteSpace())
+        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
 
-    return (target: Function) => Reflect.defineMetadata(viewSymbol, filePath, target);
+    return (target: Function) => Reflect.defineMetadata(viewSymbol, file.trim(), target);
 }
 

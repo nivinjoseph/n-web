@@ -3,11 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const n_defensive_1 = require("n-defensive");
 require("n-ext");
-exports.viewSymbol = Symbol("view");
+exports.viewSymbol = Symbol("webView");
 // public
-function view(filePath) {
-    n_defensive_1.given(filePath, "filePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-    return (target) => Reflect.defineMetadata(exports.viewSymbol, filePath, target);
+function view(file) {
+    n_defensive_1.given(file, "file")
+        .ensureHasValue()
+        .ensure(t => !t.isEmptyOrWhiteSpace())
+        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
+    return (target) => Reflect.defineMetadata(exports.viewSymbol, file.trim(), target);
 }
 exports.view = view;
 //# sourceMappingURL=view.js.map

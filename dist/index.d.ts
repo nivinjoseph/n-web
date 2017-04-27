@@ -1,9 +1,11 @@
 import { WebApp } from "./web-app";
 import { Controller } from "./controller";
-import { httpRoute } from "./http-route";
+import { route } from "./route";
 import { httpGet, httpPost, httpPut, httpDelete } from "./http-method";
+import { query } from "./query";
+import { command } from "./command";
 import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { HttpException } from "./http-exception";
 import { ExceptionHandler } from "./exception-handler";
-export { WebApp, Controller, httpRoute, httpGet, httpPost, httpPut, httpDelete, view, viewLayout, HttpException, ExceptionHandler };
+export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, HttpException, ExceptionHandler };

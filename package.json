@@ -54,6 +54,7 @@
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0",
+    "n-config": "git+https://github.com/nivinjoseph/n-config.git",
     "n-defensive": "git+https://github.com/nivinjoseph/n-defensive.git",
     "n-exception": "git+https://github.com/nivinjoseph/n-exception.git",
     "n-ext": "git+https://github.com/nivinjoseph/n-ext.git",

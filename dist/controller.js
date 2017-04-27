@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 require("n-ext");
 const n_defensive_1 = require("n-defensive");
-const route_1 = require("./route");
+const route_info_1 = require("./route-info");
 const http_redirect_exception_1 = require("./http-redirect-exception");
 // public
 class Controller {
@@ -17,7 +17,7 @@ class Controller {
         }
         if (params == null)
             return route;
-        return new route_1.Route(route).generateUrl(params);
+        return new route_info_1.RouteInfo(route).generateUrl(params);
     }
     redirect(url) {
         n_defensive_1.given(url, "url").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());

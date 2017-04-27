@@ -5,9 +5,12 @@ import "n-ext";
 export const viewLayoutSymbol = Symbol("viewLayout");
 
 // public
-export function viewLayout(filePath: string): Function
+export function viewLayout(file: string): Function
 {
-    given(filePath, "filePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+    given(file, "file")
+        .ensureHasValue()
+        .ensure(t => !t.isEmptyOrWhiteSpace())
+        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
 
-    return (target: Function) => Reflect.defineMetadata(viewLayoutSymbol, filePath, target);
+    return (target: Function) => Reflect.defineMetadata(viewLayoutSymbol, file.trim(), target);
 }

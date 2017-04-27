@@ -94,8 +94,9 @@ class Router {
             if (registration.view !== null) {
                 let vm = result;
                 let view = registration.view;
-                if (registration.viewLayout !== null)
-                    view = eval("`" + registration.viewLayout + "`");
+                let viewLayout = registration.viewLayout;
+                if (viewLayout !== null)
+                    view = eval("`" + viewLayout + "`");
                 result = eval("`" + view + "`");
             }
             ctx.body = result;

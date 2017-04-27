@@ -5,9 +5,12 @@ const n_defensive_1 = require("n-defensive");
 require("n-ext");
 exports.viewLayoutSymbol = Symbol("viewLayout");
 // public
-function viewLayout(filePath) {
-    n_defensive_1.given(filePath, "filePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-    return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, filePath, target);
+function viewLayout(file) {
+    n_defensive_1.given(file, "file")
+        .ensureHasValue()
+        .ensure(t => !t.isEmptyOrWhiteSpace())
+        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
+    return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, file.trim(), target);
 }
 exports.viewLayout = viewLayout;
 //# sourceMappingURL=view-layout.js.map

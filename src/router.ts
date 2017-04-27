@@ -5,7 +5,7 @@ import { given } from "n-defensive";
 import { ControllerRegistration } from "./controller-registration";
 import { Controller } from "./controller";
 import { Exception, ApplicationException } from "n-exception";
-import { Route } from "./route";
+import { RouteInfo } from "./route-info";
 import { HttpMethods } from "./http-method";
 import { HttpException } from "./http-exception";
 import { HttpRedirectException } from "./http-redirect-exception";
@@ -130,8 +130,9 @@ export class Router
         {
             let vm = result;
             let view = registration.view;
-            if (registration.viewLayout !== null)
-                view = eval("`" + registration.viewLayout + "`");
+            let viewLayout = registration.viewLayout;
+            if (viewLayout !== null)
+                view = eval("`" + viewLayout + "`");
             
             result = eval("`" + view + "`");
         }
@@ -139,7 +140,7 @@ export class Router
         ctx.body = result;
     }
     
-    private createRouteArgs(route: Route, ctx: KoaRouter.IRouterContext): Array<any>
+    private createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>
     {
         let pathParams = ctx.params ? ctx.params : {};
         let queryParams = ctx.query ? ctx.query : {};
