@@ -3,8 +3,8 @@ import * as routes from "./../../routes";
 
 @httpGet
 @route(routes.homeWithLayout)
-@view("home-with-layout-view.html")
-@viewLayout("layout.html")    
+@view("home-with-layout-view")
+@viewLayout("layout")    
 export class HomeWithLayoutController extends Controller
 {
     public execute(): Promise<any>

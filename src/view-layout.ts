@@ -9,8 +9,7 @@ export function viewLayout(file: string): Function
 {
     given(file, "file")
         .ensureHasValue()
-        .ensure(t => !t.isEmptyOrWhiteSpace())
-        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
+        .ensure(t => !t.isEmptyOrWhiteSpace());
 
     return (target: Function) => Reflect.defineMetadata(viewLayoutSymbol, file.trim(), target);
 }

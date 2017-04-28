@@ -8,8 +8,7 @@ exports.viewLayoutSymbol = Symbol("viewLayout");
 function viewLayout(file) {
     n_defensive_1.given(file, "file")
         .ensureHasValue()
-        .ensure(t => !t.isEmptyOrWhiteSpace())
-        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
+        .ensure(t => !t.isEmptyOrWhiteSpace());
     return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, file.trim(), target);
 }
 exports.viewLayout = viewLayout;

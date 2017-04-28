@@ -42,6 +42,8 @@ class ControllerRegistration {
         this._route = new route_info_1.RouteInfo(Reflect.getOwnMetadata(route_1.httpRouteSymbol, this._controller));
         if (Reflect.hasOwnMetadata(view_1.viewSymbol, this._controller)) {
             let viewFileName = Reflect.getOwnMetadata(view_1.viewSymbol, this._controller);
+            if (!viewFileName.endsWith(".html"))
+                viewFileName += ".html";
             let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
             if (viewFilePath === null)
                 throw new n_exception_1.ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
@@ -51,6 +53,8 @@ class ControllerRegistration {
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
             if (Reflect.hasOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller)) {
                 let viewLayoutFileName = Reflect.getOwnMetadata(view_layout_1.viewLayoutSymbol, this._controller);
+                if (!viewLayoutFileName.endsWith(".html"))
+                    viewLayoutFileName += ".html";
                 let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
                 if (viewLayoutFilePath === null)
                     throw new n_exception_1.ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");

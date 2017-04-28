@@ -8,8 +8,7 @@ exports.viewSymbol = Symbol("webView");
 function view(file) {
     n_defensive_1.given(file, "file")
         .ensureHasValue()
-        .ensure(t => !t.isEmptyOrWhiteSpace())
-        .ensure(t => t.trim().endsWith(".html"), "not a .html file");
+        .ensure(t => !t.isEmptyOrWhiteSpace());
     return (target) => Reflect.defineMetadata(exports.viewSymbol, file.trim(), target);
 }
 exports.view = view;

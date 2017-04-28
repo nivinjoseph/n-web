@@ -3,7 +3,7 @@ import * as routes from "./../../routes";
 
 @httpGet
 @route(routes.home)    
-@view("home-view.html")    
+@view("home-view")    
 export class HomeController extends Controller
 {
     public execute(): Promise<any>

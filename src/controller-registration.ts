@@ -61,6 +61,8 @@ export class ControllerRegistration
         if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
         {
             let viewFileName = Reflect.getOwnMetadata(viewSymbol, this._controller);
+            if (!viewFileName.endsWith(".html"))
+                viewFileName += ".html";    
             let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
             if (viewFilePath === null)
                 throw new ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
@@ -73,6 +75,8 @@ export class ControllerRegistration
             if (Reflect.hasOwnMetadata(viewLayoutSymbol, this._controller))
             {
                 let viewLayoutFileName = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
+                if (!viewLayoutFileName.endsWith(".html"))
+                    viewLayoutFileName += ".html";    
                 let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
                 if (viewLayoutFilePath === null)
                     throw new ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
