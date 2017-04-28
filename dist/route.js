@@ -6,7 +6,9 @@ require("n-ext");
 exports.httpRouteSymbol = Symbol("httpRoute");
 // public
 function route(route) {
-    n_defensive_1.given(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+    n_defensive_1.given(route, "route").ensureHasValue()
+        .ensure(t => !t.isEmptyOrWhiteSpace(), "cannot be empty or whitespace")
+        .ensure(t => t.trim().startsWith("/"), "has to begin with '/'");
     return (target) => Reflect.defineMetadata(exports.httpRouteSymbol, route.trim(), target);
 }
 exports.route = route;
