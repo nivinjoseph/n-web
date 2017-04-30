@@ -8,12 +8,12 @@ export abstract class Controller
 {
     public abstract execute(...params: any[]): Promise<any>;
     
-    protected generateUrl(route: string, params: any): string;
-    protected generateUrl(route: string, params: any, baseUrl: string): string;
-    protected generateUrl(route: string, params: any, baseUrl?: string): string
+    
+    protected generateUrl(route: string, params: Object, baseUrl?: string): string
     {
         given(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         route = route.trim();
+        
         if (baseUrl !== undefined && baseUrl != null)
         {
             baseUrl = baseUrl.trim();
@@ -23,7 +23,7 @@ export abstract class Controller
             route = baseUrl + route;
         }    
         
-        if (params == null)
+        if (params === undefined || params === null)
             return route;
         
         return new RouteInfo(route).generateUrl(params);
