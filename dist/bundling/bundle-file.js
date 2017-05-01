@@ -12,7 +12,7 @@ class BundleFile {
         path = path.trim();
         let cwd = process.cwd();
         if (path.startsWith(cwd))
-            path.replace(cwd, "");
+            path = path.replace(cwd, "");
         if (!path.startsWith("/"))
             path = "/" + path;
         let fullPath = Path.join(process.cwd(), path);

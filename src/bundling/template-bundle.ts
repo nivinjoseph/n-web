@@ -18,7 +18,7 @@ export class TemplateBundle extends Bundle
             let id = fileName.replace(".html", "").split("-").join("");
             let fileContent = item.content;
             let template = `<script type="text/x-template" id="${id}">${fileContent}</script>`;
-            result = result + template;
+            result += template;
         }
         return result;
     }
