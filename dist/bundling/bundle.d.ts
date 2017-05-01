@@ -4,7 +4,7 @@ export declare abstract class Bundle {
     private readonly _entries;
     protected readonly key: string;
     protected readonly entries: ReadonlyArray<BundleEntry>;
-    protected constructor(key: string);
+    constructor(key: string);
     includeFile(filePath: string): this;
     includeDir(dirPath: string): this;
     render(): string;

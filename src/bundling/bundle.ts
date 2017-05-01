@@ -14,7 +14,7 @@ export abstract class Bundle
     protected get entries(): ReadonlyArray<BundleEntry> { return this._entries; }
     
     
-    protected constructor(key: string)
+    public constructor(key: string)
     {
         given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         
