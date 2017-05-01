@@ -11,6 +11,7 @@ import * as fs from "fs";
 import * as path from "path";
 import "n-ext";
 import * as cors from "kcors";
+import { ConfigurationManager } from "n-config";
 
 
 // public
@@ -58,7 +59,10 @@ export class WebApp
             if (filePath.startsWith("/"))
             {
                 if (filePath.length === 1)
-                    throw new ArgumentException("filePath[{0}]".format(filePath), "is root");    
+                {
+                    if (ConfigurationManager.getConfig<string>("mode") !== "dev")
+                        throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
+                }    
                 filePath = filePath.substr(1);
             }
             
