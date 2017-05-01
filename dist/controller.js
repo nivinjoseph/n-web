@@ -15,7 +15,7 @@ class Controller {
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
             route = baseUrl + route;
         }
-        if (params == null)
+        if (params === undefined || params === null)
             return route;
         return new route_info_1.RouteInfo(route).generateUrl(params);
     }

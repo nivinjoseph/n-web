@@ -8,7 +8,11 @@ import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { HttpException } from "./http-exception";
 import { ExceptionHandler } from "./exception-handler";
-import { ClientViewTemplateBundler } from "./client-view-template-bundler";
+// import { ClientViewTemplateBundler } from "./client-view-template-bundler";
+import { StyleBundle } from "./bundling/style-bundle";
+import { TemplateBundle } from "./bundling/template-bundle";
+import { ScriptBundle } from "./bundling/script-bundle";
+
 
 export
 {
@@ -20,5 +24,6 @@ export
     view, viewLayout,
     HttpException,
     ExceptionHandler,
-    ClientViewTemplateBundler
+    // ClientViewTemplateBundler
+    StyleBundle, TemplateBundle, ScriptBundle
 };

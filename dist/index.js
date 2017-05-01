@@ -23,6 +23,11 @@ const http_exception_1 = require("./http-exception");
 exports.HttpException = http_exception_1.HttpException;
 const exception_handler_1 = require("./exception-handler");
 exports.ExceptionHandler = exception_handler_1.ExceptionHandler;
-const client_view_template_bundler_1 = require("./client-view-template-bundler");
-exports.ClientViewTemplateBundler = client_view_template_bundler_1.ClientViewTemplateBundler;
+// import { ClientViewTemplateBundler } from "./client-view-template-bundler";
+const style_bundle_1 = require("./bundling/style-bundle");
+exports.StyleBundle = style_bundle_1.StyleBundle;
+const template_bundle_1 = require("./bundling/template-bundle");
+exports.TemplateBundle = template_bundle_1.TemplateBundle;
+const script_bundle_1 = require("./bundling/script-bundle");
+exports.ScriptBundle = script_bundle_1.ScriptBundle;
 //# sourceMappingURL=index.js.map
