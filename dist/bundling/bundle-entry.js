@@ -41,7 +41,7 @@ class BundleEntry {
     accumulateFilesToProcess(filePath, filterExt, accumulator) {
         if (!Fs.statSync(filePath).isDirectory()) {
             if (filterExt) {
-                if (this._path.endsWith(filterExt))
+                if (filePath.endsWith(filterExt))
                     accumulator.push(new bundle_file_1.BundleFile(filePath));
             }
             else {

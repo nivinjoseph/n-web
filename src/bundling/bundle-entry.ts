@@ -68,7 +68,7 @@ export class BundleEntry
         {
             if (filterExt)
             {
-                if (this._path.endsWith(filterExt))
+                if (filePath.endsWith(filterExt))
                     accumulator.push(new BundleFile(filePath));
             }
             else
