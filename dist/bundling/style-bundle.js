@@ -4,7 +4,7 @@ const served_bundle_1 = require("./served-bundle");
 // public
 class StyleBundle extends served_bundle_1.ServedBundle {
     renderBundle() {
-        let bundleUrl = this.createBundle(".js");
+        let bundleUrl = this.createBundle(".css");
         let result = `<link rel="stylesheet" type="text/css" href="${bundleUrl}">`;
         return result;
         // let files = new Array<BundleFile>();

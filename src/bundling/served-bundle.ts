@@ -50,6 +50,8 @@ export abstract class ServedBundle extends Bundle
 
         fileExt = fileExt.trim();
         
+        this.deletePreviousBundles(fileExt);
+        
         let files = this.getFiles(fileExt);
 
         let content = "";
@@ -59,11 +61,21 @@ export abstract class ServedBundle extends Bundle
         hash.update(content);
         let hashValue = hash.digest("hex");
 
-        let bundleFileName = `${this.name}_${hashValue}.${fileExt}`;
+        let bundleFileName = `${this.name}_${hashValue}${fileExt}`;
         let bundleFilePath = Path.join(this._bundlePath, bundleFileName);
 
         Fs.writeFileSync(bundleFilePath, content);
         
         return Path.join(this._servePath, bundleFileName);
+    }
+    
+    private deletePreviousBundles(fileExt: string): void
+    {
+        let files = Fs.readdirSync(this._bundlePath);
+        for (let item of files)
+        {
+            if (item.startsWith(this.name + "_") && item.endsWith(fileExt))
+                Fs.unlinkSync(Path.join(this._bundlePath, item));    
+        }    
     }
 }

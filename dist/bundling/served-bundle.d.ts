@@ -5,4 +5,5 @@ export declare abstract class ServedBundle extends Bundle {
     private readonly _servePath;
     constructor(name: string, bundlePath: string, servePath: string);
     protected createBundle(fileExt: string): string;
+    private deletePreviousBundles(fileExt);
 }

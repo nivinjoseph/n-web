@@ -31,16 +31,24 @@ class ServedBundle extends bundle_1.Bundle {
         n_defensive_1.given(fileExt, "fileExt").ensureHasValue()
             .ensure(t => !t.isEmptyOrWhiteSpace() && t.trim().startsWith("."));
         fileExt = fileExt.trim();
+        this.deletePreviousBundles(fileExt);
         let files = this.getFiles(fileExt);
         let content = "";
         files.forEach(t => content += Os.EOL + t.read());
         let hash = Crypto.createHash("sha256");
         hash.update(content);
         let hashValue = hash.digest("hex");
-        let bundleFileName = `${this.name}_${hashValue}.${fileExt}`;
+        let bundleFileName = `${this.name}_${hashValue}${fileExt}`;
         let bundleFilePath = Path.join(this._bundlePath, bundleFileName);
         Fs.writeFileSync(bundleFilePath, content);
         return Path.join(this._servePath, bundleFileName);
+    }
+    deletePreviousBundles(fileExt) {
+        let files = Fs.readdirSync(this._bundlePath);
+        for (let item of files) {
+            if (item.startsWith(this.name + "_") && item.endsWith(fileExt))
+                Fs.unlinkSync(Path.join(this._bundlePath, item));
+        }
     }
 }
 exports.ServedBundle = ServedBundle;

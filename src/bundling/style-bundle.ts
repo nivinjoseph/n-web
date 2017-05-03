@@ -7,7 +7,7 @@ export class StyleBundle extends ServedBundle
 {
     protected renderBundle(): string
     {
-        let bundleUrl = this.createBundle(".js");
+        let bundleUrl = this.createBundle(".css");
         let result = `<link rel="stylesheet" type="text/css" href="${bundleUrl}">`;
         return result;
         
