@@ -7,6 +7,7 @@ const Fs = require("fs");
 const n_exception_1 = require("n-exception");
 require("n-ext");
 const Crypto = require("crypto");
+const Os = require("os");
 class ServedBundle extends bundle_1.Bundle {
     // protected get bundlePath(): string { return this._bundlePath; }
     // protected get servePath(): string { return this._servePath; }
@@ -32,7 +33,7 @@ class ServedBundle extends bundle_1.Bundle {
         fileExt = fileExt.trim();
         let files = this.getFiles(fileExt);
         let content = "";
-        files.forEach(t => content += t.read());
+        files.forEach(t => content += Os.EOL + t.read());
         let hash = Crypto.createHash("sha256");
         hash.update(content);
         let hashValue = hash.digest("hex");

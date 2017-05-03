@@ -6,6 +6,7 @@ import { ArgumentException } from "n-exception";
 import "n-ext";
 import { BundleFile } from "./bundle-file"; 
 import * as Crypto from "crypto";
+import * as Os from "os";
 
 export abstract class ServedBundle extends Bundle
 {
@@ -52,7 +53,7 @@ export abstract class ServedBundle extends Bundle
         let files = this.getFiles(fileExt);
 
         let content = "";
-        files.forEach(t => content += t.read());
+        files.forEach(t => content += Os.EOL + t.read());
 
         let hash = Crypto.createHash("sha256");
         hash.update(content);
