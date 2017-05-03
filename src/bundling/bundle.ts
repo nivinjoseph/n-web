@@ -3,45 +3,31 @@ import { BundleEntry } from "./bundle-entry";
 import { ArgumentException } from "n-exception";
 import { ConfigurationManager } from "n-config";
 import { BundleCache } from "./bundle-cache";
+import * as Path from "path";
+import "n-ext";
+import { BundleFile } from "./bundle-file";
 
 export abstract class Bundle
 {
-    private readonly _key: string;
+    private readonly _name: string;
     private readonly _entries = new Array<BundleEntry>();
     
     
-    protected get key(): string { return this._key; }
-    protected get entries(): ReadonlyArray<BundleEntry> { return this._entries; }
+    protected get name(): string { return this._name; }
+    // protected get entries(): ReadonlyArray<BundleEntry> { return this._entries; }
     
     
-    public constructor(key: string)
+    public constructor(name: string)
     {
-        given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(name, "name").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         
-        this._key = key.trim();
+        this._name = name.trim();
     }
     
     
-    public includeFile(filePath: string): this
+    public include(path: string): this
     {
-        given(filePath, "filePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        
-        let entry = new BundleEntry(filePath);
-        if (entry.isDir)
-            throw new ArgumentException(`Path [${entry.path}]`, "is a directory");
-        
-        this._entries.push(entry);
-        return this;
-    }
-    
-    public includeDir(dirPath: string): this
-    {
-        given(dirPath, "dirPath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-
-        let entry = new BundleEntry(dirPath);
-        if (!entry.isDir)
-            throw new ArgumentException(`Path [${entry.path}]`, "is not a directory");
-
+        let entry = new BundleEntry(path);
         this._entries.push(entry);
         return this;
     }
@@ -52,7 +38,7 @@ export abstract class Bundle
         
         if (!this.isDev)
         {
-            result = BundleCache.find(this._key);
+            result = BundleCache.find(this._name);
             if (result)
                 return result;
         } 
@@ -60,13 +46,25 @@ export abstract class Bundle
         result = this.renderBundle();
         
         if (!this.isDev)
-            BundleCache.add(this._key, result);
+            BundleCache.add(this._name, result);
         
         return result;
     }
     
     
     protected abstract renderBundle(): string;
+    
+    protected getFiles(fileExt: string): ReadonlyArray<BundleFile>
+    {
+        given(fileExt, "fileExt").ensureHasValue()
+            .ensure(t => !t.isEmptyOrWhiteSpace() && t.trim().startsWith("."));
+
+        fileExt = fileExt.trim();
+
+        let files = new Array<BundleFile>();
+        this._entries.forEach(t => files.push(...t.getFiles(fileExt)));
+        return files;
+    }
     
     protected isDev(): boolean
     {

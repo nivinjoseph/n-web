@@ -8,12 +8,7 @@ import { BundleFile } from "./bundle-file";
 export class BundleEntry
 {
     private readonly _path: string;
-    private readonly _fullPath: string;
-    private readonly _isDir: boolean = false;
-    
-    
-    public get path(): string { return this._path; }
-    public get isDir(): boolean { return this._isDir; }
+    private readonly _isDir: boolean;
     
     
     public constructor(path: string)
@@ -21,69 +16,46 @@ export class BundleEntry
         given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         
         path = path.trim();
-        if (!path.startsWith("/"))
-            path = "/" + path;
         
-        let fullPath = Path.join(process.cwd(), path);
+        path = Path.join(process.cwd(), path);
         
-        if (!Fs.existsSync(fullPath))
-            throw new ArgumentException(`path [${fullPath}]`, "does not exist");
+        if (!Fs.existsSync(path))
+            throw new ArgumentException(`path [${path}]`, "does not exist");
 
         this._path = path;
-        this._fullPath = fullPath;
-        this._isDir = Fs.statSync(fullPath).isDirectory();
+        this._isDir = Fs.statSync(path).isDirectory();
     }
     
     
-    public read(filterExt?: string): Array<BundleFile>
+    public getFiles(filterExt?: string): Array<BundleFile>
     {
         filterExt = filterExt ? filterExt.trim() : null;
                 
         let result = new Array<BundleFile>();
-        
-        if (!this._isDir)
-        {
-            if (filterExt)
-            {
-                if (this._path.endsWith(filterExt))
-                    result.push(new BundleFile(this._path));
-            }
-            else
-            {
-                result.push(new BundleFile(this._path));
-            }    
-        }  
-        else
-        {
-            this.accumulateFilesToProcess(this._fullPath, filterExt, result);   
-        }
-        
+        this.accumulateFilesToProcess(this._path, filterExt, result);
         return result;
     }
     
     
-    private accumulateFilesToProcess(filePath: string, filterExt: string, accumulator: Array<BundleFile>): void
+    private accumulateFilesToProcess(path: string, filterExt: string, accumulator: Array<BundleFile>): void
     {
-        if (!Fs.statSync(filePath).isDirectory())
+        if (!Fs.statSync(path).isDirectory())
         {
             if (filterExt)
             {
-                if (filePath.endsWith(filterExt))
-                    accumulator.push(new BundleFile(filePath));
+                if (path.endsWith(filterExt))
+                    accumulator.push(new BundleFile(path));
             }
             else
             {
-                accumulator.push(new BundleFile(filePath));
+                accumulator.push(new BundleFile(path));
             }    
         }
         else
         {
-            let files = Fs.readdirSync(filePath);
+            let files = Fs.readdirSync(path);
             for (let item of files)
-                this.accumulateFilesToProcess(Path.join(filePath, item), filterExt, accumulator);
+                this.accumulateFilesToProcess(Path.join(path, item), filterExt, accumulator);
         }    
     }
-    
-    
-    
 }

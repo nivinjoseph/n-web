@@ -1,4 +1,4 @@
-import { Bundle } from "./bundle";
-export declare class ScriptBundle extends Bundle {
+import { ServedBundle } from "./served-bundle";
+export declare class ScriptBundle extends ServedBundle {
     protected renderBundle(): string;
 }

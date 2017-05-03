@@ -20,7 +20,6 @@ const fs = require("fs");
 const path = require("path");
 require("n-ext");
 const cors = require("kcors");
-const n_config_1 = require("n-config");
 // public
 class WebApp {
     constructor(port) {
@@ -48,8 +47,9 @@ class WebApp {
             filePath = filePath.trim().toLowerCase();
             if (filePath.startsWith("/")) {
                 if (filePath.length === 1) {
-                    if (n_config_1.ConfigurationManager.getConfig("mode") !== "dev")
-                        throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
+                    // if (ConfigurationManager.getConfig<string>("mode") !== "dev")
+                    //     throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
+                    throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
                 }
                 filePath = filePath.substr(1);
             }

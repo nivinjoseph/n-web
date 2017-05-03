@@ -60,8 +60,10 @@ export class WebApp
             {
                 if (filePath.length === 1)
                 {
-                    if (ConfigurationManager.getConfig<string>("mode") !== "dev")
-                        throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
+                    // if (ConfigurationManager.getConfig<string>("mode") !== "dev")
+                    //     throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
+                    
+                    throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
                 }    
                 filePath = filePath.substr(1);
             }

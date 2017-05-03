@@ -1,31 +1,32 @@
-import { Bundle } from "./bundle";
+import { ServedBundle } from "./served-bundle";
 import { BundleFile } from "./bundle-file";
 import * as Path from "path";
+import * as Crypto from "crypto";
+import * as Fs from "fs";
 
 
 // public
-export class ScriptBundle extends Bundle
+export class ScriptBundle extends ServedBundle
 {
     protected renderBundle(): string
     {
-        let files = new Array<BundleFile>();
-        this.entries.forEach(t => files.push(...t.read(".js")));
-        
-        let result = "";
-        
-        if (this.isDev)
-        {
-            for (let item of files)
-                result += `<script src="${item.path}"></script>`; 
-        } 
-        else
-        {
-            for (let item of files)
-                result += item.content;    
-            
-            result = `<script>${result}</script>`;
-        }
-        
+        let bundleUrl = this.createBundle(".js");
+        let result = `<script src="${bundleUrl}"></script>`;
         return result;
+        
+        // if (this.isDev)
+        // {
+        //     for (let item of files)
+        //         result += `<script src="${item.path}"></script>`; 
+        // } 
+        // else
+        // {
+        //     for (let item of files)
+        //         result += item.content;    
+            
+        //     result = `<script>${result}</script>`;
+        // }
+        
+        // return result;
     }
 }

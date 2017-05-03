@@ -1,7 +1,7 @@
 export declare class BundleFile {
+    private readonly _name;
     private readonly _path;
-    private readonly _content;
-    readonly path: string;
-    readonly content: string;
+    readonly name: string;
     constructor(path: string);
+    read(): string;
 }

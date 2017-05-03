@@ -1,22 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bundle_1 = require("./bundle");
+const served_bundle_1 = require("./served-bundle");
 // public
-class ScriptBundle extends bundle_1.Bundle {
+class ScriptBundle extends served_bundle_1.ServedBundle {
     renderBundle() {
-        let files = new Array();
-        this.entries.forEach(t => files.push(...t.read(".js")));
-        let result = "";
-        if (this.isDev) {
-            for (let item of files)
-                result += `<script src="${item.path}"></script>`;
-        }
-        else {
-            for (let item of files)
-                result += item.content;
-            result = `<script>${result}</script>`;
-        }
+        let bundleUrl = this.createBundle(".js");
+        let result = `<script src="${bundleUrl}"></script>`;
         return result;
+        // if (this.isDev)
+        // {
+        //     for (let item of files)
+        //         result += `<script src="${item.path}"></script>`; 
+        // } 
+        // else
+        // {
+        //     for (let item of files)
+        //         result += item.content;    
+        //     result = `<script>${result}</script>`;
+        // }
+        // return result;
     }
 }
 exports.ScriptBundle = ScriptBundle;
