@@ -9,8 +9,6 @@ require("n-ext");
 const Crypto = require("crypto");
 const Os = require("os");
 class ServedBundle extends bundle_1.Bundle {
-    // protected get bundlePath(): string { return this._bundlePath; }
-    // protected get servePath(): string { return this._servePath; }
     constructor(name, bundlePath, servePath) {
         n_defensive_1.given(servePath, "servePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         n_defensive_1.given(bundlePath, "bundlePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());

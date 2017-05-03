@@ -14,7 +14,6 @@ export abstract class Bundle
     
     
     protected get name(): string { return this._name; }
-    // protected get entries(): ReadonlyArray<BundleEntry> { return this._entries; }
     
     
     public constructor(name: string)

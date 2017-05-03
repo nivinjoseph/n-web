@@ -6,7 +6,6 @@ const n_config_1 = require("n-config");
 const bundle_cache_1 = require("./bundle-cache");
 require("n-ext");
 class Bundle {
-    // protected get entries(): ReadonlyArray<BundleEntry> { return this._entries; }
     constructor(name) {
         this._entries = new Array();
         n_defensive_1.given(name, "name").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());

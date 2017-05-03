@@ -14,10 +14,6 @@ export abstract class ServedBundle extends Bundle
     private readonly _servePath: string;
     
     
-    // protected get bundlePath(): string { return this._bundlePath; }
-    // protected get servePath(): string { return this._servePath; }
-    
-    
     public constructor(name: string, bundlePath: string, servePath: string)
     {
         given(servePath, "servePath").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
