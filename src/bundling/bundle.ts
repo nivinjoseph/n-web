@@ -31,7 +31,7 @@ export abstract class Bundle
         return this;
     }
     
-    public render(): string
+    public async render(): Promise<string>
     {
         let result: string = null;
         
@@ -42,7 +42,7 @@ export abstract class Bundle
                 return result;
         } 
         
-        result = this.renderBundle();
+        result = await this.renderBundle();
         
         if (!this.isDev)
             BundleCache.add(this._name, result);
@@ -51,7 +51,7 @@ export abstract class Bundle
     }
     
     
-    protected abstract renderBundle(): string;
+    protected abstract renderBundle(): Promise<string>;
     
     protected getFiles(fileExt: string): ReadonlyArray<BundleFile>
     {

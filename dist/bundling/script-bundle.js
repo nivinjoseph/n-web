@@ -6,7 +6,7 @@ class ScriptBundle extends served_bundle_1.ServedBundle {
     renderBundle() {
         let bundleUrl = this.createBundle(".js");
         let result = `<script src="${bundleUrl}"></script>`;
-        return result;
+        return Promise.resolve(result);
         // if (this.isDev)
         // {
         //     for (let item of files)

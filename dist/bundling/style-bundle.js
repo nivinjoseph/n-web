@@ -6,7 +6,7 @@ class StyleBundle extends served_bundle_1.ServedBundle {
     renderBundle() {
         let bundleUrl = this.createBundle(".css");
         let result = `<link rel="stylesheet" type="text/css" href="${bundleUrl}">`;
-        return result;
+        return Promise.resolve(result);
         // let files = new Array<BundleFile>();
         // this.entries.forEach(t => files.push(...t.read(".css")));
         // let result = "";

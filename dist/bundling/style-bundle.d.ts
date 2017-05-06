@@ -1,4 +1,4 @@
 import { ServedBundle } from "./served-bundle";
 export declare class StyleBundle extends ServedBundle {
-    protected renderBundle(): string;
+    protected renderBundle(): Promise<string>;
 }

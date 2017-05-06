@@ -25,6 +25,9 @@ export abstract class ServedBundle extends Bundle
         if (!Fs.existsSync(bundlePath))
             throw new ArgumentException(`bundlePath[${bundlePath}]`, "does not exist");
         
+        if (!Fs.statSync(bundlePath).isDirectory())
+            throw new ArgumentException(`bundlePath[${bundlePath}]`, "is not a directory");    
+        
         super(name);
         
         this._bundlePath = bundlePath;

@@ -6,8 +6,8 @@ export declare abstract class Bundle {
     protected readonly name: string;
     constructor(name: string);
     include(path: string): this;
-    render(): string;
-    protected abstract renderBundle(): string;
+    render(): Promise<string>;
+    protected abstract renderBundle(): Promise<string>;
     protected getFiles(fileExt: string): ReadonlyArray<BundleFile>;
     protected isDev(): boolean;
 }

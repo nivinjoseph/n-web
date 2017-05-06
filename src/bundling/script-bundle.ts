@@ -8,11 +8,11 @@ import * as Fs from "fs";
 // public
 export class ScriptBundle extends ServedBundle
 {
-    protected renderBundle(): string
+    protected renderBundle(): Promise<string>
     {
         let bundleUrl = this.createBundle(".js");
         let result = `<script src="${bundleUrl}"></script>`;
-        return result;
+        return Promise.resolve(result);
         
         // if (this.isDev)
         // {

@@ -5,11 +5,11 @@ import { BundleFile } from "./bundle-file";
 // public
 export class StyleBundle extends ServedBundle
 {
-    protected renderBundle(): string
+    protected renderBundle(): Promise<string>
     {
         let bundleUrl = this.createBundle(".css");
         let result = `<link rel="stylesheet" type="text/css" href="${bundleUrl}">`;
-        return result;
+        return Promise.resolve(result);
         
         
         
