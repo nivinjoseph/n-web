@@ -20,8 +20,8 @@ export class TemplateBundle extends Bundle
             result += template;
         }
         
-        if (!this.isDev())
-            result = result.replaceAll(Os.EOL, ""); 
+        // if (!this.isDev())
+        //     result = result.replaceAll(Os.EOL, ""); 
         
         return Promise.resolve(result);
     }

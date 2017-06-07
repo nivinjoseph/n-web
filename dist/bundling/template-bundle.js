@@ -14,8 +14,8 @@ class TemplateBundle extends bundle_1.Bundle {
             let template = `${Os.EOL}<script type="text/x-template" id="${id}">${Os.EOL}${fileContent}${Os.EOL}</script>${Os.EOL}`;
             result += template;
         }
-        if (!this.isDev())
-            result = result.replaceAll(Os.EOL, "");
+        // if (!this.isDev())
+        //     result = result.replaceAll(Os.EOL, ""); 
         return Promise.resolve(result);
     }
 }
