@@ -12,6 +12,8 @@ import { HomeController } from "./controllers/web/home/home-controller";
 import { HomeWithLayoutController } from "./controllers/web/home-with-layout/home-with-layout-controller"; 
 import { AppExceptionHandler } from "./exceptions/app-exception-handler";
 import { ConfigurationManager } from "n-config";
+import { AppAuthenticationHandler } from "./security/app-authentication-handler";
+import { AppAuthorizationHandler } from "./security/app-authorization-handler";
 
 
 class AppInstaller implements ComponentInstaller
@@ -34,6 +36,8 @@ const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .useViewResolutionRoot("test-app/controllers/web")
     .useInstaller(new AppInstaller())
     .registerControllers(...controllers)
+    .registerAuthenticationHandler(AppAuthenticationHandler)
+    .registerAuthorizationHandler(AppAuthorizationHandler)
     .registerExceptionHandler(AppExceptionHandler);
 
 app.bootstrap();

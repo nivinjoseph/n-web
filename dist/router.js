@@ -16,12 +16,16 @@ const http_method_1 = require("./http-method");
 const http_exception_1 = require("./http-exception");
 const http_redirect_exception_1 = require("./http-redirect-exception");
 class Router {
-    constructor(koa, container) {
+    constructor(koa, container, authorizationHandlerKey, callContextKey) {
         this._controllers = new Array();
         n_defensive_1.given(koa, "koa").ensureHasValue();
         n_defensive_1.given(container, "container").ensureHasValue();
+        n_defensive_1.given(authorizationHandlerKey, "authorizationHandlerKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        n_defensive_1.given(callContextKey, "callContextKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._koa = koa;
         this._container = container;
+        this._authorizationHandlerKey = authorizationHandlerKey;
+        this._callContextKey = callContextKey;
         this._koaRouter = new KoaRouter();
     }
     registerControllers(...controllers) {
@@ -77,10 +81,19 @@ class Router {
     }
     handleRequest(ctx, registration, processBody) {
         return __awaiter(this, void 0, void 0, function* () {
+            let scope = ctx.state.scope;
+            let callContext = scope.resolve(this._callContextKey);
+            if (registration.authorizeClaims) {
+                if (!callContext.isAuthenticated)
+                    throw new http_exception_1.HttpException(401);
+                let authorizationHandler = scope.resolve(this._authorizationHandlerKey);
+                let authorized = yield authorizationHandler.authorize(callContext.identity, registration.authorizeClaims);
+                if (!authorized)
+                    throw new http_exception_1.HttpException(403);
+            }
             let args = this.createRouteArgs(registration.route, ctx);
             if (processBody)
                 args.push(ctx.request.body);
-            let scope = ctx.state.scope;
             let controllerInstance = scope.resolve(registration.name);
             let result;
             try {

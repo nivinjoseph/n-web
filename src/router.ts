@@ -9,22 +9,31 @@ import { RouteInfo } from "./route-info";
 import { HttpMethods } from "./http-method";
 import { HttpException } from "./http-exception";
 import { HttpRedirectException } from "./http-redirect-exception";
+import { AuthorizationHandler } from "./security/authorization-handler";
+import { ClaimsIdentity } from "./security/claims-identity";
+import { CallContext } from "./services/call-context/call-context";
 
 export class Router
 {
     private readonly _koa: Koa;
     private readonly _container: Container;
+    private readonly _authorizationHandlerKey: string;
+    private readonly _callContextKey: string;
     private readonly _koaRouter: KoaRouter;
     private readonly _controllers = new Array<ControllerRegistration>();
     
     
-    public constructor(koa: Koa, container: Container)
+    public constructor(koa: Koa, container: Container, authorizationHandlerKey: string, callContextKey: string)
     {
         given(koa, "koa").ensureHasValue();
         given(container, "container").ensureHasValue();
+        given(authorizationHandlerKey, "authorizationHandlerKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(callContextKey, "callContextKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         
         this._koa = koa;
         this._container = container;
+        this._authorizationHandlerKey = authorizationHandlerKey;
+        this._callContextKey = callContextKey;
         this._koaRouter = new KoaRouter();
     }
     
@@ -105,12 +114,26 @@ export class Router
     private async handleRequest(ctx: KoaRouter.IRouterContext, registration: ControllerRegistration,
         processBody: boolean): Promise<void>
     {
+        let scope = ctx.state.scope as Scope;
+        let callContext = scope.resolve<CallContext>(this._callContextKey);
+        
+        if (registration.authorizeClaims)
+        {
+            if (!callContext.isAuthenticated)
+                throw new HttpException(401);
+            
+            let authorizationHandler = scope.resolve<AuthorizationHandler>(this._authorizationHandlerKey);
+            let authorized = await authorizationHandler.authorize(callContext.identity, registration.authorizeClaims);
+            if (!authorized)
+                throw new HttpException(403);    
+        }    
+        
         let args = this.createRouteArgs(registration.route, ctx);
         
         if (processBody)
             args.push(ctx.request.body);
 
-        let scope = ctx.state.scope as Scope;
+        
         let controllerInstance = scope.resolve<Controller>(registration.name);
         
         let result: any;

@@ -12,6 +12,11 @@ import * as path from "path";
 import "n-ext";
 import * as cors from "kcors";
 import { ConfigurationManager } from "n-config";
+import { DefaultCallContext } from "./services/call-context/default-call-context";
+import { AuthenticationHandler } from "./security/authentication-handler";
+import { CallContext } from "./services/call-context/call-context";
+import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
+import { ClaimsIdentity } from "./security/claims-identity";
 
 
 // public
@@ -21,8 +26,19 @@ export class WebApp
     private readonly _koa: Koa;
     private readonly _container: Container;
     private readonly _router: Router;
+    
+    private readonly _callContextKey = "CallContext";
+    
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
+    
+    private readonly _authenticationHandlerKey = "$authenticationHandler";
+    private _hasAuthenticationHandler = false;
+    
+    private readonly _authorizationHandlerKey = "$authorizationHandler";
+    private _hasAuthorizationHandler = false;
+    
+    
     private readonly _staticFilePaths = new Array<string>();
     private _enableCors = false;
     private _viewResolutionRoot: string;
@@ -35,7 +51,7 @@ export class WebApp
         this._port = port;
         this._koa = new Koa();
         this._container = new Container();
-        this._router = new Router(this._koa, this._container);
+        this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
     }
     
     
@@ -110,6 +126,28 @@ export class WebApp
         return this;
     }
     
+    public registerAuthenticationHandler(authenticationHandler: Function): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerAuthenticationHandler");
+        
+        given(authenticationHandler, "authenticationHandler").ensureHasValue();
+        this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
+        this._hasAuthenticationHandler = true;
+        return this;
+    }
+    
+    public registerAuthorizationHandler(authorizationHandler: Function): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerAuthorizationHandler");
+        
+        given(authorizationHandler, "authorizationHandler").ensureHasValue();
+        this._container.registerScoped(this._authorizationHandlerKey, authorizationHandler);
+        this._hasAuthorizationHandler = true;
+        return this;
+    }
+    
     public useViewResolutionRoot(path: string): this
     {
         if (this._isBootstrapped)
@@ -128,12 +166,12 @@ export class WebApp
         this.configureCors();
         this.configureContainer();
         this.configureScoping();
+        this.configureCallContext();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
+        this.configureAuthentication();
         this.configureStaticFileServing();
-        // this.configureAuthentication();
-        // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         
@@ -150,6 +188,11 @@ export class WebApp
     
     private configureContainer(): void
     { 
+        this._container.registerScoped(this._callContextKey, DefaultCallContext);
+        
+        if (!this._hasAuthorizationHandler)
+            this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
+        
         this._container.bootstrap();
     }
     
@@ -158,6 +201,17 @@ export class WebApp
         this._koa.use(async (ctx, next) =>
         {
             ctx.state.scope = this._container.createScope();
+            await next();
+        });
+    }
+    
+    private configureCallContext(): void
+    {
+        this._koa.use(async (ctx, next) =>
+        {
+            let scope: Scope = ctx.state.scope;
+            let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
+            defaultCallContext.configure(ctx);
             await next();
         });
     }
@@ -221,6 +275,27 @@ export class WebApp
                 
                 throw new Exception(error.toString());
             }
+        });
+    }
+    
+    private configureAuthentication(): void
+    {
+        if (!this._hasAuthenticationHandler)
+            return;
+        
+        this._koa.use(async (ctx, next) =>
+        {
+            let scope = ctx.state.scope as Scope;
+            let callContext = scope.resolve<CallContext>(this._callContextKey);
+            if (callContext.hasAuth)
+            {
+                let authenticationHandler = scope.resolve<AuthenticationHandler>(this._authenticationHandlerKey);
+                let identity = await authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
+                if (identity && identity instanceof ClaimsIdentity)
+                    ctx.state.identity = identity;  
+            }    
+            
+            await next();
         });
     }
     

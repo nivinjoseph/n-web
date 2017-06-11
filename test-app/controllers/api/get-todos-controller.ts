@@ -1,13 +1,15 @@
 import { given } from "n-defensive";
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { httpGet, route, Controller } from "./../../../src/index";
+import { httpGet, route, Controller, authorize } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "n-ject";
+import * as AppClaims from "./../../security/app-claims";
 
 @httpGet
 @route(Routes.getTodos)
-@inject("TodoManager", "ConfigService")
+@authorize(AppClaims.claim1)    
+@inject("TodoManager", "ConfigService")    
 export class GetTodosController extends Controller
 {
     private readonly _todoManager: TodoManager;

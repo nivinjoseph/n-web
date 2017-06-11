@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { RouteInfo } from "./route-info";
 import "n-ext";
+import { Claim } from "./security/claim";
 export declare class ControllerRegistration {
     private readonly _name;
     private readonly _controller;
@@ -12,12 +13,14 @@ export declare class ControllerRegistration {
     private _viewLayoutFileName;
     private _viewLayoutFilePath;
     private _viewLayoutFileData;
+    private _authorizeClaims;
     readonly name: string;
     readonly controller: Function;
     readonly method: string;
     readonly route: RouteInfo;
     readonly view: string;
     readonly viewLayout: string;
+    readonly authorizeClaims: ReadonlyArray<Claim>;
     constructor(controller: Function);
     complete(viewResolutionRoot: string): void;
     private resolvePath(startPoint, fileName);

@@ -20,11 +20,19 @@ const fs = require("fs");
 const path = require("path");
 require("n-ext");
 const cors = require("kcors");
+const default_call_context_1 = require("./services/call-context/default-call-context");
+const default_authorization_handler_1 = require("./security/default-authorization-handler");
+const claims_identity_1 = require("./security/claims-identity");
 // public
 class WebApp {
     constructor(port) {
+        this._callContextKey = "CallContext";
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
+        this._authenticationHandlerKey = "$authenticationHandler";
+        this._hasAuthenticationHandler = false;
+        this._authorizationHandlerKey = "$authorizationHandler";
+        this._hasAuthorizationHandler = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._isBootstrapped = false;
@@ -32,7 +40,7 @@ class WebApp {
         this._port = port;
         this._koa = new Koa();
         this._container = new n_ject_1.Container();
-        this._router = new router_1.Router(this._koa, this._container);
+        this._router = new router_1.Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
     }
     enableCors() {
         if (this._isBootstrapped)
@@ -83,6 +91,22 @@ class WebApp {
         this._hasExceptionHandler = true;
         return this;
     }
+    registerAuthenticationHandler(authenticationHandler) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerAuthenticationHandler");
+        n_defensive_1.given(authenticationHandler, "authenticationHandler").ensureHasValue();
+        this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
+        this._hasAuthenticationHandler = true;
+        return this;
+    }
+    registerAuthorizationHandler(authorizationHandler) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerAuthorizationHandler");
+        n_defensive_1.given(authorizationHandler, "authorizationHandler").ensureHasValue();
+        this._container.registerScoped(this._authorizationHandlerKey, authorizationHandler);
+        this._hasAuthorizationHandler = true;
+        return this;
+    }
     useViewResolutionRoot(path) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("useViewResolutionRoot");
@@ -96,12 +120,12 @@ class WebApp {
         this.configureCors();
         this.configureContainer();
         this.configureScoping();
+        this.configureCallContext();
         this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
+        this.configureAuthentication();
         this.configureStaticFileServing();
-        // this.configureAuthentication();
-        // this.configureAuthorization();
         this.configureBodyParser();
         this.configureRouting(); // must be last
         this._koa.listen(this._port);
@@ -112,11 +136,22 @@ class WebApp {
             this._koa.use(cors());
     }
     configureContainer() {
+        this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
+        if (!this._hasAuthorizationHandler)
+            this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         this._container.bootstrap();
     }
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             ctx.state.scope = this._container.createScope();
+            yield next();
+        }));
+    }
+    configureCallContext() {
+        this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            let scope = ctx.state.scope;
+            let defaultCallContext = scope.resolve(this._callContextKey);
+            defaultCallContext.configure(ctx);
             yield next();
         }));
     }
@@ -161,6 +196,21 @@ class WebApp {
                     throw error;
                 throw new n_exception_1.Exception(error.toString());
             }
+        }));
+    }
+    configureAuthentication() {
+        if (!this._hasAuthenticationHandler)
+            return;
+        this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            let scope = ctx.state.scope;
+            let callContext = scope.resolve(this._callContextKey);
+            if (callContext.hasAuth) {
+                let authenticationHandler = scope.resolve(this._authenticationHandlerKey);
+                let identity = yield authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
+                if (identity && identity instanceof claims_identity_1.ClaimsIdentity)
+                    ctx.state.identity = identity;
+            }
+            yield next();
         }));
     }
     configureStaticFileServing() {

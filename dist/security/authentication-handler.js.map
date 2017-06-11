@@ -1,0 +1,1 @@
+{"version":3,"file":"authentication-handler.js","sourceRoot":"","sources":["../../src/security/authentication-handler.ts"],"names":[],"mappings":"","sourcesContent":["import { ClaimsIdentity } from \"./claims-identity\";\n\n\n// public \nexport interface AuthenticationHandler\n{\n    authenticate(scheme: string, token: string): Promise<ClaimsIdentity>;\n}"]}

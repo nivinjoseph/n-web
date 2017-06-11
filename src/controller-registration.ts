@@ -6,10 +6,12 @@ import { httpRouteSymbol } from "./route";
 import { RouteInfo } from "./route-info";
 import { viewSymbol } from "./view";
 import { viewLayoutSymbol } from "./view-layout";
+import { authorizeSymbol } from "./security/authorize";
 import "n-ext";
 import * as fs from "fs";
 import * as path from "path";
 import { ConfigurationManager } from "n-config";
+import { Claim } from "./security/claim";
 
 
 export class ControllerRegistration
@@ -24,6 +26,7 @@ export class ControllerRegistration
     private _viewLayoutFileName: string = null;
     private _viewLayoutFilePath: string = null;
     private _viewLayoutFileData: string = null;
+    private _authorizeClaims: ReadonlyArray<Claim> = null;
 
 
     public get name(): string { return this._name; }
@@ -32,6 +35,7 @@ export class ControllerRegistration
     public get route(): RouteInfo { return this._route; }
     public get view(): string { return this.retrieveView(); }
     public get viewLayout(): string { return this.retrieveViewLayout(); }
+    public get authorizeClaims(): ReadonlyArray<Claim> { return this._authorizeClaims; }
 
 
     public constructor(controller: Function)
@@ -87,6 +91,9 @@ export class ControllerRegistration
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
+        
+        if (Reflect.hasOwnMetadata(authorizeSymbol, this._controller))
+            this._authorizeClaims = Reflect.getOwnMetadata(authorizeSymbol, this._controller);
     }
     
     private resolvePath(startPoint: string, fileName: string): string

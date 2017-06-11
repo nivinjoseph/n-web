@@ -8,6 +8,7 @@ const route_1 = require("./route");
 const route_info_1 = require("./route-info");
 const view_1 = require("./view");
 const view_layout_1 = require("./view-layout");
+const authorize_1 = require("./security/authorize");
 require("n-ext");
 const fs = require("fs");
 const path = require("path");
@@ -20,6 +21,7 @@ class ControllerRegistration {
         this._viewLayoutFileName = null;
         this._viewLayoutFilePath = null;
         this._viewLayoutFileData = null;
+        this._authorizeClaims = null;
         n_defensive_1.given(controller, "controller").ensureHasValue();
         this._name = controller.getTypeName();
         this._controller = controller;
@@ -30,6 +32,7 @@ class ControllerRegistration {
     get route() { return this._route; }
     get view() { return this.retrieveView(); }
     get viewLayout() { return this.retrieveViewLayout(); }
+    get authorizeClaims() { return this._authorizeClaims; }
     complete(viewResolutionRoot) {
         viewResolutionRoot = viewResolutionRoot ? path.join(process.cwd(), viewResolutionRoot) : process.cwd();
         if (!Reflect.hasOwnMetadata(http_method_1.httpMethodSymbol, this._controller))
@@ -64,6 +67,8 @@ class ControllerRegistration {
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
+        if (Reflect.hasOwnMetadata(authorize_1.authorizeSymbol, this._controller))
+            this._authorizeClaims = Reflect.getOwnMetadata(authorize_1.authorizeSymbol, this._controller);
     }
     resolvePath(startPoint, fileName) {
         if (startPoint.endsWith(fileName))
