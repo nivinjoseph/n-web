@@ -16,8 +16,6 @@ import { ScriptBundle } from "./bundling/script-bundle";
 
 import { CallContext } from "./services/call-context/call-context";
 
-import { Claim } from "./security/claim";
-import { ClaimsIdentity } from "./security/claims-identity";
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
@@ -39,5 +37,5 @@ export
     
     CallContext,
     
-    Claim, ClaimsIdentity, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize
+    AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize
 };

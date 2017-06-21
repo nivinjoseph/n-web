@@ -1,6 +1,5 @@
 import { AuthorizationHandler } from "./authorization-handler";
-import { ClaimsIdentity } from "./claims-identity";
-import { Claim } from "./claim";
+import { ClaimsIdentity, Claim } from "n-sec";
 export declare class DefaultAuthorizationHandler implements AuthorizationHandler {
     authorize(identity: ClaimsIdentity, authorizeClaims: ReadonlyArray<Claim>): Promise<boolean>;
 }

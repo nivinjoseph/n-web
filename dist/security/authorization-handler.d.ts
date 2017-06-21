@@ -1,5 +1,4 @@
-import { ClaimsIdentity } from "./claims-identity";
-import { Claim } from "./claim";
+import { ClaimsIdentity, Claim } from "n-sec";
 export interface AuthorizationHandler {
     authorize(identity: ClaimsIdentity, authorizeClaims: ReadonlyArray<Claim>): Promise<boolean>;
 }

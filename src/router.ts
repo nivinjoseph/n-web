@@ -10,7 +10,6 @@ import { HttpMethods } from "./http-method";
 import { HttpException } from "./http-exception";
 import { HttpRedirectException } from "./http-redirect-exception";
 import { AuthorizationHandler } from "./security/authorization-handler";
-import { ClaimsIdentity } from "./security/claims-identity";
 import { CallContext } from "./services/call-context/call-context";
 
 export class Router

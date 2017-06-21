@@ -1,4 +1,4 @@
-import { ClaimsIdentity } from "./claims-identity";
+import { ClaimsIdentity } from "n-sec";
 
 
 // public 

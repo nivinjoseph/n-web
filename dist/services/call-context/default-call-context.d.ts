@@ -3,7 +3,7 @@
 import { CallContext } from "./call-context";
 import { Scope } from "n-ject";
 import * as Koa from "koa";
-import { ClaimsIdentity } from "../../security/claims-identity";
+import { ClaimsIdentity } from "n-sec";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _hasAuth;

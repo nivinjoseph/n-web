@@ -11,7 +11,7 @@ import "n-ext";
 import * as fs from "fs";
 import * as path from "path";
 import { ConfigurationManager } from "n-config";
-import { Claim } from "./security/claim";
+import { Claim } from "n-sec";
 
 
 export class ControllerRegistration

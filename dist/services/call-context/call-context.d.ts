@@ -1,5 +1,5 @@
 import { Scope } from "n-ject";
-import { ClaimsIdentity } from "../../security/claims-identity";
+import { ClaimsIdentity } from "n-sec";
 export interface CallContext {
     dependencyScope: Scope;
     hasAuth: boolean;

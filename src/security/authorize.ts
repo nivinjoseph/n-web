@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Claim } from "./claim";
+import { Claim } from "n-sec";
 
 
 export const authorizeSymbol = Symbol("authorize");

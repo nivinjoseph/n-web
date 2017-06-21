@@ -22,7 +22,7 @@ require("n-ext");
 const cors = require("kcors");
 const default_call_context_1 = require("./services/call-context/default-call-context");
 const default_authorization_handler_1 = require("./security/default-authorization-handler");
-const claims_identity_1 = require("./security/claims-identity");
+const n_sec_1 = require("n-sec");
 // public
 class WebApp {
     constructor(port) {
@@ -207,7 +207,7 @@ class WebApp {
             if (callContext.hasAuth) {
                 let authenticationHandler = scope.resolve(this._authenticationHandlerKey);
                 let identity = yield authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
-                if (identity && identity instanceof claims_identity_1.ClaimsIdentity)
+                if (identity && identity instanceof n_sec_1.ClaimsIdentity)
                     ctx.state.identity = identity;
             }
             yield next();

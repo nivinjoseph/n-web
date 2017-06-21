@@ -16,7 +16,7 @@ import { DefaultCallContext } from "./services/call-context/default-call-context
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
-import { ClaimsIdentity } from "./security/claims-identity";
+import { ClaimsIdentity } from "n-sec";
 
 
 // public

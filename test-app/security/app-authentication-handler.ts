@@ -1,4 +1,5 @@
-import { AuthenticationHandler, ClaimsIdentity, Claim } from "../../src/index";
+import { AuthenticationHandler } from "../../src/index";
+import { ClaimsIdentity, Claim } from "n-sec";
 
 
 export class AppAuthenticationHandler implements AuthenticationHandler
