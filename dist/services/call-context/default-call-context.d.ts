@@ -15,6 +15,7 @@ export declare class DefaultCallContext implements CallContext {
     readonly authToken: string;
     readonly isAuthenticated: boolean;
     readonly identity: ClaimsIdentity;
+    readonly ctx: Koa.Context;
     configure(ctx: Koa.Context): void;
     private populateSchemeAndToken();
 }

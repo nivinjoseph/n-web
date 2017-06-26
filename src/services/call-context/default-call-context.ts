@@ -19,6 +19,7 @@ export class DefaultCallContext implements CallContext
     public get authToken(): string { return this._authToken; }
     public get isAuthenticated(): boolean { return this.identity !== undefined && this.identity !== null; }
     public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
+    public get ctx(): Koa.Context { return this._ctx; }
     
     
     public configure(ctx: Koa.Context): void

@@ -11,6 +11,7 @@ class DefaultCallContext {
     get authToken() { return this._authToken; }
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
+    get ctx() { return this._ctx; }
     configure(ctx) {
         n_defensive_1.given(ctx, "ctx").ensureHasValue();
         this._ctx = ctx;
