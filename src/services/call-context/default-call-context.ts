@@ -3,6 +3,7 @@ import { Scope } from "n-ject";
 import { given } from "n-defensive";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "n-sec";
+import "n-ext";
 
 
 export class DefaultCallContext implements CallContext
@@ -19,7 +20,6 @@ export class DefaultCallContext implements CallContext
     public get authToken(): string { return this._authToken; }
     public get isAuthenticated(): boolean { return this.identity !== undefined && this.identity !== null; }
     public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
-    public get ctx(): Koa.Context { return this._ctx; }
     
     
     public configure(ctx: Koa.Context): void
@@ -28,6 +28,17 @@ export class DefaultCallContext implements CallContext
         
         this._ctx = ctx;
         this.populateSchemeAndToken();
+    }
+    
+    
+    public setResponseType(responseType: string): void
+    {
+        given(responseType, "responseType")
+            .ensureHasValue()
+            .ensureIsString()
+            .ensure(t => !t.isEmptyOrWhiteSpace());
+        
+        this._ctx.response.type = responseType.trim();
     }
     
     

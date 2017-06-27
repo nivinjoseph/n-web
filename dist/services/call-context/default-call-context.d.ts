@@ -4,6 +4,7 @@ import { CallContext } from "./call-context";
 import { Scope } from "n-ject";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "n-sec";
+import "n-ext";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _hasAuth;
@@ -15,7 +16,7 @@ export declare class DefaultCallContext implements CallContext {
     readonly authToken: string;
     readonly isAuthenticated: boolean;
     readonly identity: ClaimsIdentity;
-    readonly ctx: Koa.Context;
     configure(ctx: Koa.Context): void;
+    setResponseType(responseType: string): void;
     private populateSchemeAndToken();
 }

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const n_defensive_1 = require("n-defensive");
+require("n-ext");
 class DefaultCallContext {
     constructor() {
         this._hasAuth = false;
@@ -11,11 +12,17 @@ class DefaultCallContext {
     get authToken() { return this._authToken; }
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
-    get ctx() { return this._ctx; }
     configure(ctx) {
         n_defensive_1.given(ctx, "ctx").ensureHasValue();
         this._ctx = ctx;
         this.populateSchemeAndToken();
+    }
+    setResponseType(responseType) {
+        n_defensive_1.given(responseType, "responseType")
+            .ensureHasValue()
+            .ensureIsString()
+            .ensure(t => !t.isEmptyOrWhiteSpace());
+        this._ctx.response.type = responseType.trim();
     }
     populateSchemeAndToken() {
         if (this._ctx.header && this._ctx.header.authorization) {
