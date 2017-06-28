@@ -307,7 +307,10 @@ export class WebApp
     
     private configureBodyParser(): void
     {
-        this._koa.use(KoaBodyParser({strict: true}));
+        this._koa.use(KoaBodyParser({
+            strict: true,
+            jsonLimit: "250mb"
+        }));
     }
     
     private configureRouting(): void

@@ -218,7 +218,10 @@ class WebApp {
             this._koa.use(serve(path));
     }
     configureBodyParser() {
-        this._koa.use(KoaBodyParser({ strict: true }));
+        this._koa.use(KoaBodyParser({
+            strict: true,
+            jsonLimit: "250mb"
+        }));
     }
     configureRouting() {
         this._router.configureRouting(this._viewResolutionRoot);
