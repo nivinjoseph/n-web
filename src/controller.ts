@@ -26,7 +26,8 @@ export abstract class Controller
         if (params === undefined || params === null)
             return route;
         
-        return new RouteInfo(route).generateUrl(params);
+        let url = new RouteInfo(route).generateUrl(params);
+        return url.replaceAll(" ", "");
     }
     
     protected redirect(url: string): void
