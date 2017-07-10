@@ -9,12 +9,16 @@ import "n-ext";
 export class DefaultCallContext implements CallContext
 {
     private _ctx: Koa.Context;
+    private _pathParams: Object;
+    private _queryParams: Object;
     private _hasAuth: boolean = false;
     private _authScheme: string;
     private _authToken: string;
     
     
     public get dependencyScope(): Scope { return this._ctx.state.scope; }
+    public get pathParams(): Object { return this._pathParams; }
+    public get queryParams(): Object { return this._queryParams; }
     public get hasAuth(): boolean { return this._hasAuth; }
     public get authScheme(): string { return this._authScheme; }
     public get authToken(): string { return this._authToken; }
@@ -27,6 +31,7 @@ export class DefaultCallContext implements CallContext
         given(ctx, "ctx").ensureHasValue();
         
         this._ctx = ctx;
+        this.populatePathAndQueryParams();
         this.populateSchemeAndToken();
     }
     
@@ -41,6 +46,12 @@ export class DefaultCallContext implements CallContext
         this._ctx.response.type = responseType.trim();
     }
     
+    
+    private populatePathAndQueryParams(): void
+    {
+        this._pathParams = this._ctx.params ? JSON.parse(JSON.stringify(this._ctx.params)) : null;
+        this._queryParams = this._ctx.query ? JSON.parse(JSON.stringify(this._ctx.query)) : null;
+    }
     
     private populateSchemeAndToken(): void
     {
