@@ -1,4 +1,5 @@
 import * as assert from "assert";
+import "n-ext";
 
 suite("Random stuff", () =>
 {
@@ -18,5 +19,27 @@ suite("Random stuff", () =>
         view = eval("`" + layout + "`");
         let result = eval("`" + view + "`");
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
+    });
+    
+    test("object keys", () =>
+    {
+        let query: any = { foo: "bar" };
+        for (let key in query)
+        {
+            console.log("key", key);
+            console.log("value", query[key]);
+        }    
+    });
+    
+    test("Object keys", () =>
+    {
+        let query = new Object();
+        query.setValue("foo", "bar");
+        
+        for (let key in query)
+        {
+            console.log("key", key);
+            console.log("value", query.getValue(key));
+        }
     });
 });
