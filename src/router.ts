@@ -11,6 +11,7 @@ import { HttpException } from "./http-exception";
 import { HttpRedirectException } from "./http-redirect-exception";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { CallContext } from "./services/call-context/call-context";
+import { ConfigurationManager } from "n-config";
 
 export class Router
 {
@@ -159,9 +160,27 @@ export class Router
                 view = eval("`" + viewLayout + "`");
             
             result = eval("`" + view + "`");
+            
+            let html = result as string;
+            html = html.replace("<body>",
+                `
+                    <body>
+                    <script>
+                        window.appData = {
+                            mode: "${this.isDev() ? "dev" : "prod"}"
+                        };
+                    </script>
+                `);
+            result = html;
         }
         
         ctx.body = result;
+    }
+    
+    private isDev(): boolean
+    {
+        let mode = ConfigurationManager.getConfig<string>("mode");
+        return mode !== null && mode.trim().toLowerCase() === "dev";
     }
     
     private createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>

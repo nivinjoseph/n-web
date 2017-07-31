@@ -11,7 +11,6 @@ import * as fs from "fs";
 import * as path from "path";
 import "n-ext";
 import * as cors from "kcors";
-import { ConfigurationManager } from "n-config";
 import { DefaultCallContext } from "./services/call-context/default-call-context";
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { CallContext } from "./services/call-context/call-context";

@@ -18,5 +18,6 @@ export declare class Router {
     private configurePut(registration);
     private configureDelete(registration);
     private handleRequest(ctx, registration, processBody);
+    private isDev();
     private createRouteArgs(route, ctx);
 }

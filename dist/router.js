@@ -15,6 +15,7 @@ const n_exception_1 = require("n-exception");
 const http_method_1 = require("./http-method");
 const http_exception_1 = require("./http-exception");
 const http_redirect_exception_1 = require("./http-redirect-exception");
+const n_config_1 = require("n-config");
 class Router {
     constructor(koa, container, authorizationHandlerKey, callContextKey) {
         this._controllers = new Array();
@@ -112,9 +113,23 @@ class Router {
                 if (viewLayout !== null)
                     view = eval("`" + viewLayout + "`");
                 result = eval("`" + view + "`");
+                let html = result;
+                html = html.replace("<body>", `
+                    <body>
+                    <script>
+                        window.appData = {
+                            mode: "${this.isDev() ? "dev" : "prod"}"
+                        };
+                    </script>
+                `);
+                result = html;
             }
             ctx.body = result;
         });
+    }
+    isDev() {
+        let mode = n_config_1.ConfigurationManager.getConfig("mode");
+        return mode !== null && mode.trim().toLowerCase() === "dev";
     }
     createRouteArgs(route, ctx) {
         let pathParams = ctx.params ? ctx.params : {};
