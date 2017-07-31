@@ -166,7 +166,7 @@ export class Router
                 `
                     <body>
                     <script>
-                        window.appData = {
+                        window.appConfig = {
                             mode: "${this.isDev() ? "dev" : "prod"}"
                         };
                     </script>

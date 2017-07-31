@@ -117,7 +117,7 @@ class Router {
                 html = html.replace("<body>", `
                     <body>
                     <script>
-                        window.appData = {
+                        window.appConfig = {
                             mode: "${this.isDev() ? "dev" : "prod"}"
                         };
                     </script>
