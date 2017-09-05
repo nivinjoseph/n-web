@@ -20,14 +20,18 @@ export abstract class Controller
             if (baseUrl.endsWith("/"))
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
             
+            if (!route.startsWith("/"))
+                route = "/" + route;
+            
             route = baseUrl + route;
+            route = route.replaceAll(" ", "");
         }    
         
         if (params === undefined || params === null)
             return route;
         
         let url = new RouteInfo(route).generateUrl(params);
-        return url.replaceAll(" ", "");
+        return url;
     }
     
     protected redirect(url: string): void

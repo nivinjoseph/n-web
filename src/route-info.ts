@@ -46,11 +46,12 @@ export class RouteInfo
             if (!routeParam) continue;
             
             let param = "{" + routeParam.param + "}";
-            let replacement = routeParam.isQuery ? "{0}={1}".format(key, values[key]) : values[key];
+            let replacement = routeParam.isQuery ? "{0}={1}".format(key, encodeURIComponent(values[key])) : encodeURIComponent(values[key]);
             url = url.replace(param, replacement);
         }  
-        return url;
+        return encodeURI(url);
     }
+    
     
     private populateRouteParams(): void
     {
