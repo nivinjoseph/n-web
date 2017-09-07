@@ -31,7 +31,7 @@ export abstract class Controller
             return route;
         
         let url = new RouteInfo(route).generateUrl(params);
-        return url;
+        return url.replaceAll(" ", "");
     }
     
     protected redirect(url: string): void

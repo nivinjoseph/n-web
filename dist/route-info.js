@@ -34,7 +34,8 @@ class RouteInfo {
             let replacement = routeParam.isQuery ? "{0}={1}".format(key, encodeURIComponent(values[key])) : encodeURIComponent(values[key]);
             url = url.replace(param, replacement);
         }
-        return encodeURI(url);
+        // return encodeURI(url);
+        return url;
     }
     populateRouteParams() {
         let index = 1;

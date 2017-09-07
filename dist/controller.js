@@ -21,7 +21,7 @@ class Controller {
         if (params === undefined || params === null)
             return route;
         let url = new route_info_1.RouteInfo(route).generateUrl(params);
-        return url;
+        return url.replaceAll(" ", "");
     }
     redirect(url) {
         n_defensive_1.given(url, "url").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
