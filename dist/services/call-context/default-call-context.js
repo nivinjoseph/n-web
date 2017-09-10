@@ -7,8 +7,8 @@ class DefaultCallContext {
         this._hasAuth = false;
     }
     get dependencyScope() { return this._ctx.state.scope; }
-    get pathParams() { return this._pathParams; }
-    get queryParams() { return this._queryParams; }
+    get pathParams() { return JSON.parse(JSON.stringify(this._ctx.params)); }
+    get queryParams() { return JSON.parse(JSON.stringify(this._ctx.query)); }
     get hasAuth() { return this._hasAuth; }
     get authScheme() { return this._authScheme; }
     get authToken() { return this._authToken; }
@@ -17,7 +17,6 @@ class DefaultCallContext {
     configure(ctx) {
         n_defensive_1.given(ctx, "ctx").ensureHasValue();
         this._ctx = ctx;
-        this.populatePathAndQueryParams();
         this.populateSchemeAndToken();
     }
     setResponseType(responseType) {
@@ -26,10 +25,6 @@ class DefaultCallContext {
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx.response.type = responseType.trim();
-    }
-    populatePathAndQueryParams() {
-        this._pathParams = this._ctx.params ? JSON.parse(JSON.stringify(this._ctx.params)) : null;
-        this._queryParams = this._ctx.query ? JSON.parse(JSON.stringify(this._ctx.query)) : null;
     }
     populateSchemeAndToken() {
         if (this._ctx.header && this._ctx.header.authorization) {

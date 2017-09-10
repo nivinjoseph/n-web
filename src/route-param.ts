@@ -83,7 +83,7 @@ export class RouteParam
     
     public parseParam(value: string): any
     {
-        if (value === undefined || value == null || value.isEmptyOrWhiteSpace())
+        if (value === undefined || value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
         { 
             if (this._isOptional)
                 return null;

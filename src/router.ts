@@ -185,17 +185,25 @@ export class Router
     
     private createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>
     {
-        let pathParams = ctx.params ? ctx.params : {};
-        let queryParams = ctx.query ? ctx.query : {};
+        let queryParams = ctx.query;
+        let pathParams = ctx.params;
         let model: { [index: string]: any } = {};
 
         for (let key in queryParams)
         {
             let routeParam = route.findRouteParam(key);
-            if (!routeParam)
-                continue;
-
-            model[routeParam.paramKey] = routeParam.parseParam(queryParams[key]);
+            if (routeParam)
+            {
+                let parsed = routeParam.parseParam(queryParams[key]);
+                model[routeParam.paramKey] = parsed;
+                queryParams[key] = parsed;
+            }
+            else
+            {
+                let value = queryParams[key];
+                if (value === undefined || value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
+                    queryParams[key] = null;    
+            }
         }
 
         for (let key in pathParams)
@@ -204,7 +212,9 @@ export class Router
             if (!routeParam)
                 throw new HttpException(404);
 
-            model[routeParam.paramKey] = routeParam.parseParam(pathParams[key]);
+            let parsed = routeParam.parseParam(pathParams[key]);
+            model[routeParam.paramKey] = parsed;
+            pathParams[key] = parsed;
         }
 
         let result = [];

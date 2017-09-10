@@ -11,6 +11,7 @@ export class RouteInfo
     private readonly _routeParams = new Array<RouteParam>();
     private readonly _routeParamsRegistry: { [index: string]: RouteParam } = {};
     private readonly _koaRoute: string;
+    private _hasQuery: boolean;
     
     
     public get route(): string { return this._routeTemplate; }
@@ -37,19 +38,29 @@ export class RouteInfo
         return this._routeParamsRegistry[key.trim().toLowerCase()];
     }
     
-    public generateUrl(values: any): string
+    public generateUrl(values: Object): string
     {
         let url = this._routeTemplate;
+        let hasQuery = this._hasQuery;
+        
         for (let key in values)
         {
             let routeParam = this.findRouteParam(key);
-            if (!routeParam) continue;
-            
-            let param = "{" + routeParam.param + "}";
-            let replacement = routeParam.isQuery ? "{0}={1}".format(key, encodeURIComponent(values[key])) : encodeURIComponent(values[key]);
-            url = url.replace(param, replacement);
+            if (routeParam)
+            {
+                let param = "{" + routeParam.param + "}";
+                let replacement = routeParam.isQuery
+                    ? "{0}={1}".format(key, encodeURIComponent(values.getValue(key)))
+                    : encodeURIComponent(values.getValue(key));
+                url = url.replace(param, replacement);
+            }
+            else
+            {
+                url = `${url}${hasQuery ? "&" : "?"}${"{0}={1}".format(key, encodeURIComponent(values.getValue(key)))}`;
+                hasQuery = true;
+            }
         }  
-        // return encodeURI(url);
+        
         return url;
     }
     
@@ -106,6 +117,8 @@ export class RouteInfo
                 startFound = false;
             }
         }
+        
+        this._hasQuery = queryFound;
         
         return templateParams;
     }

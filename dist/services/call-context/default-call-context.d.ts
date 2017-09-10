@@ -7,8 +7,6 @@ import { ClaimsIdentity } from "n-sec";
 import "n-ext";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
-    private _pathParams;
-    private _queryParams;
     private _hasAuth;
     private _authScheme;
     private _authToken;
@@ -22,6 +20,5 @@ export declare class DefaultCallContext implements CallContext {
     readonly identity: ClaimsIdentity;
     configure(ctx: Koa.Context): void;
     setResponseType(responseType: string): void;
-    private populatePathAndQueryParams();
     private populateSchemeAndToken();
 }
