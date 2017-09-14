@@ -20,5 +20,6 @@ export declare class DefaultCallContext implements CallContext {
     readonly identity: ClaimsIdentity;
     configure(ctx: Koa.Context): void;
     setResponseType(responseType: string): void;
+    setResponseContentDisposition(contentDisposition: string): void;
     private populateSchemeAndToken();
 }

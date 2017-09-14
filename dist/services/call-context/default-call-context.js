@@ -26,6 +26,15 @@ class DefaultCallContext {
             .ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx.response.type = responseType.trim();
     }
+    setResponseContentDisposition(contentDisposition) {
+        n_defensive_1.given(contentDisposition, "contentDisposition")
+            .ensureHasValue()
+            .ensureIsString()
+            .ensure(t => !t.isEmptyOrWhiteSpace());
+        this._ctx.response.set({
+            "Content-Disposition": contentDisposition.trim()
+        });
+    }
     populateSchemeAndToken() {
         if (this._ctx.header && this._ctx.header.authorization) {
             let authorization = this._ctx.header.authorization;

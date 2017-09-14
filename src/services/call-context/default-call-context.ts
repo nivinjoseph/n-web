@@ -43,6 +43,18 @@ export class DefaultCallContext implements CallContext
         this._ctx.response.type = responseType.trim();
     }
     
+    public setResponseContentDisposition(contentDisposition: string): void
+    {
+        given(contentDisposition, "contentDisposition")
+            .ensureHasValue()
+            .ensureIsString()
+            .ensure(t => !t.isEmptyOrWhiteSpace());
+        
+        this._ctx.response.set({
+            "Content-Disposition": contentDisposition.trim()
+        });
+    }
+    
     
     private populateSchemeAndToken(): void
     {

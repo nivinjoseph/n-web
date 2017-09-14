@@ -16,4 +16,5 @@ export interface CallContext
     
     
     setResponseType(responseType: string): void;
+    setResponseContentDisposition(contentDisposition: string): void;
 }
