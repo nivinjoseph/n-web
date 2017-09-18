@@ -6,9 +6,11 @@ import { query } from "./query";
 import { command } from "./command";
 import { view } from "./view";
 import { viewLayout } from "./view-layout";
+import { Utils } from "./utils";
 
 import { HttpException } from "./http-exception";
 import { ExceptionHandler } from "./exception-handler";
+
 
 import { StyleBundle } from "./bundling/style-bundle";
 import { TemplateBundle } from "./bundling/template-bundle";
@@ -30,6 +32,7 @@ export
     httpGet, httpPost, httpPut, httpDelete,
     query, command,
     view, viewLayout,
+    Utils,
     
     HttpException, ExceptionHandler,
     

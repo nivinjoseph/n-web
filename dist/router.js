@@ -159,7 +159,7 @@ class Router {
         let result = [];
         for (let routeParam of route.params) {
             let value = model[routeParam.paramKey];
-            if (value === undefined || model[routeParam.paramKey] == null) {
+            if (value === undefined || value === null) {
                 if (!routeParam.isOptional)
                     throw new http_exception_1.HttpException(404);
                 value = null;
