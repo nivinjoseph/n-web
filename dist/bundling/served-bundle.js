@@ -24,8 +24,8 @@ class ServedBundle extends bundle_1.Bundle {
         if (servePath.startsWith("/"))
             servePath = servePath.substr(1);
         this._servePath = servePath;
-        if (!this._bundlePath.contains(this._servePath))
-            throw new n_exception_1.ArgumentException(`servePath[${this._servePath}]`, `is not related to bundlePath[${this._bundlePath}]`);
+        // if (!this._bundlePath.contains(this._servePath))
+        //     throw new ArgumentException(`servePath[${this._servePath}]`, `is not related to bundlePath[${this._bundlePath}]`);    
     }
     createBundle(fileExt) {
         n_defensive_1.given(fileExt, "fileExt").ensureHasValue()

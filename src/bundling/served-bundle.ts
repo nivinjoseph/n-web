@@ -37,8 +37,8 @@ export abstract class ServedBundle extends Bundle
             servePath = servePath.substr(1);
         this._servePath = servePath;
         
-        if (!this._bundlePath.contains(this._servePath))
-            throw new ArgumentException(`servePath[${this._servePath}]`, `is not related to bundlePath[${this._bundlePath}]`);    
+        // if (!this._bundlePath.contains(this._servePath))
+        //     throw new ArgumentException(`servePath[${this._servePath}]`, `is not related to bundlePath[${this._bundlePath}]`);    
     }
     
     
