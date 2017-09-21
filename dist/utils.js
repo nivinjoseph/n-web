@@ -16,7 +16,7 @@ class Utils // static class
                 url = "/" + url;
             url = baseUrl + url;
         }
-        return params ? new route_info_1.RouteInfo(route).generateUrl(params) : url.replaceAll(" ", "");
+        return params ? new route_info_1.RouteInfo(url).generateUrl(params) : url.replaceAll(" ", "");
     }
 }
 exports.Utils = Utils;

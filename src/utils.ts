@@ -23,6 +23,6 @@ export abstract class Utils // static class
             url = baseUrl + url;
         }
 
-        return params ? new RouteInfo(route).generateUrl(params) : url.replaceAll(" ", "");
+        return params ? new RouteInfo(url).generateUrl(params) : url.replaceAll(" ", "");
     }
 }
