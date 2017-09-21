@@ -33,11 +33,11 @@ export abstract class ServedBundle extends Bundle
         this._bundlePath = bundlePath;
         
         servePath = servePath.trim();
-        if (servePath.startsWith("/"))
-            servePath = servePath.substr(1);
+        if (!servePath.startsWith("/"))
+            servePath = "/" + servePath;
         this._servePath = servePath;
         
-        if (!this._bundlePath.contains(this._servePath))
+        if (!this._bundlePath.endsWith(this._servePath))
             throw new ArgumentException(`servePath[${this._servePath}]`, `is not related to bundlePath[${this._bundlePath}]`);    
     }
     
