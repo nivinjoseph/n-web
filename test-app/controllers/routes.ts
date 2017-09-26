@@ -1,4 +1,4 @@
-export const getTodos = "/api/Todos?{$search?: string}";
+export const getTodos = "/api/Todos?{$search?: string}&{$pageNumber?: number}&{$pageSize?: number}";
 export const getTodo = "/api/Todo/{id: number}";
 export const createTodo = "/api/CreateTodo";
 export const updateTodo = "/api/UpdateTodo/{id: number}";

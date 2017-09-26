@@ -29,10 +29,16 @@ export class GetTodosController extends Controller
     }
     
     
-    public async execute($search: string): Promise<object>
+    public async execute($search?: string, $pageNumber?: number, $pageSize?: number): Promise<object>
     {       
         console.log("query", this._callContext.queryParams);
-        console.log("$search", typeof($search));
+        console.log("$search", $search);
+        
+        
+        if ($search)
+        {
+            console.log("do this");
+        }    
         
         
         let todos = await this._todoManager.getTodos();
@@ -50,7 +56,7 @@ export class GetTodosController extends Controller
             }),
             links: {
                 create: this.generateUrl(Routes.createTodo, null, baseUrl),
-                test: this.generateUrl(Routes.getTodos, {$search: null}, baseUrl)
+                test: this.generateUrl(Routes.getTodos, {$search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd"}, baseUrl)
             }
         };
     }
