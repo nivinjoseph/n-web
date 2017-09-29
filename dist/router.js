@@ -112,14 +112,13 @@ class Router {
                 let viewLayout = registration.viewLayout;
                 if (viewLayout !== null)
                     view = eval("`" + viewLayout + "`");
-                result = eval("`" + view + "`");
-                let html = result;
+                let html = eval("`" + view + "`");
+                let config = vm.config || {};
+                config.mode = this.isDev() ? "dev" : "prod";
                 html = html.replace("<body>", `
                     <body>
                     <script>
-                        window.appConfig = {
-                            mode: "${this.isDev() ? "dev" : "prod"}"
-                        };
+                        window.config = ${JSON.stringify(config)};
                     </script>
                 `);
                 result = html;

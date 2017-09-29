@@ -159,16 +159,14 @@ export class Router
             if (viewLayout !== null)
                 view = eval("`" + viewLayout + "`");
             
-            result = eval("`" + view + "`");
-            
-            let html = result as string;
+            let html = eval("`" + view + "`") as string;
+            let config = vm.config || {};
+            config.mode = this.isDev() ? "dev" : "prod";
             html = html.replace("<body>",
                 `
                     <body>
                     <script>
-                        window.appConfig = {
-                            mode: "${this.isDev() ? "dev" : "prod"}"
-                        };
+                        window.config = ${JSON.stringify(config)};
                     </script>
                 `);
             result = html;
