@@ -113,8 +113,7 @@ class Router {
                 if (viewLayout !== null)
                     view = eval("`" + viewLayout + "`");
                 let html = eval("`" + view + "`");
-                let config = vm.config || {};
-                config.mode = this.isDev() ? "dev" : "prod";
+                let config = Object.assign({ mode: this.isDev() ? "dev" : "prod" }, vm.config);
                 html = html.replace("<body>", `
                     <body>
                     <script>
