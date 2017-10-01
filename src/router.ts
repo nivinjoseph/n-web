@@ -160,7 +160,7 @@ export class Router
                 view = eval("`" + viewLayout + "`");
             
             let html = eval("`" + view + "`") as string;
-            let config = Object.assign({ env: ConfigurationManager.getConfig<string>("env") }, vm.config);
+            let config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config);
             html = html.replace("<body>",
                 `
                     <body>
