@@ -20,7 +20,7 @@
     "pregit-publish": "npm run ts-build-dist && git add . && git commit -m 'preparing to publish new version'",
     "git-publish": "npm version patch",
     "postgit-publish": "git push",
-    "nodemon": "nodemon --inspect ./test-app/main.js",
+    "nodemon": "nodemon --debug ./test-app/main.js",
     "debug": "npm run ts-build-watch & npm run nodemon -- env=dev"
   },
   "repository": {
