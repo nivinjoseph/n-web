@@ -160,7 +160,7 @@ export class Router
                 view = eval("`" + viewLayout + "`");
             
             let html = eval("`" + view + "`") as string;
-            let config = Object.assign({ mode: this.isDev() ? "dev" : "prod" }, vm.config);
+            let config = Object.assign({ env: ConfigurationManager.getConfig<string>("env") }, vm.config);
             html = html.replace("<body>",
                 `
                     <body>
@@ -172,12 +172,6 @@ export class Router
         }
         
         ctx.body = result;
-    }
-    
-    private isDev(): boolean
-    {
-        let env = ConfigurationManager.getConfig<string>("env");
-        return env !== null && env.trim().toLowerCase() === "dev";
     }
     
     private createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>

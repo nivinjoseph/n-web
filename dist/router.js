@@ -113,7 +113,7 @@ class Router {
                 if (viewLayout !== null)
                     view = eval("`" + viewLayout + "`");
                 let html = eval("`" + view + "`");
-                let config = Object.assign({ mode: this.isDev() ? "dev" : "prod" }, vm.config);
+                let config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config);
                 html = html.replace("<body>", `
                     <body>
                     <script>
@@ -124,10 +124,6 @@ class Router {
             }
             ctx.body = result;
         });
-    }
-    isDev() {
-        let env = n_config_1.ConfigurationManager.getConfig("env");
-        return env !== null && env.trim().toLowerCase() === "dev";
     }
     createRouteArgs(route, ctx) {
         let queryParams = ctx.query;
