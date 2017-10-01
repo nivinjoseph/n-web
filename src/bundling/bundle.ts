@@ -67,7 +67,7 @@ export abstract class Bundle
     
     protected isDev(): boolean
     {
-        let mode = ConfigurationManager.getConfig<string>("mode");
-        return mode !== null && mode.trim().toLowerCase() === "dev";
+        let env = ConfigurationManager.getConfig<string>("env");
+        return env !== null && env.trim().toLowerCase() === "dev";
     }
 }

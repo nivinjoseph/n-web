@@ -21,7 +21,7 @@
     "git-publish": "npm version patch",
     "postgit-publish": "git push",
     "nodemon": "nodemon --debug ./test-app/main.js",
-    "debug": "npm run ts-build-watch & npm run nodemon"
+    "debug": "npm run ts-build-watch & npm run nodemon -- env=dev"
   },
   "repository": {
     "type": "git",

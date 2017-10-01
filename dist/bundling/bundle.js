@@ -48,8 +48,8 @@ class Bundle {
         return files;
     }
     isDev() {
-        let mode = n_config_1.ConfigurationManager.getConfig("mode");
-        return mode !== null && mode.trim().toLowerCase() === "dev";
+        let env = n_config_1.ConfigurationManager.getConfig("env");
+        return env !== null && env.trim().toLowerCase() === "dev";
     }
 }
 exports.Bundle = Bundle;
