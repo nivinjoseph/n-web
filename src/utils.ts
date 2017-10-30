@@ -26,6 +26,7 @@ export abstract class Utils // static class
             if (route.startsWith("/"))
                 route = route.substr(1, route.length - 1);
 
+            // special treatment for the sake of docker routing on ECS
             let splittedBaseUrl = baseUrl.split("/");
             if (route.startsWith(splittedBaseUrl.pop()))
                 baseUrl = splittedBaseUrl.join("/");
