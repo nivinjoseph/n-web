@@ -15,11 +15,11 @@ export abstract class Utils // static class
         if (baseUrl)
             given(baseUrl, "baseUrl").ensureIsString();    
 
-        route = route.trim();
+        route = route.trim().replaceAll(" ", "");
 
         if (baseUrl !== undefined && baseUrl != null && !baseUrl.isEmptyOrWhiteSpace())
         {
-            baseUrl = baseUrl.trim();
+            baseUrl = baseUrl.trim().replaceAll(" ", "");
             if (baseUrl.endsWith("/"))
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
 
@@ -28,12 +28,12 @@ export abstract class Utils // static class
 
             // special treatment for the sake of docker routing on ECS
             let splittedBaseUrl = baseUrl.split("/");
-            if (route.startsWith(splittedBaseUrl.pop()))
+            if (route.toLowerCase().startsWith(splittedBaseUrl.pop().toLowerCase()))
                 baseUrl = splittedBaseUrl.join("/");
 
             route = baseUrl + "/" + route;
         }
 
-        return params ? new RouteInfo(route).generateUrl(params) : route.replaceAll(" ", "");
+        return params ? new RouteInfo(route, true).generateUrl(params) : route;
     }
 }

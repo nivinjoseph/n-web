@@ -11,20 +11,20 @@ class Utils // static class
             n_defensive_1.given(params, "params").ensureIsObject();
         if (baseUrl)
             n_defensive_1.given(baseUrl, "baseUrl").ensureIsString();
-        route = route.trim();
+        route = route.trim().replaceAll(" ", "");
         if (baseUrl !== undefined && baseUrl != null && !baseUrl.isEmptyOrWhiteSpace()) {
-            baseUrl = baseUrl.trim();
+            baseUrl = baseUrl.trim().replaceAll(" ", "");
             if (baseUrl.endsWith("/"))
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
             if (route.startsWith("/"))
                 route = route.substr(1, route.length - 1);
             // special treatment for the sake of docker routing on ECS
             let splittedBaseUrl = baseUrl.split("/");
-            if (route.startsWith(splittedBaseUrl.pop()))
+            if (route.toLowerCase().startsWith(splittedBaseUrl.pop().toLowerCase()))
                 baseUrl = splittedBaseUrl.join("/");
             route = baseUrl + "/" + route;
         }
-        return params ? new route_info_1.RouteInfo(route).generateUrl(params) : route.replaceAll(" ", "");
+        return params ? new route_info_1.RouteInfo(route, true).generateUrl(params) : route;
     }
 }
 exports.Utils = Utils;

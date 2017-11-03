@@ -1,6 +1,6 @@
 import { given } from "n-defensive";
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { query, httpGet, route, Controller } from "./../../../src/index";
+import { query, httpGet, route, Controller, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { TodoNotFoundException } from "./../../exceptions/todo-not-found-exception";
 import { ConfigService } from "./../../services/config-service/config-service";
@@ -38,9 +38,9 @@ export class GetTodoController extends Controller
             title: todo.title,
             description: todo.description,
             links: {
-                self: this.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
-                update: this.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
-                delete: this.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
+                self: Utils.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
+                update: Utils.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
+                delete: Utils.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
             }
         };
     }

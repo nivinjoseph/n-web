@@ -1,6 +1,6 @@
 import { given } from "n-defensive";
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { httpGet, route, Controller, authorize, CallContext } from "./../../../src/index";
+import { httpGet, route, Controller, authorize, CallContext, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "n-ject";
@@ -50,13 +50,13 @@ export class GetTodosController extends Controller
                     id: t.id,
                     title: t.title,
                     links: {
-                        self: this.generateUrl(Routes.getTodo, { id: t.id }, baseUrl)
+                        self: Utils.generateUrl(Routes.getTodo, { id: t.id }, baseUrl)
                     }
                 };
             }),
             links: {
-                create: this.generateUrl(Routes.createTodo, null, baseUrl),
-                test: this.generateUrl(Routes.getTodos, {$search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd"}, baseUrl)
+                create: Utils.generateUrl(Routes.createTodo, null, baseUrl),
+                test: Utils.generateUrl(Routes.getTodos, {$search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd"}, baseUrl)
             }
         };
     }

@@ -1,6 +1,6 @@
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { given } from "n-defensive";
-import { command, httpPost, route, Controller, HttpException } from "./../../../src/index";
+import { command, httpPost, route, Controller, HttpException, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "n-ject";
@@ -37,9 +37,9 @@ export class CreateTodoController extends Controller
             title: todo.title,
             description: todo.description,
             links: {
-                self: this.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
-                update: this.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
-                delete: this.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
+                self: Utils.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
+                update: Utils.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
+                delete: Utils.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
             }
         };
     }

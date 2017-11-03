@@ -6,16 +6,24 @@ const n_exception_1 = require("n-exception");
 const route_param_1 = require("./route-param");
 // route format: /api/Product/{id:number}?{name?:string}&{all:boolean}
 class RouteInfo {
-    constructor(routeTemplate) {
+    constructor(routeTemplate, isUrlGenerator = false) {
         this._routeParams = new Array();
         this._routeParamsRegistry = {};
-        n_defensive_1.given(routeTemplate, "routeTemplate").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        routeTemplate = routeTemplate.trim();
-        while (routeTemplate.contains(" "))
-            routeTemplate = routeTemplate.replace(" ", "");
+        n_defensive_1.given(routeTemplate, "routeTemplate")
+            .ensureHasValue()
+            .ensure(t => !t.isEmptyOrWhiteSpace());
+        routeTemplate = routeTemplate.trim().replaceAll(" ", "");
+        if (!isUrlGenerator) {
+            n_defensive_1.given(routeTemplate, "routeTemplate")
+                .ensure(t => t.startsWith("/"), "has to start with '/'")
+                .ensure(t => !t.contains("//"), "cannot contain '//'");
+            if (routeTemplate.length > 1 && routeTemplate.endsWith("/"))
+                routeTemplate = routeTemplate.substr(0, routeTemplate.length - 1);
+        }
         this._routeTemplate = routeTemplate;
         this.populateRouteParams();
-        this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+        if (!isUrlGenerator)
+            this._koaRoute = this.generateKoaRoute(this._routeTemplate);
     }
     get route() { return this._routeTemplate; }
     get koaRoute() { return this._koaRoute; }

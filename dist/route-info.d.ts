@@ -9,7 +9,7 @@ export declare class RouteInfo {
     readonly route: string;
     readonly koaRoute: string;
     readonly params: ReadonlyArray<RouteParam>;
-    constructor(routeTemplate: string);
+    constructor(routeTemplate: string, isUrlGenerator?: boolean);
     findRouteParam(key: string): RouteParam;
     generateUrl(values: Object): string;
     private populateRouteParams();
