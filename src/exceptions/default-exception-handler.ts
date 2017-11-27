@@ -30,7 +30,7 @@ export class DefaultExceptionHandler extends ExceptionHandler
         const name = (<Object>exp).getTypeName();
         const handler = this._handlers[name];
         if (handler)
-            await handler(exp);
+            return await handler(exp);
         else
             throw new HttpException(500, "There was an error processing your request.");
     }
