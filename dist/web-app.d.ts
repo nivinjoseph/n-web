@@ -30,7 +30,6 @@ export declare class WebApp {
     private configureContainer();
     private configureScoping();
     private configureCallContext();
-    private configureHttpExceptionHandling();
     private configureExceptionHandling();
     private configureErrorTrapping();
     private configureAuthentication();

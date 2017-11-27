@@ -8,8 +8,9 @@ import { view } from "./view";
 import { viewLayout } from "./view-layout";
 import { Utils } from "./utils";
 
-import { HttpException } from "./http-exception";
-import { ExceptionHandler } from "./exception-handler";
+import { HttpException } from "./exceptions/http-exception";
+import { ExceptionHandler } from "./exceptions/exception-handler";
+import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
 
 
 import { StyleBundle } from "./bundling/style-bundle";
@@ -34,7 +35,7 @@ export
     view, viewLayout,
     Utils,
     
-    HttpException, ExceptionHandler,
+    HttpException, ExceptionHandler, DefaultExceptionHandler,
     
     StyleBundle, TemplateBundle, ScriptBundle,
     

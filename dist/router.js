@@ -13,8 +13,8 @@ const n_defensive_1 = require("n-defensive");
 const controller_registration_1 = require("./controller-registration");
 const n_exception_1 = require("n-exception");
 const http_method_1 = require("./http-method");
-const http_exception_1 = require("./http-exception");
-const http_redirect_exception_1 = require("./http-redirect-exception");
+const http_exception_1 = require("./exceptions/http-exception");
+const http_redirect_exception_1 = require("./exceptions/http-redirect-exception");
 const n_config_1 = require("n-config");
 class Router {
     constructor(koa, container, authorizationHandlerKey, callContextKey) {

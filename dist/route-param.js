@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const n_defensive_1 = require("n-defensive");
 require("n-ext");
 const n_exception_1 = require("n-exception");
-const http_exception_1 = require("./http-exception");
+const http_exception_1 = require("./exceptions/http-exception");
 class RouteParam {
     constructor(routeParam) {
         this._order = 0;

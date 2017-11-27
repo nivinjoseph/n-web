@@ -14,7 +14,6 @@ const n_ject_1 = require("n-ject");
 const n_defensive_1 = require("n-defensive");
 const router_1 = require("./router");
 const n_exception_1 = require("n-exception");
-const http_exception_1 = require("./http-exception");
 const serve = require("koa-static");
 const fs = require("fs");
 const path = require("path");
@@ -23,6 +22,8 @@ const cors = require("kcors");
 const default_call_context_1 = require("./services/call-context/default-call-context");
 const default_authorization_handler_1 = require("./security/default-authorization-handler");
 const n_sec_1 = require("n-sec");
+const default_exception_handler_1 = require("./exceptions/default-exception-handler");
+const http_exception_1 = require("./exceptions/http-exception");
 // public
 class WebApp {
     constructor(port) {
@@ -121,7 +122,6 @@ class WebApp {
         this.configureContainer();
         this.configureScoping();
         this.configureCallContext();
-        this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
         this.configureAuthentication();
@@ -139,6 +139,8 @@ class WebApp {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
+        if (!this._hasExceptionHandler)
+            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(true));
         this._container.bootstrap();
     }
     configureScoping() {
@@ -155,34 +157,40 @@ class WebApp {
             yield next();
         }));
     }
-    configureHttpExceptionHandling() {
-        this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield next();
-            }
-            catch (error) {
-                if (!(error instanceof http_exception_1.HttpException))
-                    throw error;
-                let exp = error;
-                ctx.status = exp.statusCode;
-                if (exp.body !== undefined && exp.body !== null)
-                    ctx.body = exp.body;
-            }
-        }));
-    }
     configureExceptionHandling() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield next();
             }
             catch (error) {
-                if (!this._hasExceptionHandler)
-                    throw error;
                 if (error instanceof http_exception_1.HttpException)
                     throw error;
                 let scope = ctx.state.scope;
                 let exceptionHandler = scope.resolve(this._exceptionHandlerKey);
-                ctx.body = yield exceptionHandler.handle(error);
+                try {
+                    const result = yield exceptionHandler.handle(error);
+                    ctx.body = result;
+                }
+                catch (exp) {
+                    if (exp instanceof http_exception_1.HttpException) {
+                        const httpExp = exp;
+                        ctx.status = httpExp.statusCode;
+                        if (httpExp.body !== undefined && httpExp.body !== null)
+                            ctx.body = httpExp.body;
+                    }
+                    else {
+                        let logMessage = "";
+                        if (exp instanceof n_exception_1.Exception)
+                            logMessage = exp.toString();
+                        else if (exp instanceof Error)
+                            logMessage = exp.stack;
+                        else
+                            logMessage = exp.toString();
+                        console.log(Date.now(), logMessage);
+                        ctx.status = 500;
+                        ctx.body = "There was an error processing your request.";
+                    }
+                }
             }
         }));
     }
@@ -194,7 +202,7 @@ class WebApp {
             catch (error) {
                 if (error instanceof Error)
                     throw error;
-                throw new n_exception_1.Exception(error.toString());
+                throw new n_exception_1.Exception("TRAPPED ERROR | " + error.toString());
             }
         }));
     }

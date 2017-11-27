@@ -1,8 +1,8 @@
 import "n-ext";
 import { given } from "n-defensive";
 import { RouteInfo } from "./route-info";
-import { HttpRedirectException } from "./http-redirect-exception";
 import { Utils } from "./utils";
+import { HttpRedirectException } from "./exceptions/http-redirect-exception";
 
 // public
 export abstract class Controller

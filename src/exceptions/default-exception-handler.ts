@@ -4,7 +4,7 @@ import "n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
 
-
+// public
 export class DefaultExceptionHandler extends ExceptionHandler
 {
     private readonly _logToConsole: boolean;

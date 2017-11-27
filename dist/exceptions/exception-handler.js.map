@@ -1,0 +1,1 @@
+{"version":3,"file":"exception-handler.js","sourceRoot":"","sources":["../../src/exceptions/exception-handler.ts"],"names":[],"mappings":";;AAEA;CAGC;AAHD,4CAGC","sourcesContent":["import { Exception } from \"n-exception\";\n\nexport abstract class ExceptionHandler\n{\n    public abstract handle(exp: Exception): Promise<any>;\n}"]}
