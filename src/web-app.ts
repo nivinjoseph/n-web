@@ -4,8 +4,6 @@ import { Container, ComponentInstaller, Scope } from "n-ject";
 import { given } from "n-defensive";
 import { Router } from "./router";
 import { Exception, ArgumentException, InvalidOperationException } from "n-exception";
-import { ExceptionHandler } from "./exception-handler";
-import { HttpException } from "./http-exception";
 import * as serve from "koa-static";
 import * as fs from "fs";
 import * as path from "path";
@@ -16,6 +14,9 @@ import { AuthenticationHandler } from "./security/authentication-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
 import { ClaimsIdentity } from "n-sec";
+import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
+import { HttpException } from "./exceptions/http-exception";
+import { ExceptionHandler } from "./exceptions/exception-handler";
 
 
 // public
@@ -166,7 +167,6 @@ export class WebApp
         this.configureContainer();
         this.configureScoping();
         this.configureCallContext();
-        this.configureHttpExceptionHandling();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
         this.configureAuthentication();
@@ -192,6 +192,9 @@ export class WebApp
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
         
+        if (!this._hasExceptionHandler)
+            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(true));    
+        
         this._container.bootstrap();
     }
     
@@ -215,27 +218,6 @@ export class WebApp
         });
     }
     
-    private configureHttpExceptionHandling(): void
-    {
-        this._koa.use(async (ctx, next) => 
-        {
-            try 
-            {
-                await next();
-            } 
-            catch (error) 
-            {
-                if (!(error instanceof HttpException))
-                    throw error;   
-                
-                let exp = error as HttpException;
-                ctx.status = exp.statusCode;
-                if (exp.body !== undefined && exp.body !== null)
-                    ctx.body = exp.body;
-            }
-        });
-    }
-    
     private configureExceptionHandling(): void
     {
         this._koa.use(async (ctx, next) =>
@@ -245,16 +227,43 @@ export class WebApp
                 await next();
             }
             catch (error)
-            {
-                if (!this._hasExceptionHandler)
-                    throw error;
-                
+            {   
                 if (error instanceof HttpException)
                     throw error;   
                     
                 let scope = ctx.state.scope as Scope;
                 let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
-                ctx.body = await exceptionHandler.handle(error);
+                
+                try 
+                {
+                    const result = await exceptionHandler.handle(error);
+                    ctx.body = result;
+                }
+                catch (exp)
+                {
+                    if (exp instanceof HttpException)
+                    {
+                        const httpExp: HttpException = exp as HttpException;
+                        ctx.status = httpExp.statusCode;
+                        if (httpExp.body !== undefined && httpExp.body !== null)
+                            ctx.body = httpExp.body;
+                    }   
+                    else
+                    {
+                        let logMessage = "";
+                        if (exp instanceof Exception)
+                            logMessage = exp.toString();
+                        else if (exp instanceof Error)
+                            logMessage = exp.stack;
+                        else
+                            logMessage = exp.toString();
+
+                        console.log(Date.now(), logMessage);
+                        
+                        ctx.status = 500;
+                        ctx.body = "There was an error processing your request.";
+                    }    
+                }
             }
         });
     }
@@ -272,7 +281,7 @@ export class WebApp
                 if (error instanceof Error)
                     throw error;    
                 
-                throw new Exception(error.toString());
+                throw new Exception("TRAPPED ERROR | " + error.toString());
             }
         });
     }
