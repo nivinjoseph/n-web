@@ -29,7 +29,7 @@ class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
             const name = exp.getTypeName();
             const handler = this._handlers[name];
             if (handler)
-                yield handler(exp);
+                return yield handler(exp);
             else
                 throw new http_exception_1.HttpException(500, "There was an error processing your request.");
         });
