@@ -13,17 +13,19 @@ const n_defensive_1 = require("n-defensive");
 require("n-ext");
 const exception_handler_1 = require("./exception-handler");
 const http_exception_1 = require("./http-exception");
+const n_log_1 = require("n-log");
 // public
 class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
-    constructor(logToConsole = false) {
+    constructor(logger, logEverything = false) {
         super();
-        this._logToConsole = !!logToConsole;
+        this._logger = logger ? logger : new n_log_1.ConsoleLogger();
+        this._logEverything = !!logEverything;
         this._handlers = {};
     }
     handle(exp) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this._logToConsole)
-                this.log(exp);
+            if (this._logEverything)
+                yield this.log(exp);
             const name = exp.getTypeName();
             const handler = this._handlers[name];
             if (handler)
@@ -48,7 +50,7 @@ class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
             logMessage = exp.stack;
         else
             logMessage = exp.toString();
-        console.log(Date.now(), logMessage);
+        return this._logger.logError(logMessage);
     }
 }
 exports.DefaultExceptionHandler = DefaultExceptionHandler;

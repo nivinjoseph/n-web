@@ -140,7 +140,7 @@ class WebApp {
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(true));
+            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(null, true));
         this._container.bootstrap();
     }
     configureScoping() {

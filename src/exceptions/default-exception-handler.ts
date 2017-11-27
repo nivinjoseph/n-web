@@ -3,26 +3,29 @@ import { given } from "n-defensive";
 import "n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
+import { Logger, ConsoleLogger } from "n-log";
 
 // public
 export class DefaultExceptionHandler extends ExceptionHandler
 {
-    private readonly _logToConsole: boolean;
+    private readonly _logger: Logger;
+    private readonly _logEverything: boolean;
     private readonly _handlers: { [index: string]: (exp: Exception) => Promise<any> };
 
 
-    public constructor(logToConsole = false)
+    public constructor(logger: Logger, logEverything = false)
     {
         super();
-        this._logToConsole = !!logToConsole;
+        this._logger = logger ? logger : new ConsoleLogger();
+        this._logEverything = !!logEverything;
         this._handlers = {};
     }
 
 
     public async handle(exp: Exception): Promise<any>
     {
-        if (this._logToConsole)
-            this.log(exp);
+        if (this._logEverything)
+            await this.log(exp);
 
         const name = (<Object>exp).getTypeName();
         const handler = this._handlers[name];
@@ -45,7 +48,7 @@ export class DefaultExceptionHandler extends ExceptionHandler
         this._handlers[name] = handler;
     }
 
-    protected log(exp: Exception | Error | any): void
+    protected log(exp: Exception | Error | any): Promise<void>
     {
         let logMessage = "";
         if (exp instanceof Exception)
@@ -55,6 +58,6 @@ export class DefaultExceptionHandler extends ExceptionHandler
         else
             logMessage = exp.toString();
         
-        console.log(Date.now(), logMessage);
+        return this._logger.logError(logMessage);
     }
 }

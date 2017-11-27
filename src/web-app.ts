@@ -193,7 +193,7 @@ export class WebApp
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
         
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(true));    
+            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(null, true));    
         
         this._container.bootstrap();
     }

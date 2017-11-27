@@ -67,6 +67,7 @@
     "n-exception": "git+https://github.com/nivinjoseph/n-exception.git",
     "n-ext": "git+https://github.com/nivinjoseph/n-ext.git",
     "n-ject": "git+https://github.com/nivinjoseph/n-ject.git",
+    "n-log": "git+https://github.com/nivinjoseph/n-log.git",
     "n-sec": "git+https://github.com/nivinjoseph/n-sec.git",
     "reflect-metadata": "^0.1.10"
   }
