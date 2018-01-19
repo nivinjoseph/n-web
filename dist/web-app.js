@@ -163,8 +163,12 @@ class WebApp {
                 yield next();
             }
             catch (error) {
-                if (error instanceof http_exception_1.HttpException)
-                    throw error;
+                if (error instanceof http_exception_1.HttpException) {
+                    ctx.status = error.statusCode;
+                    if (error.body !== undefined && error.body !== null)
+                        ctx.body = error.body;
+                    return;
+                }
                 let scope = ctx.state.scope;
                 let exceptionHandler = scope.resolve(this._exceptionHandlerKey);
                 try {
