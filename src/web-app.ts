@@ -229,7 +229,13 @@ export class WebApp
             catch (error)
             {   
                 if (error instanceof HttpException)
-                    throw error;   
+                {  
+                    ctx.status = error.statusCode;
+                    if (error.body !== undefined && error.body !== null)
+                        ctx.body = error.body;
+                    
+                    return;
+                }
                     
                 let scope = ctx.state.scope as Scope;
                 let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);

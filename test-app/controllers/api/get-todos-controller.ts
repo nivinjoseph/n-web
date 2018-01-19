@@ -5,6 +5,8 @@ import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "n-ject";
 import * as AppClaims from "./../../security/app-claims";
+import { HttpException } from "../../../src/exceptions/http-exception";
+import { ApplicationException } from "n-exception";
 
 @httpGet
 @route(Routes.getTodos)
@@ -31,6 +33,10 @@ export class GetTodosController extends Controller
     
     public async execute($search?: string, $pageNumber?: number, $pageSize?: number): Promise<object>
     {       
+        // if (!$search)
+        //     throw new ApplicationException("this is a test1");
+        
+        
         console.log("query", this._callContext.queryParams);
         console.log("$search", $search);
         
@@ -43,6 +49,10 @@ export class GetTodosController extends Controller
         
         let todos = await this._todoManager.getTodos();
         let baseUrl = await this._configService.getBaseUrl();
+        
+        // if (!$search)
+        //     throw new HttpException(404, "this is a test");
+        
         return {
             items: todos.map(t =>
             {

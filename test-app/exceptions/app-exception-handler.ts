@@ -5,6 +5,7 @@ import { HttpException } from "./../../src/index";
 import { inject } from "n-ject";
 import { Logger } from "./../services/logger/logger";
 import { given } from "n-defensive";
+import { ApplicationException } from "n-exception";
 
 
 @inject("Logger")
@@ -22,7 +23,7 @@ export class AppExceptionHandler extends ExceptionHandler
     
     
     public async handle(exp: Exception): Promise<any>
-    {
+    {        
         if (exp instanceof TodoNotFoundException)
         {
             await this.handleTodoNotFoundException(exp as TodoNotFoundException);
