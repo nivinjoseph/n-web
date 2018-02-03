@@ -23,7 +23,7 @@ export abstract class ServedBundle extends Bundle
         bundlePath = Path.join(process.cwd(), bundlePath);
         
         if (!Fs.existsSync(bundlePath))
-            throw new ArgumentException(`bundlePath[${bundlePath}]`, "does not exist");
+            Fs.mkdirSync(bundlePath);
         
         if (!Fs.statSync(bundlePath).isDirectory())
             throw new ArgumentException(`bundlePath[${bundlePath}]`, "is not a directory");    

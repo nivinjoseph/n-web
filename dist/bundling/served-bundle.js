@@ -15,7 +15,7 @@ class ServedBundle extends bundle_1.Bundle {
         bundlePath = bundlePath.trim();
         bundlePath = Path.join(process.cwd(), bundlePath);
         if (!Fs.existsSync(bundlePath))
-            throw new n_exception_1.ArgumentException(`bundlePath[${bundlePath}]`, "does not exist");
+            Fs.mkdirSync(bundlePath);
         if (!Fs.statSync(bundlePath).isDirectory())
             throw new n_exception_1.ArgumentException(`bundlePath[${bundlePath}]`, "is not a directory");
         super(name);
