@@ -66,38 +66,64 @@ export class ControllerRegistration
             throw new ApplicationException("Controller '{0}' has a catch all route but is not using HTTP GET."
                 .format(this._name));
 
+        this.configureViews(viewResolutionRoot);
+        
+        if (Reflect.hasOwnMetadata(authorizeSymbol, this._controller))
+            this._authorizeClaims = Reflect.getOwnMetadata(authorizeSymbol, this._controller);
+    }
+    
+    private configureViews(viewResolutionRoot: string): void
+    {
         if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
         {
-            let viewFileName = Reflect.getOwnMetadata(viewSymbol, this._controller);
+            let viewFileName: string = Reflect.getOwnMetadata(viewSymbol, this._controller);
             if (!viewFileName.endsWith(".html"))
-                viewFileName += ".html";    
-            let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
-            if (viewFilePath === null)
-                throw new ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
+                viewFileName += ".html";
+            
+            if (viewFileName.startsWith("~/"))
+            {
+                this._viewFilePath = path.join(process.cwd(), viewFileName.replace("~/", ""));
+                this._viewFileName = path.basename(this._viewFilePath);
+            }   
+            else
+            {
+                let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
+                if (viewFilePath === null)
+                    throw new ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
 
-            this._viewFileName = viewFileName;
-            this._viewFilePath = viewFilePath;
+                this._viewFileName = viewFileName;
+                this._viewFilePath = viewFilePath;
+            }
+            
             if (!this.isDev())
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
 
+            
             if (Reflect.hasOwnMetadata(viewLayoutSymbol, this._controller))
             {
-                let viewLayoutFileName = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
+                let viewLayoutFileName: string = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
                 if (!viewLayoutFileName.endsWith(".html"))
-                    viewLayoutFileName += ".html";    
-                let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
-                if (viewLayoutFilePath === null)
-                    throw new ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
+                    viewLayoutFileName += ".html";
+                
+                if (viewLayoutFileName.startsWith("~/"))
+                {
+                    this._viewLayoutFilePath = path.join(process.cwd(), viewLayoutFileName.replace("~/", ""));
+                    this._viewLayoutFileName = path.basename(this._viewLayoutFilePath);
+                }   
+                else
+                {
+                    let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
+                    if (viewLayoutFilePath === null)
+                        throw new ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
 
-                this._viewLayoutFileName = viewLayoutFileName;
-                this._viewLayoutFilePath = viewLayoutFilePath;
+                    this._viewLayoutFileName = viewLayoutFileName;
+                    this._viewLayoutFilePath = viewLayoutFilePath;
+                }
+                
                 if (!this.isDev())
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
-        
-        if (Reflect.hasOwnMetadata(authorizeSymbol, this._controller))
-            this._authorizeClaims = Reflect.getOwnMetadata(authorizeSymbol, this._controller);
     }
     
     private resolvePath(startPoint: string, fileName: string): string
