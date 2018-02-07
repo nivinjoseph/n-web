@@ -23,6 +23,7 @@ export declare class ControllerRegistration {
     readonly authorizeClaims: ReadonlyArray<Claim>;
     constructor(controller: Function);
     complete(viewResolutionRoot: string): void;
+    private configureViews(viewResolutionRoot);
     private resolvePath(startPoint, fileName);
     private retrieveView();
     private retrieveViewLayout();
