@@ -18,6 +18,7 @@ import { DefaultExceptionHandler } from "./exceptions/default-exception-handler"
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "n-config";
+import * as webPackMiddleware from "koa-webpack";
 
 
 // public
@@ -158,6 +159,17 @@ export class WebApp
         
         given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._viewResolutionRoot = path.trim();
+        return this;
+    }
+    
+    public enableWebPackDevMiddleware(publicPath: string = "/"): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("enableWebPackDevMiddleware");
+        
+        if (ConfigurationManager.getConfig<string>("env") === "dev")
+            this._koa.use(webPackMiddleware({ dev: { publicPath } }));
+        
         return this;
     }
     
