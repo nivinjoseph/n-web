@@ -24,6 +24,7 @@ const default_authorization_handler_1 = require("./security/default-authorizatio
 const n_sec_1 = require("n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
+const n_config_1 = require("n-config");
 // public
 class WebApp {
     constructor(port) {
@@ -56,15 +57,16 @@ class WebApp {
             filePath = filePath.trim().toLowerCase();
             if (filePath.startsWith("/")) {
                 if (filePath.length === 1) {
-                    // if (ConfigurationManager.getConfig<string>("mode") !== "dev")
-                    //     throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
                     throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
                 }
                 filePath = filePath.substr(1);
             }
             filePath = path.join(process.cwd(), filePath);
-            if (!fs.existsSync(filePath))
-                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+            // We skip the defensive check in dev because of webpack HMR because 
+            if (n_config_1.ConfigurationManager.getConfig("env") !== "dev") {
+                if (!fs.existsSync(filePath))
+                    throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+            }
             if (this._staticFilePaths.some(t => t === filePath))
                 throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
             this._staticFilePaths.push(filePath);

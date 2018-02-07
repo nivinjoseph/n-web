@@ -43,6 +43,9 @@ class ControllerRegistration {
                 .format(this._name));
         this._method = Reflect.getOwnMetadata(http_method_1.httpMethodSymbol, this._controller);
         this._route = new route_info_1.RouteInfo(Reflect.getOwnMetadata(route_1.httpRouteSymbol, this._controller));
+        if (this._route.isCatchAll && this._method !== http_method_1.HttpMethods.Get)
+            throw new n_exception_1.ApplicationException("Controller '{0}' has a catch all route but is not using HTTP GET."
+                .format(this._name));
         if (Reflect.hasOwnMetadata(view_1.viewSymbol, this._controller)) {
             let viewFileName = Reflect.getOwnMetadata(view_1.viewSymbol, this._controller);
             if (!viewFileName.endsWith(".html"))

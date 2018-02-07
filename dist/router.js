@@ -40,8 +40,15 @@ class Router {
         }
     }
     configureRouting(viewResolutionRoot) {
+        let catchAllRegistration = null;
         for (let registration of this._controllers) {
             registration.complete(viewResolutionRoot);
+            if (registration.route.isCatchAll) {
+                if (catchAllRegistration !== null)
+                    throw new n_exception_1.ApplicationException("Multiple catch all registrations detected");
+                catchAllRegistration = registration;
+                continue;
+            }
             switch (registration.method) {
                 case http_method_1.HttpMethods.Get:
                     this.configureGet(registration);
@@ -59,6 +66,11 @@ class Router {
         }
         this._koa.use(this._koaRouter.routes());
         this._koa.use(this._koaRouter.allowedMethods());
+        if (catchAllRegistration) {
+            this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                yield this.handleRequest(ctx, catchAllRegistration, false);
+            }));
+        }
     }
     configureGet(registration) {
         this._koaRouter.get(registration.route.koaRoute, (ctx) => __awaiter(this, void 0, void 0, function* () {
@@ -108,12 +120,14 @@ class Router {
             }
             if (registration.view !== null) {
                 let vm = result;
+                if (typeof (vm) !== "object")
+                    vm = { value: result };
                 let view = registration.view;
                 let viewLayout = registration.viewLayout;
                 if (viewLayout !== null)
                     view = eval("`" + viewLayout + "`");
                 let html = eval("`" + view + "`");
-                let config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config);
+                let config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config || {});
                 html = html.replace("<body>", `
                     <body>
                     <script>

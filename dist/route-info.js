@@ -9,6 +9,7 @@ class RouteInfo {
     constructor(routeTemplate, isUrlGenerator = false) {
         this._routeParams = new Array();
         this._routeParamsRegistry = {};
+        this._isCatchAll = false;
         n_defensive_1.given(routeTemplate, "routeTemplate")
             .ensureHasValue()
             .ensure(t => !t.isEmptyOrWhiteSpace());
@@ -21,13 +22,19 @@ class RouteInfo {
                 routeTemplate = routeTemplate.substr(0, routeTemplate.length - 1);
         }
         this._routeTemplate = routeTemplate;
-        this.populateRouteParams();
-        if (!isUrlGenerator)
-            this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+        if (this._routeTemplate.contains("*")) {
+            this._isCatchAll = true;
+        }
+        else {
+            this.populateRouteParams();
+            if (!isUrlGenerator)
+                this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+        }
     }
     get route() { return this._routeTemplate; }
     get koaRoute() { return this._koaRoute; }
     get params() { return this._routeParams; }
+    get isCatchAll() { return this._isCatchAll; }
     findRouteParam(key) {
         n_defensive_1.given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         return this._routeParamsRegistry[key.trim().toLowerCase()];
