@@ -34,7 +34,7 @@
             "request": "attach",
             "name": "Debug running App",
             "address": "localhost",
-            "port": 5858,
+            "port": 4000,
             "sourceMaps": true,
             "restart": true
         },

@@ -54,9 +54,20 @@ export class Router
     
     public configureRouting(viewResolutionRoot: string): void
     {
+        let catchAllRegistration: ControllerRegistration = null;
+        
         for (let registration of this._controllers)
         {
             registration.complete(viewResolutionRoot);
+            
+            if (registration.route.isCatchAll)
+            {
+                if (catchAllRegistration !== null)
+                    throw new ApplicationException("Multiple catch all registrations detected");
+                
+                catchAllRegistration = registration;
+                continue;
+            }    
             
             switch (registration.method)
             {
@@ -77,6 +88,14 @@ export class Router
 
         this._koa.use(this._koaRouter.routes());
         this._koa.use(this._koaRouter.allowedMethods());
+        
+        if (catchAllRegistration)
+        {
+            this._koa.use(async (ctx, next) =>
+            {
+                await this.handleRequest(ctx, catchAllRegistration, false);
+            });
+        }
     }
 
     private configureGet(registration: ControllerRegistration): void
@@ -154,13 +173,16 @@ export class Router
         if (registration.view !== null)
         {
             let vm = result;
+            if (typeof (vm) !== "object")
+                vm = { value: result };
+            
             let view = registration.view;
             let viewLayout = registration.viewLayout;
             if (viewLayout !== null)
                 view = eval("`" + viewLayout + "`");
             
             let html = eval("`" + view + "`") as string;
-            let config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config);
+            let config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
             html = html.replace("<body>",
                 `
                     <body>

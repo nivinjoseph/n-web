@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { given } from "n-defensive";
 import { ApplicationException, ArgumentException } from "n-exception";
-import { httpMethodSymbol } from "./http-method";
+import { httpMethodSymbol, HttpMethods } from "./http-method";
 import { httpRouteSymbol } from "./route";
 import { RouteInfo } from "./route-info";
 import { viewSymbol } from "./view";
@@ -61,6 +61,10 @@ export class ControllerRegistration
 
         this._method = Reflect.getOwnMetadata(httpMethodSymbol, this._controller);
         this._route = new RouteInfo(Reflect.getOwnMetadata(httpRouteSymbol, this._controller));
+        
+        if (this._route.isCatchAll && this._method !== HttpMethods.Get)
+            throw new ApplicationException("Controller '{0}' has a catch all route but is not using HTTP GET."
+                .format(this._name));
 
         if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
         {

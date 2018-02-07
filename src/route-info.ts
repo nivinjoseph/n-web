@@ -11,12 +11,14 @@ export class RouteInfo
     private readonly _routeParams = new Array<RouteParam>();
     private readonly _routeParamsRegistry: { [index: string]: RouteParam } = {};
     private readonly _koaRoute: string;
+    private readonly _isCatchAll: boolean = false;
     private _hasQuery: boolean;
 
 
     public get route(): string { return this._routeTemplate; }
     public get koaRoute(): string { return this._koaRoute; }
     public get params(): ReadonlyArray<RouteParam> { return this._routeParams; }
+    public get isCatchAll(): boolean { return this._isCatchAll; }
 
 
     public constructor(routeTemplate: string, isUrlGenerator = false) // true if used purely for url generation (only by utils)
@@ -38,10 +40,18 @@ export class RouteInfo
         }
 
         this._routeTemplate = routeTemplate;
-        this.populateRouteParams();
+        
+        if (this._routeTemplate.contains("*"))
+        {
+            this._isCatchAll = true;
+        }   
+        else
+        {
+            this.populateRouteParams();
 
-        if (!isUrlGenerator)
-            this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+            if (!isUrlGenerator)
+                this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+        }
     }
 
 

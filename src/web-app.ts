@@ -17,6 +17,7 @@ import { ClaimsIdentity } from "n-sec";
 import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
+import { ConfigurationManager } from "n-config";
 
 
 // public
@@ -76,17 +77,19 @@ export class WebApp
             {
                 if (filePath.length === 1)
                 {
-                    // if (ConfigurationManager.getConfig<string>("mode") !== "dev")
-                    //     throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
-                    
                     throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
                 }    
                 filePath = filePath.substr(1);
             }
             
             filePath = path.join(process.cwd(), filePath);
-            if (!fs.existsSync(filePath))
-                throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");    
+            
+            // We skip the defensive check in dev because of webpack HMR because 
+            if (ConfigurationManager.getConfig<string>("env") !== "dev")
+            {
+                if (!fs.existsSync(filePath))
+                    throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+            }                
             
             if (this._staticFilePaths.some(t => t === filePath))
                 throw new ArgumentException("filePath[{0}]".format(filePath), "is duplicate");

@@ -10,6 +10,7 @@ import { ApplicationException } from "n-exception";
 
 @httpGet
 @route(Routes.getTodos)
+// @route("/*")    
 // @authorize(AppClaims.claim1)    
 @inject("TodoManager", "ConfigService", "CallContext")    
 export class GetTodosController extends Controller
