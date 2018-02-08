@@ -9,7 +9,7 @@ export declare class HttpMethods {
     static readonly Put: string;
     static readonly Delete: string;
 }
-export declare const httpMethodSymbol: symbol;
+export declare const httpMethodSymbol: unique symbol;
 export declare function httpGet(target: Function): void;
 export declare function httpPost(target: Function): void;
 export declare function httpPut(target: Function): void;
