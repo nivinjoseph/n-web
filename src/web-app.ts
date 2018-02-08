@@ -162,13 +162,18 @@ export class WebApp
         return this;
     }
     
-    public enableWebPackDevMiddleware(publicPath: string = "/"): this
+    public enableWebPackDevMiddleware(makeItHot: boolean = false, publicPath: string = "/"): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
         if (ConfigurationManager.getConfig<string>("env") === "dev")
-            this._koa.use(webPackMiddleware({ dev: { publicPath } }));
+            this._koa.use(webPackMiddleware(
+                {
+                    dev: { publicPath },
+                    hot: <any>{ reload: true, hot: makeItHot }
+                }
+            ));
         
         return this;
     }
