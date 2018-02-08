@@ -25,6 +25,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: Function): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
+    enableWebPackDevMiddleware(makeItHot?: boolean, publicPath?: string): this;
     bootstrap(): void;
     private configureCors();
     private configureContainer();

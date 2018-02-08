@@ -25,6 +25,7 @@ const n_sec_1 = require("n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("n-config");
+const webPackMiddleware = require("koa-webpack");
 // public
 class WebApp {
     constructor(port) {
@@ -115,6 +116,16 @@ class WebApp {
             throw new n_exception_1.InvalidOperationException("useViewResolutionRoot");
         n_defensive_1.given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._viewResolutionRoot = path.trim();
+        return this;
+    }
+    enableWebPackDevMiddleware(makeItHot = false, publicPath = "/") {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
+        if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
+            this._koa.use(webPackMiddleware({
+                dev: { publicPath },
+                hot: { reload: true, hot: makeItHot }
+            }));
         return this;
     }
     bootstrap() {
