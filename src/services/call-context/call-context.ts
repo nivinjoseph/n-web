@@ -1,5 +1,5 @@
-import { Scope } from "n-ject";
-import { ClaimsIdentity } from "n-sec";
+import { Scope } from "@nivinjoseph/n-ject";
+import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 
 
 // public

@@ -1,4 +1,4 @@
-import { ClaimsIdentity, Claim } from "n-sec";
+import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 
 // public

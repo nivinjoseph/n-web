@@ -2,7 +2,7 @@
 /// <reference types="koa-bodyparser" />
 /// <reference types="koa-router" />
 import * as Koa from "koa";
-import { Container } from "n-ject";
+import { Container } from "@nivinjoseph/n-ject";
 export declare class Router {
     private readonly _koa;
     private readonly _container;

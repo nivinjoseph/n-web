@@ -1,9 +1,9 @@
-import { Exception, ApplicationException } from "n-exception";
-import { given } from "n-defensive";
-import "n-ext";
+import { Exception, ApplicationException } from "@nivinjoseph/n-exception";
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
-import { Logger, ConsoleLogger } from "n-log";
+import { Logger, ConsoleLogger } from "@nivinjoseph/n-log";
 
 // public
 export class DefaultExceptionHandler extends ExceptionHandler

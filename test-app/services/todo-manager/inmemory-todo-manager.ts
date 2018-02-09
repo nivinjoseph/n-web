@@ -1,10 +1,10 @@
 import { TodoManager } from "./todo-manager";
 import { Todo } from "./../../models/todo";
-import "n-ext";
-import { ApplicationException } from "n-exception";
-import { given } from "n-defensive";
+import "@nivinjoseph/n-ext";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { given } from "@nivinjoseph/n-defensive";
 import { Logger } from "./../logger/logger";
-import { inject } from "n-ject";
+import { inject } from "@nivinjoseph/n-ject";
 
 @inject("Logger")
 export class InmemoryTodoManager implements TodoManager

@@ -1,10 +1,10 @@
 /// <reference types="koa" />
 /// <reference types="koa-router" />
 import { CallContext } from "./call-context";
-import { Scope } from "n-ject";
+import { Scope } from "@nivinjoseph/n-ject";
 import * as Koa from "koa";
-import { ClaimsIdentity } from "n-sec";
-import "n-ext";
+import { ClaimsIdentity } from "@nivinjoseph/n-sec";
+import "@nivinjoseph/n-ext";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _hasAuth;

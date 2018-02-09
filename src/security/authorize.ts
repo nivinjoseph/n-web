@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Claim } from "n-sec";
+import { Claim } from "@nivinjoseph/n-sec";
 
 
 export const authorizeSymbol = Symbol("authorize");

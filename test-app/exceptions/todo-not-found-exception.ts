@@ -1,5 +1,5 @@
-import { ApplicationException } from "n-exception";
-import "n-ext";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import "@nivinjoseph/n-ext";
 
 export class TodoNotFoundException extends ApplicationException
 {

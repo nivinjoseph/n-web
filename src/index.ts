@@ -12,11 +12,6 @@ import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
 
-
-import { StyleBundle } from "./bundling/style-bundle";
-import { TemplateBundle } from "./bundling/template-bundle";
-import { ScriptBundle } from "./bundling/script-bundle";
-
 import { CallContext } from "./services/call-context/call-context";
 
 import { AuthenticationHandler } from "./security/authentication-handler";
@@ -36,8 +31,6 @@ export
     Utils,
     
     HttpException, ExceptionHandler, DefaultExceptionHandler,
-    
-    StyleBundle, TemplateBundle, ScriptBundle,
     
     CallContext,
     

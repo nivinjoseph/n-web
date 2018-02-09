@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-const n_defensive_1 = require("n-defensive");
-const n_exception_1 = require("n-exception");
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
+const n_exception_1 = require("@nivinjoseph/n-exception");
 const http_method_1 = require("./http-method");
 const route_1 = require("./route");
 const route_info_1 = require("./route-info");
 const view_1 = require("./view");
 const view_layout_1 = require("./view-layout");
 const authorize_1 = require("./security/authorize");
-require("n-ext");
+require("@nivinjoseph/n-ext");
 const fs = require("fs");
 const path = require("path");
-const n_config_1 = require("n-config");
+const n_config_1 = require("@nivinjoseph/n-config");
 class ControllerRegistration {
     constructor(controller) {
         this._viewFileName = null;

@@ -1,4 +1,4 @@
-import { ComponentInstaller, Registry } from "n-ject";
+import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import { InmemoryTodoManager } from "./services/todo-manager/inmemory-todo-manager";
 import { DefaultConfigService } from "./services/config-service/default-config-service";
 import { ConsoleLogger } from "./services/logger/consoleLogger";
@@ -11,7 +11,7 @@ import { DeleteTodoController } from "./controllers/api/delete-todo-controller";
 import { HomeController } from "./controllers/web/home/home-controller";
 import { HomeWithLayoutController } from "./controllers/web/home-with-layout/home-with-layout-controller"; 
 import { AppExceptionHandler } from "./exceptions/app-exception-handler";
-import { ConfigurationManager } from "n-config";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { AppAuthenticationHandler } from "./security/app-authentication-handler";
 import { AppAuthorizationHandler } from "./security/app-authorization-handler";
 

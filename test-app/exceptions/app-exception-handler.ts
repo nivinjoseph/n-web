@@ -1,11 +1,11 @@
 import { ExceptionHandler } from "./../../src/index";
-import { Exception } from "n-exception";
+import { Exception } from "@nivinjoseph/n-exception";
 import { TodoNotFoundException } from "./todo-not-found-exception";
 import { HttpException } from "./../../src/index";
-import { inject } from "n-ject";
+import { inject } from "@nivinjoseph/n-ject";
 import { Logger } from "./../services/logger/logger";
-import { given } from "n-defensive";
-import { ApplicationException } from "n-exception";
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
 
 
 @inject("Logger")

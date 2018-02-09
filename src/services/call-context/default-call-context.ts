@@ -1,9 +1,9 @@
 import { CallContext } from "./call-context";
-import { Scope } from "n-ject";
-import { given } from "n-defensive";
+import { Scope } from "@nivinjoseph/n-ject";
+import { given } from "@nivinjoseph/n-defensive";
 import * as Koa from "koa";
-import { ClaimsIdentity } from "n-sec";
-import "n-ext";
+import { ClaimsIdentity } from "@nivinjoseph/n-sec";
+import "@nivinjoseph/n-ext";
 
 
 export class DefaultCallContext implements CallContext

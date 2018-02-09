@@ -1,5 +1,5 @@
 import { DefaultAuthorizationHandler } from "../../src/index";
-import { ClaimsIdentity, Claim } from "n-sec";
+import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 
 export class AppAuthorizationHandler extends DefaultAuthorizationHandler

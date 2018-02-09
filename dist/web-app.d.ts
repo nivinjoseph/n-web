@@ -1,5 +1,5 @@
-import { ComponentInstaller } from "n-ject";
-import "n-ext";
+import { ComponentInstaller } from "@nivinjoseph/n-ject";
+import "@nivinjoseph/n-ext";
 export declare class WebApp {
     private readonly _port;
     private readonly _koa;

@@ -8,12 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const n_exception_1 = require("n-exception");
-const n_defensive_1 = require("n-defensive");
-require("n-ext");
+const n_exception_1 = require("@nivinjoseph/n-exception");
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
+require("@nivinjoseph/n-ext");
 const exception_handler_1 = require("./exception-handler");
 const http_exception_1 = require("./http-exception");
-const n_log_1 = require("n-log");
+const n_log_1 = require("@nivinjoseph/n-log");
 // public
 class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
     constructor(logger, logEverything = false) {

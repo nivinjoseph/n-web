@@ -1,4 +1,4 @@
-import { Claim } from "n-sec";
+import { Claim } from "@nivinjoseph/n-sec";
 
 
 export const claim1 = new Claim("claim1", true);

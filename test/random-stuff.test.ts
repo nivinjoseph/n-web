@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import "n-ext";
+import "@nivinjoseph/n-ext";
 
 suite("Random stuff", () =>
 {

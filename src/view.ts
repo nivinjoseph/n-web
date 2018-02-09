@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import { given } from "n-defensive";
-import "n-ext";
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
 
 
 export const viewSymbol = Symbol("webView");

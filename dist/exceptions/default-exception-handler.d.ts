@@ -1,7 +1,7 @@
-import { Exception } from "n-exception";
-import "n-ext";
+import { Exception } from "@nivinjoseph/n-exception";
+import "@nivinjoseph/n-ext";
 import { ExceptionHandler } from "./exception-handler";
-import { Logger } from "n-log";
+import { Logger } from "@nivinjoseph/n-log";
 export declare class DefaultExceptionHandler extends ExceptionHandler {
     private readonly _logger;
     private readonly _logEverything;

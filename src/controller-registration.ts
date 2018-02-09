@@ -1,17 +1,17 @@
 import "reflect-metadata";
-import { given } from "n-defensive";
-import { ApplicationException, ArgumentException } from "n-exception";
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException, ArgumentException } from "@nivinjoseph/n-exception";
 import { httpMethodSymbol, HttpMethods } from "./http-method";
 import { httpRouteSymbol } from "./route";
 import { RouteInfo } from "./route-info";
 import { viewSymbol } from "./view";
 import { viewLayoutSymbol } from "./view-layout";
 import { authorizeSymbol } from "./security/authorize";
-import "n-ext";
+import "@nivinjoseph/n-ext";
 import * as fs from "fs";
 import * as path from "path";
-import { ConfigurationManager } from "n-config";
-import { Claim } from "n-sec";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
+import { Claim } from "@nivinjoseph/n-sec";
 
 
 export class ControllerRegistration

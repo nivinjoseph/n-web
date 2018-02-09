@@ -1,4 +1,4 @@
-import { Exception } from "n-exception";
+import { Exception } from "@nivinjoseph/n-exception";
 
 export abstract class ExceptionHandler
 {

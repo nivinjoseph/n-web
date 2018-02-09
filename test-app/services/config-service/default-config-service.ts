@@ -1,5 +1,5 @@
 import { ConfigService } from "./config-service";
-import { ConfigurationManager } from "n-config";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 
 export class DefaultConfigService implements ConfigService
 {

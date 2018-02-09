@@ -9,13 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const KoaRouter = require("koa-router");
-const n_defensive_1 = require("n-defensive");
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
 const controller_registration_1 = require("./controller-registration");
-const n_exception_1 = require("n-exception");
+const n_exception_1 = require("@nivinjoseph/n-exception");
 const http_method_1 = require("./http-method");
 const http_exception_1 = require("./exceptions/http-exception");
 const http_redirect_exception_1 = require("./exceptions/http-redirect-exception");
-const n_config_1 = require("n-config");
+const n_config_1 = require("@nivinjoseph/n-config");
 class Router {
     constructor(koa, container, authorizationHandlerKey, callContextKey) {
         this._controllers = new Array();

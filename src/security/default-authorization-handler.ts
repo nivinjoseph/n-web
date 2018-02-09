@@ -1,5 +1,5 @@
 import { AuthorizationHandler } from "./authorization-handler";
-import { ClaimsIdentity, Claim } from "n-sec";
+import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 
 // public

@@ -10,21 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const Koa = require("koa");
 const KoaBodyParser = require("koa-bodyparser");
-const n_ject_1 = require("n-ject");
-const n_defensive_1 = require("n-defensive");
+const n_ject_1 = require("@nivinjoseph/n-ject");
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
 const router_1 = require("./router");
-const n_exception_1 = require("n-exception");
+const n_exception_1 = require("@nivinjoseph/n-exception");
 const serve = require("koa-static");
 const fs = require("fs");
 const path = require("path");
-require("n-ext");
+require("@nivinjoseph/n-ext");
 const cors = require("kcors");
 const default_call_context_1 = require("./services/call-context/default-call-context");
 const default_authorization_handler_1 = require("./security/default-authorization-handler");
-const n_sec_1 = require("n-sec");
+const n_sec_1 = require("@nivinjoseph/n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
-const n_config_1 = require("n-config");
+const n_config_1 = require("@nivinjoseph/n-config");
 const webPackMiddleware = require("koa-webpack");
 // public
 class WebApp {

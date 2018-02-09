@@ -1,12 +1,12 @@
-import { given } from "n-defensive";
+import { given } from "@nivinjoseph/n-defensive";
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { httpGet, route, Controller, authorize, CallContext, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
-import { inject } from "n-ject";
+import { inject } from "@nivinjoseph/n-ject";
 import * as AppClaims from "./../../security/app-claims";
 import { HttpException } from "../../../src/exceptions/http-exception";
-import { ApplicationException } from "n-exception";
+import { ApplicationException } from "@nivinjoseph/n-exception";
 
 @httpGet
 @route(Routes.getTodos)

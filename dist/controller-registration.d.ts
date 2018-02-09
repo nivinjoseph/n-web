@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { RouteInfo } from "./route-info";
-import "n-ext";
-import { Claim } from "n-sec";
+import "@nivinjoseph/n-ext";
+import { Claim } from "@nivinjoseph/n-sec";
 export declare class ControllerRegistration {
     private readonly _name;
     private readonly _controller;

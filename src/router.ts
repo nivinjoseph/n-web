@@ -1,17 +1,17 @@
 import * as Koa from "koa";
 import * as KoaRouter from "koa-router";
-import { Container, Scope } from "n-ject";
-import { given } from "n-defensive";
+import { Container, Scope } from "@nivinjoseph/n-ject";
+import { given } from "@nivinjoseph/n-defensive";
 import { ControllerRegistration } from "./controller-registration";
 import { Controller } from "./controller";
-import { ApplicationException } from "n-exception";
+import { ApplicationException } from "@nivinjoseph/n-exception";
 import { RouteInfo } from "./route-info";
 import { HttpMethods } from "./http-method";
 import { HttpException } from "./exceptions/http-exception";
 import { HttpRedirectException } from "./exceptions/http-redirect-exception";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { CallContext } from "./services/call-context/call-context";
-import { ConfigurationManager } from "n-config";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 
 export class Router
 {

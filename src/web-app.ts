@@ -1,23 +1,23 @@
 import * as Koa from "koa";
 import * as KoaBodyParser from "koa-bodyparser";
-import { Container, ComponentInstaller, Scope } from "n-ject";
-import { given } from "n-defensive";
+import { Container, ComponentInstaller, Scope } from "@nivinjoseph/n-ject";
+import { given } from "@nivinjoseph/n-defensive";
 import { Router } from "./router";
-import { Exception, ArgumentException, InvalidOperationException } from "n-exception";
+import { Exception, ArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
 import * as serve from "koa-static";
 import * as fs from "fs";
 import * as path from "path";
-import "n-ext";
+import "@nivinjoseph/n-ext";
 import * as cors from "kcors";
 import { DefaultCallContext } from "./services/call-context/default-call-context";
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
-import { ClaimsIdentity } from "n-sec";
+import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
-import { ConfigurationManager } from "n-config";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as webPackMiddleware from "koa-webpack";
 
 
