@@ -13,10 +13,10 @@ export class DefaultExceptionHandler extends ExceptionHandler
     private readonly _handlers: { [index: string]: (exp: Exception) => Promise<any> };
 
 
-    public constructor(logger: Logger, logEverything = false)
+    public constructor(logger: Logger = new ConsoleLogger(), logEverything = true)
     {
         super();
-        this._logger = logger ? logger : new ConsoleLogger();
+        this._logger = logger;
         this._logEverything = !!logEverything;
         this._handlers = {};
     }
@@ -50,14 +50,21 @@ export class DefaultExceptionHandler extends ExceptionHandler
 
     protected log(exp: Exception | Error | any): Promise<void>
     {
-        let logMessage = "";
-        if (exp instanceof Exception)
-            logMessage = exp.toString();
-        else if (exp instanceof Error)
-            logMessage = exp.stack;
-        else
-            logMessage = exp.toString();
-        
-        return this._logger.logError(logMessage);
+        try 
+        {
+            let logMessage = "";
+            if (exp instanceof Exception)
+                logMessage = exp.toString();
+            else if (exp instanceof Error)
+                logMessage = exp.stack;
+            else
+                logMessage = exp.toString();
+
+            return this._logger.logError(logMessage);
+        }
+        catch (error)
+        {
+            return this._logger.logError("There was an error while attempting to log another error.");
+        }
     }
 }
