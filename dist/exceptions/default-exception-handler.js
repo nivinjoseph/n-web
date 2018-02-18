@@ -16,9 +16,9 @@ const http_exception_1 = require("./http-exception");
 const n_log_1 = require("@nivinjoseph/n-log");
 // public
 class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
-    constructor(logger, logEverything = false) {
+    constructor(logger = new n_log_1.ConsoleLogger(), logEverything = true) {
         super();
-        this._logger = logger ? logger : new n_log_1.ConsoleLogger();
+        this._logger = logger;
         this._logEverything = !!logEverything;
         this._handlers = {};
     }
@@ -43,14 +43,19 @@ class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
         this._handlers[name] = handler;
     }
     log(exp) {
-        let logMessage = "";
-        if (exp instanceof n_exception_1.Exception)
-            logMessage = exp.toString();
-        else if (exp instanceof Error)
-            logMessage = exp.stack;
-        else
-            logMessage = exp.toString();
-        return this._logger.logError(logMessage);
+        try {
+            let logMessage = "";
+            if (exp instanceof n_exception_1.Exception)
+                logMessage = exp.toString();
+            else if (exp instanceof Error)
+                logMessage = exp.stack;
+            else
+                logMessage = exp.toString();
+            return this._logger.logError(logMessage);
+        }
+        catch (error) {
+            return this._logger.logError("There was an error while attempting to log another error.");
+        }
     }
 }
 exports.DefaultExceptionHandler = DefaultExceptionHandler;
