@@ -3,7 +3,7 @@ import { given } from "@nivinjoseph/n-defensive";
 import "@nivinjoseph/n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
-import { Logger, ConsoleLogger } from "@nivinjoseph/n-log";
+import { Logger } from "@nivinjoseph/n-log";
 
 // public
 export class DefaultExceptionHandler extends ExceptionHandler
@@ -13,7 +13,7 @@ export class DefaultExceptionHandler extends ExceptionHandler
     private readonly _handlers: { [index: string]: (exp: Exception) => Promise<any> };
 
 
-    public constructor(logger: Logger = new ConsoleLogger(), logEverything = true)
+    public constructor(logger: Logger, logEverything = true)
     {
         super();
         this._logger = logger;

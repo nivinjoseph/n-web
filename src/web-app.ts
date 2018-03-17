@@ -19,6 +19,7 @@ import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as webPackMiddleware from "koa-webpack";
+import { ConsoleLogger } from "@nivinjoseph/n-log";
 
 
 // public
@@ -213,7 +214,7 @@ export class WebApp
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
         
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(null, true));    
+            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(new ConsoleLogger()));    
         
         this._container.bootstrap();
     }

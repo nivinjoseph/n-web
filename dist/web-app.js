@@ -26,6 +26,7 @@ const default_exception_handler_1 = require("./exceptions/default-exception-hand
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
 const webPackMiddleware = require("koa-webpack");
+const n_log_1 = require("@nivinjoseph/n-log");
 // public
 class WebApp {
     constructor(port) {
@@ -153,7 +154,7 @@ class WebApp {
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(null, true));
+            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(new n_log_1.ConsoleLogger()));
         this._container.bootstrap();
     }
     configureScoping() {
