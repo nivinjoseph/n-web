@@ -119,13 +119,13 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
-    enableWebPackDevMiddleware(makeItHot = false, publicPath = "/") {
+    enableWebPackDevMiddleware(publicPath = "/") {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
             this._koa.use(webPackMiddleware({
                 dev: { publicPath },
-                hot: { reload: true, hot: makeItHot }
+                hot: { reload: true, hot: true }
             }));
         return this;
     }
