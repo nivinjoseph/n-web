@@ -163,7 +163,7 @@ export class WebApp
         return this;
     }
     
-    public enableWebPackDevMiddleware(makeItHot: boolean = false, publicPath: string = "/"): this
+    public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
@@ -172,7 +172,7 @@ export class WebApp
             this._koa.use(webPackMiddleware(
                 {
                     dev: { publicPath },
-                    hot: <any>{ reload: true, hot: makeItHot }
+                    hot: <any>{ reload: true, hot: true }
                 }
             ));
         
