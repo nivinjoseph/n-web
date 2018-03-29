@@ -124,7 +124,7 @@ class WebApp {
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
             this._koa.use(webPackMiddleware({
-                dev: { publicPath },
+                dev: { publicPath, writeToDisk: true },
                 hot: { reload: true, hot: true }
             }));
         return this;
