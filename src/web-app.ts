@@ -171,9 +171,9 @@ export class WebApp
         if (ConfigurationManager.getConfig<string>("env") === "dev")
             this._koa.use(webPackMiddleware(
                 {
-                    dev: { publicPath },
+                    dev: { publicPath, writeToDisk: true },
                     hot: <any>{ reload: true, hot: true }
-                }
+                } as any
             ));
         
         return this;
