@@ -131,7 +131,7 @@ class Router {
                 html = html.replace("<body>", `
                     <body>
                     <script>
-                        window.config = ${JSON.stringify(config)};
+                        window.config = "${Buffer.from(JSON.stringify(config), "utf8").toString("hex")}";
                     </script>
                 `);
                 result = html;
