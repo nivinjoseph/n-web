@@ -21,5 +21,6 @@ export declare class DefaultCallContext implements CallContext {
     configure(ctx: Koa.Context): void;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
+    setResponseHeader(header: string, value: string): void;
     private populateSchemeAndToken();
 }

@@ -11,4 +11,5 @@ export interface CallContext {
     identity: ClaimsIdentity;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
+    setResponseHeader(header: string, value: string): void;
 }

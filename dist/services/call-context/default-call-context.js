@@ -35,6 +35,11 @@ class DefaultCallContext {
             "Content-Disposition": contentDisposition.trim()
         });
     }
+    setResponseHeader(header, value) {
+        n_defensive_1.given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        n_defensive_1.given(value, "value").ensureHasValue().ensureIsString();
+        this._ctx.set(header, value);
+    }
     populateSchemeAndToken() {
         if (this._ctx.header && this._ctx.header.authorization) {
             let authorization = this._ctx.header.authorization;
