@@ -55,6 +55,14 @@ export class DefaultCallContext implements CallContext
         });
     }
     
+    public setResponseHeader(header: string, value: string): void
+    {
+        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(value, "value").ensureHasValue().ensureIsString();
+        
+        this._ctx.set(header, value);
+    }
+    
     
     private populateSchemeAndToken(): void
     {
