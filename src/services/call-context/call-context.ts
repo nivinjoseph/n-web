@@ -14,7 +14,7 @@ export interface CallContext
     isAuthenticated: boolean;
     identity: ClaimsIdentity;
     
-    
+    getRequestHeader(header: string): string;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
     setResponseHeader(header: string, value: string): void;

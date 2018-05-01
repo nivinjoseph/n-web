@@ -9,6 +9,7 @@ import "@nivinjoseph/n-ext";
 export class DefaultCallContext implements CallContext
 {
     private _ctx: Koa.Context;
+    private _authHeader: string;
     private _hasAuth: boolean = false;
     private _authScheme: string;
     private _authToken: string;
@@ -24,14 +25,23 @@ export class DefaultCallContext implements CallContext
     public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
     
     
-    public configure(ctx: Koa.Context): void
+    public configure(ctx: Koa.Context, authHeader: string): void
     {
-        given(ctx, "ctx").ensureHasValue();
+        given(ctx, "ctx").ensureHasValue().ensureIsObject();
+        given(authHeader, "authHeader").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         
         this._ctx = ctx;
+        this._authHeader = authHeader;
         this.populateSchemeAndToken();
     }
     
+    
+    public getRequestHeader(header: string): string
+    {
+        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        
+        return this._ctx.get(header);
+    }
     
     public setResponseType(responseType: string): void
     {
@@ -66,9 +76,9 @@ export class DefaultCallContext implements CallContext
     
     private populateSchemeAndToken(): void
     {
-        if (this._ctx.header && this._ctx.header.authorization)
+        if (this._ctx.header && this._ctx.header[this._authHeader])
         {
-            let authorization: string = this._ctx.header.authorization;
+            let authorization: string = this._ctx.header[this._authHeader];
             if (!authorization.isEmptyOrWhiteSpace())
             {
                 authorization = authorization.trim();
