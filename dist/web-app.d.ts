@@ -10,6 +10,7 @@ export declare class WebApp {
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
     private _hasAuthenticationHandler;
+    private _authHeader;
     private readonly _authorizationHandlerKey;
     private _hasAuthorizationHandler;
     private readonly _staticFilePaths;
@@ -22,7 +23,7 @@ export declare class WebApp {
     registerControllers(...controllerClasses: Function[]): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
-    registerAuthenticationHandler(authenticationHandler: Function): this;
+    registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
     enableWebPackDevMiddleware(publicPath?: string): this;

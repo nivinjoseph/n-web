@@ -14,10 +14,16 @@ class DefaultCallContext {
     get authToken() { return this._authToken; }
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
-    configure(ctx) {
-        n_defensive_1.given(ctx, "ctx").ensureHasValue();
+    configure(ctx, authHeader) {
+        n_defensive_1.given(ctx, "ctx").ensureHasValue().ensureIsObject();
+        n_defensive_1.given(authHeader, "authHeader").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx = ctx;
+        this._authHeader = authHeader;
         this.populateSchemeAndToken();
+    }
+    getRequestHeader(header) {
+        n_defensive_1.given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        return this._ctx.get(header);
     }
     setResponseType(responseType) {
         n_defensive_1.given(responseType, "responseType")
@@ -41,8 +47,8 @@ class DefaultCallContext {
         this._ctx.set(header, value);
     }
     populateSchemeAndToken() {
-        if (this._ctx.header && this._ctx.header.authorization) {
-            let authorization = this._ctx.header.authorization;
+        if (this._ctx.header && this._ctx.header[this._authHeader]) {
+            let authorization = this._ctx.header[this._authHeader];
             if (!authorization.isEmptyOrWhiteSpace()) {
                 authorization = authorization.trim();
                 while (authorization.contains("  ")) // double space

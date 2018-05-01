@@ -35,6 +35,7 @@ class WebApp {
         this._hasExceptionHandler = false;
         this._authenticationHandlerKey = "$authenticationHandler";
         this._hasAuthenticationHandler = false;
+        this._authHeader = "authorization";
         this._authorizationHandlerKey = "$authorizationHandler";
         this._hasAuthorizationHandler = false;
         this._staticFilePaths = new Array();
@@ -96,12 +97,15 @@ class WebApp {
         this._hasExceptionHandler = true;
         return this;
     }
-    registerAuthenticationHandler(authenticationHandler) {
+    registerAuthenticationHandler(authenticationHandler, authHeader) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerAuthenticationHandler");
         n_defensive_1.given(authenticationHandler, "authenticationHandler").ensureHasValue();
+        n_defensive_1.given(authHeader, "authHeader").ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
         this._hasAuthenticationHandler = true;
+        if (authHeader)
+            this._authHeader = authHeader.trim();
         return this;
     }
     registerAuthorizationHandler(authorizationHandler) {
@@ -167,7 +171,7 @@ class WebApp {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             let scope = ctx.state.scope;
             let defaultCallContext = scope.resolve(this._callContextKey);
-            defaultCallContext.configure(ctx);
+            defaultCallContext.configure(ctx, this._authHeader);
             yield next();
         }));
     }

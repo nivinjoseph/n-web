@@ -9,6 +9,7 @@ export interface CallContext {
     authToken: string;
     isAuthenticated: boolean;
     identity: ClaimsIdentity;
+    getRequestHeader(header: string): string;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
     setResponseHeader(header: string, value: string): void;
