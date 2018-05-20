@@ -19,7 +19,7 @@ export declare class WebApp {
     private _isBootstrapped;
     constructor(port: number);
     enableCors(): this;
-    registerStaticFilePaths(...filePaths: string[]): this;
+    registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;

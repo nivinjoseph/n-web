@@ -53,27 +53,25 @@ class WebApp {
         this._enableCors = true;
         return this;
     }
-    registerStaticFilePaths(...filePaths) {
+    registerStaticFilePath(filePath, cache = false) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
-        for (let filePath of filePaths) {
-            filePath = filePath.trim().toLowerCase();
-            if (filePath.startsWith("/")) {
-                if (filePath.length === 1) {
-                    throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
-                }
-                filePath = filePath.substr(1);
+        filePath = filePath.trim().toLowerCase();
+        if (filePath.startsWith("/")) {
+            if (filePath.length === 1) {
+                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
             }
-            filePath = path.join(process.cwd(), filePath);
-            // We skip the defensive check in dev because of webpack HMR because 
-            if (n_config_1.ConfigurationManager.getConfig("env") !== "dev") {
-                if (!fs.existsSync(filePath))
-                    throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
-            }
-            if (this._staticFilePaths.some(t => t === filePath))
-                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
-            this._staticFilePaths.push(filePath);
+            filePath = filePath.substr(1);
         }
+        filePath = path.join(process.cwd(), filePath);
+        // We skip the defensive check in dev because of webpack HMR because 
+        if (n_config_1.ConfigurationManager.getConfig("env") !== "dev") {
+            if (!fs.existsSync(filePath))
+                throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+        }
+        if (this._staticFilePaths.some(t => t.path === filePath))
+            throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
+        this._staticFilePaths.push({ path: filePath, cache: cache });
         return this;
     }
     registerControllers(...controllerClasses) {
@@ -244,8 +242,8 @@ class WebApp {
         }));
     }
     configureStaticFileServing() {
-        for (let path of this._staticFilePaths)
-            this._koa.use(serve(path, { maxage: 1000 * 60 * 60 * 24 * 365 }));
+        for (let item of this._staticFilePaths)
+            this._koa.use(serve(item.path, item.cache ? { maxage: 1000 * 60 * 60 * 24 * 365 } : null));
     }
     configureBodyParser() {
         this._koa.use(KoaBodyParser({
