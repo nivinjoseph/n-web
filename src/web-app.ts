@@ -341,7 +341,7 @@ export class WebApp
     private configureStaticFileServing(): void
     {
         for (let path of this._staticFilePaths)
-            this._koa.use(serve(path));
+            this._koa.use(serve(path, {maxage: 1000 * 60 * 60 * 24 * 365}));
     }
     
     private configureBodyParser(): void
