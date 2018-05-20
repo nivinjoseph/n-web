@@ -43,7 +43,7 @@ export class WebApp
     private _hasAuthorizationHandler = false;
     
     
-    private readonly _staticFilePaths = new Array<string>();
+    private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
     private _enableCors = false;
     private _viewResolutionRoot: string;
     private _isBootstrapped: boolean = false;
@@ -68,37 +68,35 @@ export class WebApp
         return this;
     }
     
-    public registerStaticFilePaths(...filePaths: string[]): this
+    public registerStaticFilePath(filePath: string, cache = false): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStaticFilePaths");
         
-        for (let filePath of filePaths)
+        filePath = filePath.trim().toLowerCase();
+        if (filePath.startsWith("/"))
         {
-            filePath = filePath.trim().toLowerCase();
-            if (filePath.startsWith("/"))
+            if (filePath.length === 1)
             {
-                if (filePath.length === 1)
-                {
-                    throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
-                }    
-                filePath = filePath.substr(1);
+                throw new ArgumentException("filePath[{0}]".format(filePath), "is root");
             }
-            
-            filePath = path.join(process.cwd(), filePath);
-            
-            // We skip the defensive check in dev because of webpack HMR because 
-            if (ConfigurationManager.getConfig<string>("env") !== "dev")
-            {
-                if (!fs.existsSync(filePath))
-                    throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");
-            }                
-            
-            if (this._staticFilePaths.some(t => t === filePath))
-                throw new ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
-            
-            this._staticFilePaths.push(filePath);
-        }    
+            filePath = filePath.substr(1);
+        }
+
+        filePath = path.join(process.cwd(), filePath);
+
+        // We skip the defensive check in dev because of webpack HMR because 
+        if (ConfigurationManager.getConfig<string>("env") !== "dev")
+        {
+            if (!fs.existsSync(filePath))
+                throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");
+        }
+
+        if (this._staticFilePaths.some(t => t.path === filePath))
+            throw new ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
+
+        this._staticFilePaths.push({path: filePath, cache: cache});
+        
         return this;
     }
     
@@ -340,8 +338,8 @@ export class WebApp
     
     private configureStaticFileServing(): void
     {
-        for (let path of this._staticFilePaths)
-            this._koa.use(serve(path, {maxage: 1000 * 60 * 60 * 24 * 365}));
+        for (let item of this._staticFilePaths)
+            this._koa.use(serve(item.path, item.cache ? {maxage: 1000 * 60 * 60 * 24 * 365} : null));
     }
     
     private configureBodyParser(): void
