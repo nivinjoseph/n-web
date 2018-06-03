@@ -1,0 +1,1 @@
+{"version":3,"file":"event-aggregator.js","sourceRoot":"","sources":["../../../src/services/event-aggregator/event-aggregator.ts"],"names":[],"mappings":"","sourcesContent":["// public\nexport interface EventAggregator\n{\n    publish(event: string, ...eventArgs: any[]): Promise<void>;\n}"]}

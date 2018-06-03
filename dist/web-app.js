@@ -27,10 +27,14 @@ const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
 const webPackMiddleware = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
+const default_event_aggregator_1 = require("./services/event-aggregator/default-event-aggregator");
+const event_handler_registration_1 = require("./services/event-aggregator/event-handler-registration");
 // public
 class WebApp {
     constructor(port) {
         this._callContextKey = "CallContext";
+        this._eventAggregatorKey = "EventAggregator";
+        this._eventRegistrations = new Array();
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
         this._authenticationHandlerKey = "$authenticationHandler";
@@ -78,6 +82,12 @@ class WebApp {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerControllers");
         this._router.registerControllers(...controllerClasses);
+        return this;
+    }
+    registerEventHandlers(...eventHandlerClasses) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerControllers");
+        this._eventRegistrations.push(...eventHandlerClasses.map(t => new event_handler_registration_1.EventHandlerRegistration(t)));
         return this;
     }
     useInstaller(installer) {
@@ -140,6 +150,7 @@ class WebApp {
         this.configureCallContext();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
+        this.configureEventHandling();
         this.configureAuthentication();
         this.configureStaticFileServing();
         this.configureBodyParser();
@@ -153,6 +164,8 @@ class WebApp {
     }
     configureContainer() {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
+        this._container.registerScoped(this._eventAggregatorKey, default_event_aggregator_1.DefaultEventAggregator);
+        this._eventRegistrations.forEach(t => this._container.registerScoped(t.eventHandlerName, t.eventHandler));
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
@@ -224,6 +237,14 @@ class WebApp {
                     throw error;
                 throw new n_exception_1.Exception("TRAPPED ERROR | " + error.toString());
             }
+        }));
+    }
+    configureEventHandling() {
+        this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            let scope = ctx.state.scope;
+            let eventAggregator = scope.resolve(this._eventAggregatorKey);
+            this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
+            yield next();
         }));
     }
     configureAuthentication() {

@@ -15,4 +15,7 @@ import { AuthenticationHandler } from "./security/authentication-handler";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
 import { authorize } from "./security/authorize";
-export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize };
+import { EventAggregator } from "./services/event-aggregator/event-aggregator";
+import { event } from "./services/event-aggregator/event";
+import { EventHandler } from "./services/event-aggregator/event-handler";
+export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize, EventAggregator, event, EventHandler };

@@ -6,6 +6,8 @@ export declare class WebApp {
     private readonly _container;
     private readonly _router;
     private readonly _callContextKey;
+    private readonly _eventAggregatorKey;
+    private readonly _eventRegistrations;
     private readonly _exceptionHandlerKey;
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
@@ -21,6 +23,7 @@ export declare class WebApp {
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
+    registerEventHandlers(...eventHandlerClasses: Function[]): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
     registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this;
@@ -34,6 +37,7 @@ export declare class WebApp {
     private configureCallContext();
     private configureExceptionHandling();
     private configureErrorTrapping();
+    private configureEventHandling();
     private configureAuthentication();
     private configureStaticFileServing();
     private configureBodyParser();
