@@ -20,6 +20,8 @@ import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as webPackMiddleware from "koa-webpack";
 import { ConsoleLogger } from "@nivinjoseph/n-log";
+import { DefaultEventAggregator } from "./services/event-aggregator/default-event-aggregator";
+import { EventHandlerRegistration } from "./services/event-aggregator/event-handler-registration";
 
 
 // public
@@ -31,6 +33,8 @@ export class WebApp
     private readonly _router: Router;
     
     private readonly _callContextKey = "CallContext";
+    private readonly _eventAggregatorKey = "EventAggregator";
+    private readonly _eventRegistrations = new Array<EventHandlerRegistration>();
     
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
@@ -106,6 +110,15 @@ export class WebApp
             throw new InvalidOperationException("registerControllers");
         
         this._router.registerControllers(...controllerClasses);
+        return this;
+    }
+    
+    public registerEventHandlers(...eventHandlerClasses: Function[]): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerControllers");
+        
+        this._eventRegistrations.push(...eventHandlerClasses.map(t => new EventHandlerRegistration(t)));
         return this;
     }
     
@@ -192,6 +205,7 @@ export class WebApp
         this.configureCallContext();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
+        this.configureEventHandling();
         this.configureAuthentication();
         this.configureStaticFileServing();
         this.configureBodyParser();
@@ -211,6 +225,9 @@ export class WebApp
     private configureContainer(): void
     { 
         this._container.registerScoped(this._callContextKey, DefaultCallContext);
+        
+        this._container.registerScoped(this._eventAggregatorKey, DefaultEventAggregator);
+        this._eventRegistrations.forEach(t => this._container.registerScoped(t.eventHandlerName, t.eventHandler));
         
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
@@ -312,6 +329,17 @@ export class WebApp
                 
                 throw new Exception("TRAPPED ERROR | " + error.toString());
             }
+        });
+    }
+    
+    private configureEventHandling(): void
+    {
+        this._koa.use(async (ctx, next) =>
+        {
+            let scope: Scope = ctx.state.scope;
+            let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
+            this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
+            await next();
         });
     }
     

@@ -19,6 +19,10 @@ import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
 import { authorize } from "./security/authorize";
 
+import { EventAggregator } from "./services/event-aggregator/event-aggregator";
+import { event } from "./services/event-aggregator/event";
+import { EventHandler } from "./services/event-aggregator/event-handler";
+
 
 export
 {
@@ -34,5 +38,7 @@ export
     
     CallContext,
     
-    AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize
+    AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize,
+    
+    EventAggregator, event, EventHandler
 };
