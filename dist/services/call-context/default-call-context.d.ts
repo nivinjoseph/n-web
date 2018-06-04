@@ -1,4 +1,3 @@
-/// <reference types="koa" />
 /// <reference types="koa-router" />
 import { CallContext } from "./call-context";
 import { Scope } from "@nivinjoseph/n-ject";
@@ -24,5 +23,5 @@ export declare class DefaultCallContext implements CallContext {
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
     setResponseHeader(header: string, value: string): void;
-    private populateSchemeAndToken();
+    private populateSchemeAndToken;
 }

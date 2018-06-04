@@ -31,15 +31,15 @@ export declare class WebApp {
     useViewResolutionRoot(path: string): this;
     enableWebPackDevMiddleware(publicPath?: string): this;
     bootstrap(): void;
-    private configureCors();
-    private configureContainer();
-    private configureScoping();
-    private configureCallContext();
-    private configureExceptionHandling();
-    private configureErrorTrapping();
-    private configureEventHandling();
-    private configureAuthentication();
-    private configureStaticFileServing();
-    private configureBodyParser();
-    private configureRouting();
+    private configureCors;
+    private configureContainer;
+    private configureScoping;
+    private configureCallContext;
+    private configureExceptionHandling;
+    private configureErrorTrapping;
+    private configureEventHandling;
+    private configureAuthentication;
+    private configureStaticFileServing;
+    private configureBodyParser;
+    private configureRouting;
 }

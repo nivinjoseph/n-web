@@ -14,7 +14,7 @@ export declare class RouteInfo {
     constructor(routeTemplate: string, isUrlGenerator?: boolean);
     findRouteParam(key: string): RouteParam;
     generateUrl(values: Object): string;
-    private populateRouteParams();
-    private extractTemplateParams(routeTemplate);
-    private generateKoaRoute(routeTemplate);
+    private populateRouteParams;
+    private extractTemplateParams;
+    private generateKoaRoute;
 }
