@@ -1,27 +1,31 @@
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { given } from "@nivinjoseph/n-defensive";
-import { command, httpPost, route, Controller, HttpException, Utils } from "./../../../src/index";
+import { command, httpPost, route, Controller, HttpException, Utils, EventAggregator } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
+import { Event } from "./../../events/event";
 
 @command
 @route(Routes.createTodo)
-@inject("TodoManager", "ConfigService")    
+@inject("TodoManager", "ConfigService", "EventAggregator")    
 export class CreateTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
+    private readonly _eventAggregator: EventAggregator;
     
     
-    public constructor(todoManager: TodoManager, configService: ConfigService)
+    public constructor(todoManager: TodoManager, configService: ConfigService, eventAggregator: EventAggregator)
     {
         given(todoManager, "todoManager").ensureHasValue();
         given(configService, "configService").ensureHasValue();
+        given(eventAggregator, "eventAggregator").ensureHasValue().ensureIsObject();
         super();
         this._todoManager = todoManager;
         this._configService = configService;
+        this._eventAggregator = eventAggregator;
     }
     
     
@@ -30,6 +34,7 @@ export class CreateTodoController extends Controller
         this.validateModel(model);   
         
         let todo = await this._todoManager.addTodo(model.title, model.description);
+        await this._eventAggregator.publish(Event.todoCreated, todo.id);
         
         let baseUrl = await this._configService.getBaseUrl();
         return {

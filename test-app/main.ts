@@ -14,6 +14,8 @@ import { AppExceptionHandler } from "./exceptions/app-exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { AppAuthenticationHandler } from "./security/app-authentication-handler";
 import { AppAuthorizationHandler } from "./security/app-authorization-handler";
+import { TodoCreatedEventHandler } from "./events/todo-created-event-handler";
+import { TodoCreatedEventNotifyHandler } from "./events/todo-created-event-notify-handler";
 
 
 class AppInstaller implements ComponentInstaller
@@ -31,11 +33,14 @@ class AppInstaller implements ComponentInstaller
 const controllers = [GetTodosController, GetTodoController, CreateTodoController,
     UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController];
 
+const eventHandlers = [TodoCreatedEventHandler, TodoCreatedEventNotifyHandler];
+
 const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
     .useViewResolutionRoot("test-app/controllers/web")
     .useInstaller(new AppInstaller())
     .registerControllers(...controllers)
+    .registerEventHandlers(...eventHandlers)
     .registerAuthenticationHandler(AppAuthenticationHandler)
     .registerAuthorizationHandler(AppAuthorizationHandler)
     .registerExceptionHandler(AppExceptionHandler);
