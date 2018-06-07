@@ -1,8 +1,9 @@
 import { EventHandler, event } from "../../src/index";
 import { Event } from "./event";
 import { inject } from "@nivinjoseph/n-ject";
-import { Logger } from "../services/logger/logger";
 import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { Logger } from "@nivinjoseph/n-log";
 
 
 @event(Event.todoCreated)
@@ -22,6 +23,9 @@ export class TodoCreatedEventNotifyHandler extends EventHandler
 
     public async handle(): Promise<void>
     {
+        if (true)
+            throw new ApplicationException("Foo");
+        
         await this._logger.logInfo(`NOTIFYING ABOUT TODO.`);
     }
 }

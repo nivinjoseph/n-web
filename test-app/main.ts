@@ -1,7 +1,6 @@
 import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import { InmemoryTodoManager } from "./services/todo-manager/inmemory-todo-manager";
 import { DefaultConfigService } from "./services/config-service/default-config-service";
-import { ConsoleLogger } from "./services/logger/consoleLogger";
 import { WebApp } from "./../src/index";
 import { GetTodosController } from "./controllers/api/get-todos-controller";
 import { GetTodoController } from "./controllers/api/get-todo-controller";
@@ -16,7 +15,10 @@ import { AppAuthenticationHandler } from "./security/app-authentication-handler"
 import { AppAuthorizationHandler } from "./security/app-authorization-handler";
 import { TodoCreatedEventHandler } from "./events/todo-created-event-handler";
 import { TodoCreatedEventNotifyHandler } from "./events/todo-created-event-notify-handler";
+import { ConsoleLogger, LogDateTimeZone } from "@nivinjoseph/n-log";
 
+
+const logger = new ConsoleLogger(LogDateTimeZone.est);
 
 class AppInstaller implements ComponentInstaller
 {
@@ -25,7 +27,7 @@ class AppInstaller implements ComponentInstaller
         registry
             .registerSingleton("TodoManager", InmemoryTodoManager)
             .registerSingleton("ConfigService", DefaultConfigService)
-            .registerSingleton("Logger", ConsoleLogger);
+            .registerInstance("Logger", logger);
         ;
     }
 }
@@ -39,6 +41,7 @@ const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
     .useViewResolutionRoot("test-app/controllers/web")
     .useInstaller(new AppInstaller())
+    .useLogger(logger)
     .registerControllers(...controllers)
     .registerEventHandlers(...eventHandlers)
     .registerAuthenticationHandler(AppAuthenticationHandler)

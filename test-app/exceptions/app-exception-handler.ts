@@ -3,9 +3,9 @@ import { Exception } from "@nivinjoseph/n-exception";
 import { TodoNotFoundException } from "./todo-not-found-exception";
 import { HttpException } from "./../../src/index";
 import { inject } from "@nivinjoseph/n-ject";
-import { Logger } from "./../services/logger/logger";
 import { given } from "@nivinjoseph/n-defensive";
 import { ApplicationException } from "@nivinjoseph/n-exception";
+import { Logger } from "@nivinjoseph/n-log";
 
 
 @inject("Logger")

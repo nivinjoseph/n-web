@@ -1,8 +1,8 @@
 import { EventHandler, event } from "../../src/index";
 import { Event } from "./event";
 import { inject } from "@nivinjoseph/n-ject";
-import { Logger } from "../services/logger/logger";
 import { given } from "@nivinjoseph/n-defensive";
+import { Logger } from "@nivinjoseph/n-log";
 
 
 @event(Event.todoCreated)

@@ -3,8 +3,9 @@ import { Todo } from "./../../models/todo";
 import "@nivinjoseph/n-ext";
 import { ApplicationException } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";
-import { Logger } from "./../logger/logger";
 import { inject } from "@nivinjoseph/n-ject";
+import { Logger } from "@nivinjoseph/n-log";
+
 
 @inject("Logger")
 export class InmemoryTodoManager implements TodoManager

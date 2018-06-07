@@ -19,9 +19,11 @@ import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as webPackMiddleware from "koa-webpack";
-import { ConsoleLogger } from "@nivinjoseph/n-log";
+import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { DefaultEventAggregator } from "./services/event-aggregator/default-event-aggregator";
 import { EventHandlerRegistration } from "./services/event-aggregator/event-handler-registration";
+import { BackgroundProcessor, Delay } from "@nivinjoseph/n-util";
+import * as Http from "http";
 
 
 // public
@@ -35,6 +37,7 @@ export class WebApp
     private readonly _callContextKey = "CallContext";
     private readonly _eventAggregatorKey = "EventAggregator";
     private readonly _eventRegistrations = new Array<EventHandlerRegistration>();
+    private _backgroundProcessor: BackgroundProcessor;
     
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
@@ -46,10 +49,14 @@ export class WebApp
     private readonly _authorizationHandlerKey = "$authorizationHandler";
     private _hasAuthorizationHandler = false;
     
+    private _logger: Logger;
+    
     
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
     private _enableCors = false;
     private _viewResolutionRoot: string;
+    private _disposeActions = new Array<() => Promise<void>>();
+    private _server: Http.Server;
     private _isBootstrapped: boolean = false;
     
     
@@ -77,7 +84,10 @@ export class WebApp
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStaticFilePaths");
         
-        filePath = filePath.trim().toLowerCase();
+        given(filePath, "filePath").ensureHasValue().ensureIsString();
+        given(cache, "cache").ensureHasValue().ensureIsBoolean();
+        
+        filePath = filePath.trim();
         if (filePath.startsWith("/"))
         {
             if (filePath.length === 1)
@@ -89,7 +99,7 @@ export class WebApp
 
         filePath = path.join(process.cwd(), filePath);
 
-        // We skip the defensive check in dev because of webpack HMR because 
+        // We skip the defensive check in dev because of webpack HMR 
         if (ConfigurationManager.getConfig<string>("env") !== "dev")
         {
             if (!fs.existsSync(filePath))
@@ -116,9 +126,20 @@ export class WebApp
     public registerEventHandlers(...eventHandlerClasses: Function[]): this
     {
         if (this._isBootstrapped)
-            throw new InvalidOperationException("registerControllers");
+            throw new InvalidOperationException("registerEventHandlers");
         
         this._eventRegistrations.push(...eventHandlerClasses.map(t => new EventHandlerRegistration(t)));
+        return this;
+    }
+    
+    public useLogger(logger: Logger): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("useLogger");
+
+        given(logger, "logger").ensureHasValue().ensureIsObject();
+        
+        this._logger = logger;
         return this;
     }
     
@@ -194,10 +215,45 @@ export class WebApp
         return this;
     }
     
+    public registerDisposeAction(disposeAction: () => Promise<void>): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerForDispose");
+        
+        given(disposeAction, "disposeAction").ensureHasValue().ensureIsFunction();
+        
+        this._disposeActions.push(() =>
+        {
+            return new Promise((resolve) =>
+            {
+                try 
+                {
+                    disposeAction()
+                        .then(() => resolve())
+                        .catch((e) =>
+                        {
+                            this._logger.logError(e).then(() => resolve());
+                        });
+                }
+                catch (error)
+                {
+                    this._logger.logError(error).then(() => resolve());
+                }
+            });
+        });
+        return this;
+    }
+    
     public bootstrap(): void
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("bootstrap");
+        
+        if (!this._logger)
+            this._logger = new ConsoleLogger();
+        
+        this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
+        this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         
         this.configureCors();
         this.configureContainer();
@@ -211,8 +267,14 @@ export class WebApp
         this.configureBodyParser();
         this.configureRouting(); // must be last
         
-        this._koa.listen(this._port);
+        // this._koa.listen(this._port);
+        console.log("SERVER STARTING.");
+        this._server = Http.createServer(this._koa.callback());
+        this._server.listen(this._port);
+        this.configureShutDown();
+        
         this._isBootstrapped = true;
+        console.log("SERVER STARTED.");
     }
     
     
@@ -233,7 +295,7 @@ export class WebApp
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
         
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(new ConsoleLogger()));    
+            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));    
         
         this._container.bootstrap();
     }
@@ -296,15 +358,17 @@ export class WebApp
                     }   
                     else
                     {
-                        let logMessage = "";
-                        if (exp instanceof Exception)
-                            logMessage = exp.toString();
-                        else if (exp instanceof Error)
-                            logMessage = exp.stack;
-                        else
-                            logMessage = exp.toString();
+                        // let logMessage = "";
+                        // if (exp instanceof Exception)
+                        //     logMessage = exp.toString();
+                        // else if (exp instanceof Error)
+                        //     logMessage = exp.stack;
+                        // else
+                        //     logMessage = exp.toString();
 
-                        console.log(Date.now(), logMessage);
+                        // console.log(Date.now(), logMessage);
+                        
+                        await this._logger.logError(exp);
                         
                         ctx.status = 500;
                         ctx.body = "There was an error processing your request.";
@@ -338,6 +402,7 @@ export class WebApp
         {
             let scope: Scope = ctx.state.scope;
             let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
+            eventAggregator.useProcessor(this._backgroundProcessor);
             this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
             await next();
         });
@@ -381,5 +446,38 @@ export class WebApp
     private configureRouting(): void
     {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    
+    private configureShutDown(): void
+    {
+        this.registerDisposeAction(() =>
+        {
+            console.log("CLEANING UP. PLEASE WAIT...");
+            return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 10);
+        });
+        
+        const shutDown = (signal: string) =>
+        {
+            this._server.close(() =>
+            {
+                console.log(`SERVER STOPPING (${signal}).`);
+                
+                Promise.all(this._disposeActions.map(t => t()))
+                    .then(() =>
+                    {
+                        console.log(`SERVER STOPPED (${signal}).`);
+                        process.exit(0);
+                    })
+                    .catch((e) =>
+                    {
+                        // this will never happen because of how disposeActions work
+                        console.error(e);
+                        process.exit(1);
+                    });
+            });
+        };
+        
+        process.on("SIGTERM", () => shutDown("SIGTERM"));
+        process.on("SIGINT", () => shutDown("SIGINT"));
     }
 }

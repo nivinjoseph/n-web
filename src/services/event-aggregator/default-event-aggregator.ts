@@ -1,12 +1,34 @@
 import { EventAggregator } from "./event-aggregator";
 import { EventHandler } from "./event-handler";
 import { given } from "@nivinjoseph/n-defensive";
+import { BackgroundProcessor } from "@nivinjoseph/n-util";
 
 
 export class DefaultEventAggregator implements EventAggregator
 {
-    private _subscriptions: { [index: string]: Array<EventHandler> } = {};
+    private readonly _subscriptions: { [index: string]: Array<EventHandler> } = {};
+    private _processor: BackgroundProcessor;
     
+    
+    public useProcessor(processor: BackgroundProcessor): void
+    {
+        given(processor, "processor").ensureHasValue().ensureIsType(BackgroundProcessor);
+        this._processor = processor;
+    }
+    
+    public subscribe(event: string, handler: EventHandler): void
+    {
+        given(event, "event").ensureHasValue();
+        given(handler, "handler").ensureHasValue().ensureIsObject();
+
+        event = event.trim();
+
+        if (!this._subscriptions[event])
+            this._subscriptions[event] = new Array<EventHandler>();
+
+        const eventHandlers = this._subscriptions[event];
+        eventHandlers.push(handler);
+    }
     
     public async publish(event: string, ...eventArgs: any[]): Promise<void>
     {
@@ -18,20 +40,6 @@ export class DefaultEventAggregator implements EventAggregator
             return;
         
         const eventHandlers = this._subscriptions[event];
-        await Promise.all(eventHandlers.map(t => t.handle(...eventArgs)));
-    }
-    
-    public subscribe(event: string, handler: EventHandler): void
-    {
-        given(event, "event").ensureHasValue();
-        given(handler, "handler").ensureHasValue().ensureIsObject();
-        
-        event = event.trim();
-
-        if (!this._subscriptions[event])
-            this._subscriptions[event] = new Array<EventHandler>();
-
-        const eventHandlers = this._subscriptions[event];
-        eventHandlers.push(handler);
+        eventHandlers.forEach(t => this._processor.processAction(() => t.handle(...eventArgs)));
     }
 }
