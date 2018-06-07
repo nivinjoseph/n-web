@@ -29,6 +29,8 @@ const webPackMiddleware = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const default_event_aggregator_1 = require("./services/event-aggregator/default-event-aggregator");
 const event_handler_registration_1 = require("./services/event-aggregator/event-handler-registration");
+const n_util_1 = require("@nivinjoseph/n-util");
+const Http = require("http");
 // public
 class WebApp {
     constructor(port) {
@@ -44,6 +46,7 @@ class WebApp {
         this._hasAuthorizationHandler = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
+        this._disposeActions = new Array();
         this._isBootstrapped = false;
         n_defensive_1.given(port, "port").ensureHasValue();
         this._port = port;
@@ -60,7 +63,9 @@ class WebApp {
     registerStaticFilePath(filePath, cache = false) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
-        filePath = filePath.trim().toLowerCase();
+        n_defensive_1.given(filePath, "filePath").ensureHasValue().ensureIsString();
+        n_defensive_1.given(cache, "cache").ensureHasValue().ensureIsBoolean();
+        filePath = filePath.trim();
         if (filePath.startsWith("/")) {
             if (filePath.length === 1) {
                 throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is root");
@@ -68,7 +73,7 @@ class WebApp {
             filePath = filePath.substr(1);
         }
         filePath = path.join(process.cwd(), filePath);
-        // We skip the defensive check in dev because of webpack HMR because 
+        // We skip the defensive check in dev because of webpack HMR 
         if (n_config_1.ConfigurationManager.getConfig("env") !== "dev") {
             if (!fs.existsSync(filePath))
                 throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
@@ -86,8 +91,15 @@ class WebApp {
     }
     registerEventHandlers(...eventHandlerClasses) {
         if (this._isBootstrapped)
-            throw new n_exception_1.InvalidOperationException("registerControllers");
+            throw new n_exception_1.InvalidOperationException("registerEventHandlers");
         this._eventRegistrations.push(...eventHandlerClasses.map(t => new event_handler_registration_1.EventHandlerRegistration(t)));
+        return this;
+    }
+    useLogger(logger) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("useLogger");
+        n_defensive_1.given(logger, "logger").ensureHasValue().ensureIsObject();
+        this._logger = logger;
         return this;
     }
     useInstaller(installer) {
@@ -141,9 +153,33 @@ class WebApp {
             }));
         return this;
     }
+    registerDisposeAction(disposeAction) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerForDispose");
+        n_defensive_1.given(disposeAction, "disposeAction").ensureHasValue().ensureIsFunction();
+        this._disposeActions.push(() => {
+            return new Promise((resolve) => {
+                try {
+                    disposeAction()
+                        .then(() => resolve())
+                        .catch((e) => {
+                        this._logger.logError(e).then(() => resolve());
+                    });
+                }
+                catch (error) {
+                    this._logger.logError(error).then(() => resolve());
+                }
+            });
+        });
+        return this;
+    }
     bootstrap() {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("bootstrap");
+        if (!this._logger)
+            this._logger = new n_log_1.ConsoleLogger();
+        this._backgroundProcessor = new n_util_1.BackgroundProcessor((e) => this._logger.logError(e));
+        this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         this.configureCors();
         this.configureContainer();
         this.configureScoping();
@@ -155,8 +191,13 @@ class WebApp {
         this.configureStaticFileServing();
         this.configureBodyParser();
         this.configureRouting(); // must be last
-        this._koa.listen(this._port);
+        // this._koa.listen(this._port);
+        console.log("SERVER STARTING.");
+        this._server = Http.createServer(this._koa.callback());
+        this._server.listen(this._port);
+        this.configureShutDown();
         this._isBootstrapped = true;
+        console.log("SERVER STARTED.");
     }
     configureCors() {
         if (this._enableCors)
@@ -169,7 +210,7 @@ class WebApp {
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(new n_log_1.ConsoleLogger()));
+            this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
     }
     configureScoping() {
@@ -212,14 +253,15 @@ class WebApp {
                             ctx.body = httpExp.body;
                     }
                     else {
-                        let logMessage = "";
-                        if (exp instanceof n_exception_1.Exception)
-                            logMessage = exp.toString();
-                        else if (exp instanceof Error)
-                            logMessage = exp.stack;
-                        else
-                            logMessage = exp.toString();
-                        console.log(Date.now(), logMessage);
+                        // let logMessage = "";
+                        // if (exp instanceof Exception)
+                        //     logMessage = exp.toString();
+                        // else if (exp instanceof Error)
+                        //     logMessage = exp.stack;
+                        // else
+                        //     logMessage = exp.toString();
+                        // console.log(Date.now(), logMessage);
+                        yield this._logger.logError(exp);
                         ctx.status = 500;
                         ctx.body = "There was an error processing your request.";
                     }
@@ -243,6 +285,7 @@ class WebApp {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             let scope = ctx.state.scope;
             let eventAggregator = scope.resolve(this._eventAggregatorKey);
+            eventAggregator.useProcessor(this._backgroundProcessor);
             this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
             yield next();
         }));
@@ -274,6 +317,29 @@ class WebApp {
     }
     configureRouting() {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    configureShutDown() {
+        this.registerDisposeAction(() => {
+            console.log("CLEANING UP. PLEASE WAIT...");
+            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 10);
+        });
+        const shutDown = (signal) => {
+            this._server.close(() => {
+                console.log(`SERVER STOPPING (${signal}).`);
+                Promise.all(this._disposeActions.map(t => t()))
+                    .then(() => {
+                    console.log(`SERVER STOPPED (${signal}).`);
+                    process.exit(0);
+                })
+                    .catch((e) => {
+                    // this will never happen because of how disposeActions work
+                    console.error(e);
+                    process.exit(1);
+                });
+            });
+        };
+        process.on("SIGTERM", () => shutDown("SIGTERM"));
+        process.on("SIGINT", () => shutDown("SIGINT"));
     }
 }
 exports.WebApp = WebApp;

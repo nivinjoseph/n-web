@@ -9,19 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
+const n_util_1 = require("@nivinjoseph/n-util");
 class DefaultEventAggregator {
     constructor() {
         this._subscriptions = {};
     }
-    publish(event, ...eventArgs) {
-        return __awaiter(this, void 0, void 0, function* () {
-            n_defensive_1.given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-            event = event.trim();
-            if (!this._subscriptions[event])
-                return;
-            const eventHandlers = this._subscriptions[event];
-            yield Promise.all(eventHandlers.map(t => t.handle(...eventArgs)));
-        });
+    useProcessor(processor) {
+        n_defensive_1.given(processor, "processor").ensureHasValue().ensureIsType(n_util_1.BackgroundProcessor);
+        this._processor = processor;
     }
     subscribe(event, handler) {
         n_defensive_1.given(event, "event").ensureHasValue();
@@ -31,6 +26,16 @@ class DefaultEventAggregator {
             this._subscriptions[event] = new Array();
         const eventHandlers = this._subscriptions[event];
         eventHandlers.push(handler);
+    }
+    publish(event, ...eventArgs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            n_defensive_1.given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+            event = event.trim();
+            if (!this._subscriptions[event])
+                return;
+            const eventHandlers = this._subscriptions[event];
+            eventHandlers.forEach(t => this._processor.processAction(() => t.handle(...eventArgs)));
+        });
     }
 }
 exports.DefaultEventAggregator = DefaultEventAggregator;

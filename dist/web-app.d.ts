@@ -1,5 +1,6 @@
 import { ComponentInstaller } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
+import { Logger } from "@nivinjoseph/n-log";
 export declare class WebApp {
     private readonly _port;
     private readonly _koa;
@@ -8,6 +9,7 @@ export declare class WebApp {
     private readonly _callContextKey;
     private readonly _eventAggregatorKey;
     private readonly _eventRegistrations;
+    private _backgroundProcessor;
     private readonly _exceptionHandlerKey;
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
@@ -15,21 +17,26 @@ export declare class WebApp {
     private _authHeader;
     private readonly _authorizationHandlerKey;
     private _hasAuthorizationHandler;
+    private _logger;
     private readonly _staticFilePaths;
     private _enableCors;
     private _viewResolutionRoot;
+    private _disposeActions;
+    private _server;
     private _isBootstrapped;
     constructor(port: number);
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
     registerEventHandlers(...eventHandlerClasses: Function[]): this;
+    useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
     registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
     enableWebPackDevMiddleware(publicPath?: string): this;
+    registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private configureCors;
     private configureContainer;
@@ -42,4 +49,5 @@ export declare class WebApp {
     private configureStaticFileServing;
     private configureBodyParser;
     private configureRouting;
+    private configureShutDown;
 }
