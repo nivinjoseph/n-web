@@ -267,8 +267,13 @@ export class WebApp
         this.configureBodyParser();
         this.configureRouting(); // must be last
         
-        // this._koa.listen(this._port);
+        const appEnv = ConfigurationManager.getConfig<string>("env");
+        const appName = ConfigurationManager.getConfig<string>("appInfo.name");
+        const appVersion = ConfigurationManager.getConfig<string>("appInfo.version");
+        const appDescription = ConfigurationManager.getConfig<string>("appInfo.description");
+        
         console.log("SERVER STARTING.");
+        console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
         this._server.listen(this._port);
         this.configureShutDown();
