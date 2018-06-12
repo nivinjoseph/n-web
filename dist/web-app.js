@@ -191,8 +191,12 @@ class WebApp {
         this.configureStaticFileServing();
         this.configureBodyParser();
         this.configureRouting(); // must be last
-        // this._koa.listen(this._port);
+        const appEnv = n_config_1.ConfigurationManager.getConfig("env");
+        const appName = n_config_1.ConfigurationManager.getConfig("appInfo.name");
+        const appVersion = n_config_1.ConfigurationManager.getConfig("appInfo.version");
+        const appDescription = n_config_1.ConfigurationManager.getConfig("appInfo.description");
         console.log("SERVER STARTING.");
+        console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
         this._server.listen(this._port);
         this.configureShutDown();
