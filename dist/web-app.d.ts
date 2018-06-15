@@ -44,7 +44,6 @@ export declare class WebApp {
     private configureCallContext;
     private configureExceptionHandling;
     private configureErrorTrapping;
-    private configureEventHandling;
     private configureAuthentication;
     private configureStaticFileServing;
     private configureBodyParser;
