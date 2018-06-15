@@ -261,7 +261,7 @@ export class WebApp
         this.configureCallContext();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
-        this.configureEventHandling();
+        // this.configureEventHandling();
         this.configureAuthentication();
         this.configureStaticFileServing();
         this.configureBodyParser();
@@ -293,8 +293,8 @@ export class WebApp
     { 
         this._container.registerScoped(this._callContextKey, DefaultCallContext);
         
-        this._container.registerScoped(this._eventAggregatorKey, DefaultEventAggregator);
-        this._eventRegistrations.forEach(t => this._container.registerScoped(t.eventHandlerName, t.eventHandler));
+        this._container.registerSingleton(this._eventAggregatorKey, DefaultEventAggregator);
+        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerName, t.eventHandler));
         
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
@@ -303,6 +303,10 @@ export class WebApp
             this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));    
         
         this._container.bootstrap();
+        
+        const eventAggregatorInstance = this._container.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
+        eventAggregatorInstance.useProcessor(this._backgroundProcessor);
+        this._eventRegistrations.forEach(t => eventAggregatorInstance.subscribe(t.eventName, this._container.resolve(t.eventHandlerName)));
     }
     
     private configureScoping(): void
@@ -401,17 +405,17 @@ export class WebApp
         });
     }
     
-    private configureEventHandling(): void
-    {
-        this._koa.use(async (ctx, next) =>
-        {
-            let scope: Scope = ctx.state.scope;
-            let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
-            eventAggregator.useProcessor(this._backgroundProcessor);
-            this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
-            await next();
-        });
-    }
+    // private configureEventHandling(): void
+    // {
+    //     this._koa.use(async (ctx, next) =>
+    //     {
+    //         let scope: Scope = ctx.state.scope;
+    //         let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
+    //         eventAggregator.useProcessor(this._backgroundProcessor);
+    //         this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
+    //         await next();
+    //     });
+    // }
     
     private configureAuthentication(): void
     {
