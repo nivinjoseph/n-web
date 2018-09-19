@@ -462,7 +462,7 @@ export class WebApp
         this.registerDisposeAction(() =>
         {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 10);
+            return ConfigurationManager.getConfig<string>("env") === "dev" ? Promise.resolve() : Delay.seconds(10);
         });
         
         const shutDown = (signal: string) =>
