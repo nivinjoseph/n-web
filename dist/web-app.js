@@ -330,7 +330,7 @@ class WebApp {
     configureShutDown() {
         this.registerDisposeAction(() => {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 10);
+            return n_config_1.ConfigurationManager.getConfig("env") === "dev" ? Promise.resolve() : n_util_1.Delay.seconds(10);
         });
         const shutDown = (signal) => {
             this._server.close(() => {
