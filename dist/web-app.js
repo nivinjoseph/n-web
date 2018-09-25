@@ -328,9 +328,11 @@ class WebApp {
         this._router.configureRouting(this._viewResolutionRoot);
     }
     configureShutDown() {
+        if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
+            return;
         this.registerDisposeAction(() => {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return n_config_1.ConfigurationManager.getConfig("env") === "dev" ? Promise.resolve() : n_util_1.Delay.seconds(10);
+            return n_util_1.Delay.seconds(10);
         });
         const shutDown = (signal) => {
             this._server.close(() => {
