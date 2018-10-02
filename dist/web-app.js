@@ -25,13 +25,12 @@ const n_sec_1 = require("@nivinjoseph/n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
-const webPackMiddleware = require("koa-webpack");
+const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const default_event_aggregator_1 = require("./services/event-aggregator/default-event-aggregator");
 const event_handler_registration_1 = require("./services/event-aggregator/event-handler-registration");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
-// public
 class WebApp {
     constructor(port) {
         this._callContextKey = "CallContext";
@@ -73,7 +72,6 @@ class WebApp {
             filePath = filePath.substr(1);
         }
         filePath = path.join(process.cwd(), filePath);
-        // We skip the defensive check in dev because of webpack HMR 
         if (n_config_1.ConfigurationManager.getConfig("env") !== "dev") {
             if (!fs.existsSync(filePath))
                 throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "does not exist");
@@ -146,11 +144,18 @@ class WebApp {
     enableWebPackDevMiddleware(publicPath = "/") {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
-        if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
-            this._koa.use(webPackMiddleware({
-                dev: { publicPath, writeToDisk: true },
-                hot: { reload: true, hot: true }
-            }));
+        if (n_config_1.ConfigurationManager.getConfig("env") === "dev") {
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: publicPath,
+                    writeToDisk: true,
+                },
+                hotClient: {
+                    hmr: true,
+                    reload: true
+                }
+            }).then((middleware) => this._koa.use(middleware));
+        }
         return this;
     }
     registerDisposeAction(disposeAction) {
@@ -186,11 +191,10 @@ class WebApp {
         this.configureCallContext();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
-        // this.configureEventHandling();
         this.configureAuthentication();
         this.configureStaticFileServing();
         this.configureBodyParser();
-        this.configureRouting(); // must be last
+        this.configureRouting();
         const appEnv = n_config_1.ConfigurationManager.getConfig("env");
         const appName = n_config_1.ConfigurationManager.getConfig("appInfo.name");
         const appVersion = n_config_1.ConfigurationManager.getConfig("appInfo.version");
@@ -260,14 +264,6 @@ class WebApp {
                             ctx.body = httpExp.body;
                     }
                     else {
-                        // let logMessage = "";
-                        // if (exp instanceof Exception)
-                        //     logMessage = exp.toString();
-                        // else if (exp instanceof Error)
-                        //     logMessage = exp.stack;
-                        // else
-                        //     logMessage = exp.toString();
-                        // console.log(Date.now(), logMessage);
                         yield this._logger.logError(exp);
                         ctx.status = 500;
                         ctx.body = "There was an error processing your request.";
@@ -288,17 +284,6 @@ class WebApp {
             }
         }));
     }
-    // private configureEventHandling(): void
-    // {
-    //     this._koa.use(async (ctx, next) =>
-    //     {
-    //         let scope: Scope = ctx.state.scope;
-    //         let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
-    //         eventAggregator.useProcessor(this._backgroundProcessor);
-    //         this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
-    //         await next();
-    //     });
-    // }
     configureAuthentication() {
         if (!this._hasAuthenticationHandler)
             return;
@@ -343,7 +328,6 @@ class WebApp {
                     process.exit(0);
                 })
                     .catch((e) => {
-                    // this will never happen because of how disposeActions work
                     console.error(e);
                     process.exit(1);
                 });

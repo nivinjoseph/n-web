@@ -13,7 +13,6 @@ const n_defensive_1 = require("@nivinjoseph/n-defensive");
 require("@nivinjoseph/n-ext");
 const exception_handler_1 = require("./exception-handler");
 const http_exception_1 = require("./http-exception");
-// public
 class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
     constructor(logger, logEverything = true) {
         super();

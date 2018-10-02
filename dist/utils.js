@@ -2,9 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const route_info_1 = require("./route-info");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
-// public
-class Utils // static class
- {
+class Utils {
     static generateUrl(route, params, baseUrl) {
         n_defensive_1.given(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         if (params)
@@ -18,7 +16,6 @@ class Utils // static class
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
             if (route.startsWith("/"))
                 route = route.substr(1, route.length - 1);
-            // special treatment for the sake of docker routing on ECS
             let splittedBaseUrl = baseUrl.split("/");
             if (route.toLowerCase().startsWith(splittedBaseUrl.pop().toLowerCase()))
                 baseUrl = splittedBaseUrl.join("/");

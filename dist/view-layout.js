@@ -4,7 +4,6 @@ require("reflect-metadata");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 require("@nivinjoseph/n-ext");
 exports.viewLayoutSymbol = Symbol("viewLayout");
-// public
 function viewLayout(file) {
     n_defensive_1.given(file, "file")
         .ensureHasValue()
