@@ -5,19 +5,25 @@ suite("Random stuff", () =>
 {
     test("Dynamic template string interpolation", () =>
     {
+        // @ts-ignore
         let vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
         let view = "User ${vm.firstName} ${vm.lastName} is of age ${vm.age}";
+        /* tslint:disable */
         let result = eval("`" + view + "`");
+        /* tslint:enable */
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
     
     test("Advanced dynamic template string interpolation", () =>
     {
+        // @ts-ignore
         let vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
         let view = "is of age ${vm.age}";
         let layout = "User ${vm.firstName} ${vm.lastName} ${view}";
+        /* tslint:disable */
         view = eval("`" + layout + "`");
         let result = eval("`" + view + "`");
+        /* tslint:enable */
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
     

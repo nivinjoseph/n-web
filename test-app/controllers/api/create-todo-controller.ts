@@ -1,6 +1,6 @@
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { given } from "@nivinjoseph/n-defensive";
-import { command, httpPost, route, Controller, HttpException, Utils, EventAggregator } from "./../../../src/index";
+import { command, route, Controller, HttpException, Utils, EventAggregator } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";

@@ -18,7 +18,7 @@ import { DefaultExceptionHandler } from "./exceptions/default-exception-handler"
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
-import * as webPackMiddleware from "koa-webpack";
+import * as koaWebpack from "koa-webpack";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { DefaultEventAggregator } from "./services/event-aggregator/default-event-aggregator";
 import { EventHandlerRegistration } from "./services/event-aggregator/event-handler-registration";
@@ -204,14 +204,30 @@ export class WebApp
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
-        if (ConfigurationManager.getConfig<string>("env") === "dev")
-            this._koa.use(webPackMiddleware(
-                {
-                    dev: { publicPath, writeToDisk: true },
-                    hot: <any>{ reload: true, hot: true }
-                } as any
-            ));
+        // if (ConfigurationManager.getConfig<string>("env") === "dev")
+        //     this._koa.use(webPackMiddleware(
+        //         {
+        //             dev: { publicPath, writeToDisk: true },
+        //             hot: <any>{ reload: true, hot: true }
+        //         } as any
+        //     ));
         
+        
+        if (ConfigurationManager.getConfig<string>("env") === "dev")
+        {
+            // tslint:disable-next-line
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: publicPath,
+                    writeToDisk: true,
+                },
+                hotClient: {
+                    hmr: true,
+                    reload: true
+                }
+            }).then((middleware) => this._koa.use(middleware));
+        }
+            
         return this;
     }
     
@@ -232,11 +248,13 @@ export class WebApp
                         .then(() => resolve())
                         .catch((e) =>
                         {
+                            // tslint:disable-next-line
                             this._logger.logError(e).then(() => resolve());
                         });
                 }
                 catch (error)
                 {
+                    // tslint:disable-next-line
                     this._logger.logError(error).then(() => resolve());
                 }
             });
@@ -389,6 +407,7 @@ export class WebApp
     
     private configureErrorTrapping(): void
     {
+        // @ts-ignore
         this._koa.use(async (ctx, next) =>
         {
             try 

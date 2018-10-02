@@ -91,9 +91,10 @@ export class Router
         
         if (catchAllRegistration)
         {
+            // @ts-ignore
             this._koa.use(async (ctx, next) =>
             {
-                await this.handleRequest(ctx, catchAllRegistration, false);
+                await this.handleRequest(ctx as KoaRouter.IRouterContext, catchAllRegistration, false);
             });
         }
     }
@@ -179,9 +180,11 @@ export class Router
             let view = registration.view;
             let viewLayout = registration.viewLayout;
             if (viewLayout !== null)
+                // tslint:disable
                 view = eval("`" + viewLayout + "`");
             
             let html = eval("`" + view + "`") as string;
+            // tslint:enable
             let config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
             html = html.replace("<body>",
                 `

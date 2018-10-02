@@ -28,7 +28,6 @@ class AppInstaller implements ComponentInstaller
             .registerSingleton("TodoManager", InmemoryTodoManager)
             .registerSingleton("ConfigService", DefaultConfigService)
             .registerInstance("Logger", logger);
-        ;
     }
 }
 

@@ -1,12 +1,9 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { httpGet, route, Controller, authorize, CallContext, Utils } from "./../../../src/index";
+import { httpGet, route, Controller, CallContext, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
-import * as AppClaims from "./../../security/app-claims";
-import { HttpException } from "../../../src/exceptions/http-exception";
-import { ApplicationException } from "@nivinjoseph/n-exception";
 
 @httpGet
 @route(Routes.getTodos)
@@ -31,7 +28,7 @@ export class GetTodosController extends Controller
         this._callContext = callContext;
     }
     
-    
+    // @ts-ignore
     public async execute($search?: string, $pageNumber?: number, $pageSize?: number): Promise<object>
     {       
         // if (!$search)

@@ -20,9 +20,11 @@ export class ControllerRegistration
     private readonly _controller: Function;
     private _method: string;
     private _route: RouteInfo;
+    // @ts-ignore
     private _viewFileName: string = null;
     private _viewFilePath: string = null;
     private _viewFileData: string = null;
+    // @ts-ignore
     private _viewLayoutFileName: string = null;
     private _viewLayoutFilePath: string = null;
     private _viewLayoutFileData: string = null;
