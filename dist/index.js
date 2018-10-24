@@ -35,4 +35,6 @@ const event_1 = require("./services/event-aggregator/event");
 exports.event = event_1.event;
 const event_handler_1 = require("./services/event-aggregator/event-handler");
 exports.EventHandler = event_handler_1.EventHandler;
+const timed_job_1 = require("./jobs/timed-job");
+exports.TimedJob = timed_job_1.TimedJob;
 //# sourceMappingURL=index.js.map

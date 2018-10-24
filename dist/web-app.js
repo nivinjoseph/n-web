@@ -36,6 +36,8 @@ class WebApp {
         this._callContextKey = "CallContext";
         this._eventAggregatorKey = "EventAggregator";
         this._eventRegistrations = new Array();
+        this._jobRegistrations = new Array();
+        this._jobInstances = new Array();
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
         this._authenticationHandlerKey = "$authenticationHandler";
@@ -91,6 +93,12 @@ class WebApp {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerEventHandlers");
         this._eventRegistrations.push(...eventHandlerClasses.map(t => new event_handler_registration_1.EventHandlerRegistration(t)));
+        return this;
+    }
+    registerJobs(...jobClasses) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerJobs");
+        this._jobRegistrations.push(...jobClasses);
         return this;
     }
     useLogger(logger) {
@@ -215,6 +223,7 @@ class WebApp {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
         this._container.registerSingleton(this._eventAggregatorKey, default_event_aggregator_1.DefaultEventAggregator);
         this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerName, t.eventHandler));
+        this._jobRegistrations.forEach(jobClass => this._container.registerSingleton(jobClass.getTypeName(), jobClass));
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
@@ -223,6 +232,8 @@ class WebApp {
         const eventAggregatorInstance = this._container.resolve(this._eventAggregatorKey);
         eventAggregatorInstance.useProcessor(this._backgroundProcessor);
         this._eventRegistrations.forEach(t => eventAggregatorInstance.subscribe(t.eventName, this._container.resolve(t.eventHandlerName)));
+        this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve(jobClass.getTypeName())));
+        this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
     }
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {

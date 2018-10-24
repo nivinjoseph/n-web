@@ -10,6 +10,8 @@ export declare class WebApp {
     private readonly _eventAggregatorKey;
     private readonly _eventRegistrations;
     private _backgroundProcessor;
+    private readonly _jobRegistrations;
+    private readonly _jobInstances;
     private readonly _exceptionHandlerKey;
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
@@ -29,6 +31,7 @@ export declare class WebApp {
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
     registerEventHandlers(...eventHandlerClasses: Function[]): this;
+    registerJobs(...jobClasses: Function[]): this;
     useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;

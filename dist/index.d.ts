@@ -18,4 +18,6 @@ import { authorize } from "./security/authorize";
 import { EventAggregator } from "./services/event-aggregator/event-aggregator";
 import { event } from "./services/event-aggregator/event";
 import { EventHandler } from "./services/event-aggregator/event-handler";
-export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize, EventAggregator, event, EventHandler };
+import { Job } from "./jobs/job";
+import { TimedJob } from "./jobs/timed-job";
+export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize, EventAggregator, event, EventHandler, Job, TimedJob };
