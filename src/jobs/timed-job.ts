@@ -12,6 +12,9 @@ export abstract class TimedJob implements Job
     private readonly _interval: any;
 
 
+    protected get logger(): Logger { return this._logger; }
+
+
     public constructor(logger: Logger, intervalMilliseconds: number)
     {
         given(logger, "logger").ensureHasValue().ensureIsObject();
@@ -22,14 +25,14 @@ export abstract class TimedJob implements Job
 
         this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any), this._intervalMilliseconds, false);
 
-        this._backgroundProcessor.processAction(() => this.run());
-        this._backgroundProcessor.processAction(() => this.run());
+        this._backgroundProcessor.processAction(() => this.runInternal());
+        this._backgroundProcessor.processAction(() => this.runInternal());
         this._interval = setInterval(() =>
         {
             if (this._backgroundProcessor.queueLength > 2)
                 return;
             
-            this._backgroundProcessor.processAction(() => this.run());
+            this._backgroundProcessor.processAction(() => this.runInternal());
         }, this._intervalMilliseconds);
     }
 
@@ -40,5 +43,21 @@ export abstract class TimedJob implements Job
     {
         clearInterval(this._interval);
         return this._backgroundProcessor.dispose();
+    }
+
+
+    private async runInternal(): Promise<void>
+    {
+        await this._logger.logInfo(`Starting to run timed job ${(<Object>this).getTypeName()}.`);
+        try 
+        {
+            await this.run();
+        }
+        catch (error)
+        {
+            await this._logger.logWarning(`Failed to run timed job ${(<Object>this).getTypeName()}.`);
+            throw error;
+        }
+        await this._logger.logInfo(`Finished running timed job ${(<Object>this).getTypeName()}.`);
     }
 }
