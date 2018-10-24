@@ -5,7 +5,9 @@ export declare abstract class TimedJob implements Job {
     private readonly _intervalMilliseconds;
     private readonly _backgroundProcessor;
     private readonly _interval;
+    protected readonly logger: Logger;
     constructor(logger: Logger, intervalMilliseconds: number);
     abstract run(): Promise<void>;
     dispose(): Promise<void>;
+    private runInternal;
 }
