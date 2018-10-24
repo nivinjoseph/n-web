@@ -47,7 +47,7 @@
     "@nivinjoseph/n-ject": "^1.0.22",
     "@nivinjoseph/n-log": "^1.0.5",
     "@nivinjoseph/n-sec": "^2.0.23",
-    "@nivinjoseph/n-util": "^1.0.19",
+    "@nivinjoseph/n-util": "^1.0.20",
     "@nivinjoseph/n-validate": "^1.0.13",
     "@types/kcors": "^2.2.3",
     "@types/koa": "^2.0.46",

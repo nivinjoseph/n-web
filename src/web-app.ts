@@ -24,6 +24,7 @@ import { DefaultEventAggregator } from "./services/event-aggregator/default-even
 import { EventHandlerRegistration } from "./services/event-aggregator/event-handler-registration";
 import { BackgroundProcessor, Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
+import { Job } from "./jobs/job";
 
 
 // public
@@ -35,9 +36,13 @@ export class WebApp
     private readonly _router: Router;
     
     private readonly _callContextKey = "CallContext";
+
     private readonly _eventAggregatorKey = "EventAggregator";
     private readonly _eventRegistrations = new Array<EventHandlerRegistration>();
     private _backgroundProcessor: BackgroundProcessor;
+
+    private readonly _jobRegistrations = new Array<Function>();
+    private readonly _jobInstances = new Array<Job>();
     
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
@@ -129,6 +134,15 @@ export class WebApp
             throw new InvalidOperationException("registerEventHandlers");
         
         this._eventRegistrations.push(...eventHandlerClasses.map(t => new EventHandlerRegistration(t)));
+        return this;
+    }
+
+    public registerJobs(...jobClasses: Function[]): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerJobs");
+        
+        this._jobRegistrations.push(...jobClasses);
         return this;
     }
     
@@ -313,6 +327,8 @@ export class WebApp
         
         this._container.registerSingleton(this._eventAggregatorKey, DefaultEventAggregator);
         this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerName, t.eventHandler));
+
+        this._jobRegistrations.forEach(jobClass => this._container.registerSingleton((<Object>jobClass).getTypeName(), jobClass));
         
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
@@ -325,6 +341,9 @@ export class WebApp
         const eventAggregatorInstance = this._container.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
         eventAggregatorInstance.useProcessor(this._backgroundProcessor);
         this._eventRegistrations.forEach(t => eventAggregatorInstance.subscribe(t.eventName, this._container.resolve(t.eventHandlerName)));
+
+        this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
+        this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
     }
     
     private configureScoping(): void

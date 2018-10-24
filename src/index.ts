@@ -23,6 +23,11 @@ import { EventAggregator } from "./services/event-aggregator/event-aggregator";
 import { event } from "./services/event-aggregator/event";
 import { EventHandler } from "./services/event-aggregator/event-handler";
 
+import { Job } from "./jobs/job";
+import { TimedJob } from "./jobs/timed-job";
+
+
+
 
 export
 {
@@ -40,5 +45,7 @@ export
     
     AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize,
     
-    EventAggregator, event, EventHandler
+    EventAggregator, event, EventHandler,
+
+    Job, TimedJob
 };
