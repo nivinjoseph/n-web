@@ -28,7 +28,7 @@ class TimedJob {
     }
     dispose() {
         clearInterval(this._interval);
-        return this._backgroundProcessor.dispose();
+        return this._backgroundProcessor.dispose(true);
     }
     runInternal() {
         return __awaiter(this, void 0, void 0, function* () {
