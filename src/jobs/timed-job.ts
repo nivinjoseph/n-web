@@ -26,7 +26,7 @@ export abstract class TimedJob implements Job
         this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any), this._intervalMilliseconds, false);
 
         this._backgroundProcessor.processAction(() => this.runInternal());
-        
+        this._backgroundProcessor.processAction(() => this.runInternal());
         this._interval = setInterval(() =>
         {
             if (this._backgroundProcessor.queueLength > 2)
@@ -42,7 +42,7 @@ export abstract class TimedJob implements Job
     public dispose(): Promise<void>
     {
         clearInterval(this._interval);
-        return this._backgroundProcessor.dispose();
+        return this._backgroundProcessor.dispose(true);
     }
 
 
