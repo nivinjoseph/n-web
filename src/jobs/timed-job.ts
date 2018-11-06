@@ -26,7 +26,7 @@ export abstract class TimedJob implements Job
         this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any), this._intervalMilliseconds, false);
 
         this._backgroundProcessor.processAction(() => this.runInternal());
-        this._backgroundProcessor.processAction(() => this.runInternal());
+        
         this._interval = setInterval(() =>
         {
             if (this._backgroundProcessor.queueLength > 2)
