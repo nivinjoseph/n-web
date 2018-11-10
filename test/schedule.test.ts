@@ -1,6 +1,7 @@
 import * as Assert from "assert";
 import { Schedule } from "../src/jobs/schedule";
 import * as moment from "moment";
+import { Exception } from "@nivinjoseph/n-exception";
 
 
 suite.only("Schedule", () => {
@@ -232,6 +233,58 @@ suite.only("Schedule", () => {
             const expected = moment("2020-01-01 00:00").valueOf();
             const next = schedule.calculateNext(reference);
             Assert.strictEqual(next, expected);
+        });
+
+        test("given schedule has config month = 1 dayOfMonth = 31, when the reference is 2019-01-01 00:00, then should throw InvalidScheduleDateException", () =>
+        {
+            const schedule = new Schedule("test");
+            schedule.setDayOfMonth(31);
+            schedule.setMonth(1);
+            const reference = moment("2019-01-01 00:00").valueOf();
+
+            Assert.throws(() => schedule.calculateNext(reference),
+                (exp: Exception) => exp.name === "InvalidScheduleDateException");
+        });
+
+        test("given schedule has config month = 10 dayOfMonth = 31, when the reference is 2019-01-01 00:00, then should throw InvalidScheduleDateException", () =>
+        {
+            const schedule = new Schedule("test");
+            schedule.setDayOfMonth(31);
+            schedule.setMonth(10);
+            const reference = moment("2019-01-01 00:00").valueOf();
+
+            Assert.throws(() => schedule.calculateNext(reference),
+                (exp: Exception) => exp.name === "InvalidScheduleDateException");
+        });
+
+        test("given schedule has config month = 1 dayOfMonth = 29 hour, when the reference is 2018-01-01 00:00, then then time should be 2020-02-29 00:00", () =>
+        {
+            const schedule = new Schedule("test");
+            schedule.setDayOfMonth(29);
+            schedule.setMonth(1);
+            const reference = moment("2018-01-01 00:00").valueOf();
+            const expected = moment("2020-02-29 00:00").valueOf();
+            const next = schedule.calculateNext(reference);
+            Assert.strictEqual(next, expected);
+        });
+    });
+
+    suite("Invalid config", () =>
+    {
+        test("given schedule has config dayOfMonth = 31 dayOfWeek = 2, should throw InvalidArgumentException", () =>
+        {
+            const schedule = new Schedule("test");
+            schedule.setDayOfMonth(31);
+            Assert.throws(() => schedule.setDayOfWeek(10),
+                (exp: Exception) => exp.name === "InvalidArgumentException");
+        });
+
+        test("given schedule has config dayOfWeek = 2 dayOfMonth = 31, should throw InvalidArgumentException", () =>
+        {
+            const schedule = new Schedule("test");
+            schedule.setDayOfWeek(2);
+            Assert.throws(() => schedule.setDayOfMonth(31),
+                (exp: Exception) => exp.name === "InvalidArgumentException");
         });
     });
 });

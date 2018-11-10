@@ -1,5 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import * as moment from "moment";
+import { InvalidScheduleDateException } from "../exceptions/InvalidScheduleDateException";
 
 
 export class Schedule
@@ -44,14 +45,16 @@ export class Schedule
     // 0-6
     public setDayOfWeek(value: number): this
     {
-        given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 0 && t <= 6);
+        given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 0 && t <= 6)
+            .ensure(_ => this._dayOfMonth === null);
         this._dayOfWeek = value;
         return this;
     }
-    // 0-30
+    // 0-31
     public setDayOfMonth(value: number): this
     {
-        given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 1 && t <= 31);
+        given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 1 && t <= 31)
+            .ensure(_ => this._dayOfWeek === null);
         this._dayOfMonth = value;
         return this;
     }
@@ -69,7 +72,7 @@ export class Schedule
 
         let nextDate = currentDate.clone().millisecond(0).second(0).add(1, "minute"); // now + 1 min assuming checks are done every min.
 
-        if (this._dayOfMonth != null && this._month != null)
+        if (this._dayOfMonth !== null && this._month !== null)
         {
             this.validateDayOfMonthAndMonth();
         }
@@ -109,6 +112,12 @@ export class Schedule
 
     private validateDayOfMonthAndMonth(): void
     {
-        // validate here
+        if (this._month === 1 && this._dayOfMonth === 29) // this is leap year edge case
+            return;
+
+        if (moment().month(this._month).daysInMonth() < this._dayOfMonth)
+        {
+            throw new InvalidScheduleDateException();
+        }
     }
 }
