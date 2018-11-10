@@ -50,7 +50,7 @@ export class Schedule
         this._dayOfWeek = value;
         return this;
     }
-    // 0-31
+    // 1-31
     public setDayOfMonth(value: number): this
     {
         given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 1 && t <= 31)
