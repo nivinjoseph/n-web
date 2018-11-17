@@ -10,7 +10,7 @@ suite.only("Schedule", () => {
     {
         test("given schedule has no config, when the reference is 2018-11-09 22:28, then calculated time should be 2018-11-09 22:29", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             const reference = moment("2018-11-09 22:28").valueOf();
             const expected = moment("2018-11-09 22:29").valueOf();
             const next = schedule.calculateNext(reference);
@@ -19,7 +19,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config minute = 1, when the reference is 2018-11-09 22:28, then time should be 2018-11-09 23:01", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setMinute(1);
             const reference = moment("2018-11-09 22:28").valueOf();
             const expected = moment("2018-11-09 23:01").valueOf();
@@ -29,7 +29,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config hour = 23, when the reference is 2018-11-09 22:28, then time should be 2018-11-09 23:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(23);
             const reference = moment("2018-11-09 22:28").valueOf();
             const expected = moment("2018-11-09 23:00").valueOf();
@@ -40,7 +40,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config hour = 23, when the reference is 2018-11-09 23:50, then time should be 2018-11-09 23:51", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(23);
             const reference = moment("2018-11-09 23:50").valueOf();
             const expected = moment("2018-11-09 23:51").valueOf();
@@ -50,7 +50,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config hour = 23, when the reference is 2018-11-09 23:59, then time should be 2018-11-10 23:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(23);
             const reference = moment("2018-11-09 23:59").valueOf();
             const expected = moment("2018-11-10 23:00").valueOf();
@@ -60,7 +60,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfWeek = 5, when the reference is 2018-11-12 23:50, then time should be 2018-11-16 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfWeek(5);
             const reference = moment("2018-11-12 23:50").valueOf();
             const expected = moment("2018-11-16 00:00").valueOf();
@@ -70,7 +70,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfWeek = 1, when the reference is 2018-11-12 23:50, then time should be 2018-11-12 23:51", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfWeek(1);
             const reference = moment("2018-11-12 23:50").valueOf();
             const expected = moment("2018-11-12 23:51").valueOf();
@@ -80,7 +80,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfWeek = 1, when the reference is 2018-11-12 23:59, then time should be 2018-11-19 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfWeek(1);
             const reference = moment("2018-11-12 23:59").valueOf();
             const expected = moment("2018-11-19 00:00").valueOf();
@@ -90,7 +90,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfMonth = 1, when the reference is 2018-11-12 23:50, then time should be 2018-12-01 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(1);
             const reference = moment("2018-11-12 23:50").valueOf();
             const expected = moment("2018-12-01 00:00").valueOf();
@@ -101,7 +101,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfMonth = 12, when the reference is 2018-11-12 23:50, then time should be 2018-11-12 23:51", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(12);
             const reference = moment("2018-11-12 23:50").valueOf();
             const expected = moment("2018-11-12 23:51").valueOf();
@@ -111,7 +111,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfMonth = 12, when the reference is 2018-11-12 23:59, then time should be 2018-12-12 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(12);
             const reference = moment("2018-11-12 23:59").valueOf();
             const expected = moment("2018-12-12 00:00").valueOf();
@@ -121,7 +121,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 11, when the reference is 2018-11-12 23:59, then time should be 2018-12-01 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setMonth(11);
             const reference = moment("2018-11-12 23:59").valueOf();
             const expected = moment("2018-12-01 00:00").valueOf();
@@ -131,7 +131,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 10, when the reference is 2018-11-12 23:59, then time should be 2018-11-12 24:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setMonth(10);
             const reference = moment("2018-11-12 23:59").valueOf();
             const expected = moment("2018-11-12 24:00").valueOf();
@@ -141,7 +141,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 10, when the reference is 2018-11-30 23:59, then time should be 2019-11-01 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setMonth(10);
             const reference = moment("2018-11-30 23:59").valueOf();
             const expected = moment("2019-11-01 00:00").valueOf();
@@ -154,7 +154,7 @@ suite.only("Schedule", () => {
     {
         test("given schedule has config hour = 12 min = 12, when the reference is 2018-11-30 01:59, then time should be 2018-11-30 12:12", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(12);
             schedule.setMinute(12);
             const reference = moment("2018-11-30 01:59").valueOf();
@@ -165,7 +165,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config hour = 12 min = 12, when the reference is 2018-11-30 12:12, then time should be 2018-12-01 12:12", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(12);
             schedule.setMinute(12);
             const reference = moment("2018-11-30 12:12").valueOf();
@@ -176,7 +176,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfMonth = 12 month = 1, when the reference is 2018-11-30 12:12, then time should be 2019-02-12 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(12);
             schedule.setMonth(1);
             const reference = moment("2018-11-30 12:12").valueOf();
@@ -187,7 +187,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfMonth = 14 hour = 12 min = 12, when the reference is 2018-11-30 12:12, then time should be 2018-12-14 12:12", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(12);
             schedule.setMinute(12);
             schedule.setDayOfMonth(14);
@@ -199,7 +199,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config dayOfWeek = 6 hour = 12 min = 12, when the reference is 2018-11-13 12:12, then time should be 2018-11-17 12:12", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(12);
             schedule.setMinute(12);
             schedule.setDayOfWeek(6);
@@ -211,7 +211,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 0 dayOfMonth = 6 hour = 12 min = 12, when the reference is 2018-11-13 12:12, then time should be 2019-01-06 12:12", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(12);
             schedule.setMinute(12);
             schedule.setDayOfMonth(6);
@@ -224,7 +224,7 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 0 dayOfMonth = 1 hour = 0 min = 0, when the reference is 2019-01-01 00:00, then time should be 2020-01-01 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setHour(0);
             schedule.setMinute(0);
             schedule.setDayOfMonth(1);
@@ -237,29 +237,29 @@ suite.only("Schedule", () => {
 
         test("given schedule has config month = 1 dayOfMonth = 31, when the reference is 2019-01-01 00:00, then should throw InvalidScheduleDateException", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(31);
             schedule.setMonth(1);
             const reference = moment("2019-01-01 00:00").valueOf();
 
             Assert.throws(() => schedule.calculateNext(reference),
-                (exp: Exception) => exp.name === "InvalidScheduleDateException");
+                (exp: Exception) => exp.name === "InvalidScheduleException");
         });
 
         test("given schedule has config month = 10 dayOfMonth = 31, when the reference is 2019-01-01 00:00, then should throw InvalidScheduleDateException", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(31);
             schedule.setMonth(10);
             const reference = moment("2019-01-01 00:00").valueOf();
 
             Assert.throws(() => schedule.calculateNext(reference),
-                (exp: Exception) => exp.name === "InvalidScheduleDateException");
+                (exp: Exception) => exp.name === "InvalidScheduleException");
         });
 
         test("given schedule has config month = 1 dayOfMonth = 29 hour, when the reference is 2018-01-01 00:00, then then time should be 2020-02-29 00:00", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(29);
             schedule.setMonth(1);
             const reference = moment("2018-01-01 00:00").valueOf();
@@ -271,20 +271,20 @@ suite.only("Schedule", () => {
 
     suite("Invalid config", () =>
     {
-        test("given schedule has config dayOfMonth = 31 dayOfWeek = 2, should throw InvalidArgumentException", () =>
+        test("given schedule has config dayOfMonth = 31 dayOfWeek = 2, should throw ArgumentException", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfMonth(31);
-            Assert.throws(() => schedule.setDayOfWeek(10),
-                (exp: Exception) => exp.name === "InvalidArgumentException");
+            Assert.throws(() => schedule.setDayOfWeek(2),
+                (exp: Exception) => exp.name === "ArgumentException" && exp.message === "Argument 'value' Can not set dayOfWeek when dayOfMonth is set.");
         });
 
-        test("given schedule has config dayOfWeek = 2 dayOfMonth = 31, should throw InvalidArgumentException", () =>
+        test("given schedule has config dayOfWeek = 2 dayOfMonth = 31, should throw ArgumentException", () =>
         {
-            const schedule = new Schedule("test");
+            const schedule = new Schedule();
             schedule.setDayOfWeek(2);
             Assert.throws(() => schedule.setDayOfMonth(31),
-                (exp: Exception) => exp.name === "InvalidArgumentException");
+                (exp: Exception) => exp.name === "ArgumentException" && exp.message === "Argument 'value' Can not set dayOfMonth when dayOfWeek is set.");
         });
     });
 });

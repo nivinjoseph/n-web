@@ -1,11 +1,12 @@
 import { given } from "@nivinjoseph/n-defensive";
 import * as moment from "moment";
-import { InvalidScheduleDateException } from "../exceptions/InvalidScheduleDateException";
+import { InvalidScheduleException } from "../exceptions/InvalidScheduleException";
+import { Exception } from "@nivinjoseph/n-exception";
 
 
 export class Schedule
 {
-    private readonly _timeZone: string;
+    private readonly _timeZone: string = null;
     private _minute: number = null;
     private _hour: number = null;
     private _dayOfWeek: number = null;
@@ -20,13 +21,11 @@ export class Schedule
     public get month(): number { return this._month; }
     public get timeZone(): string { return this._timeZone; }
 
-
-    public constructor(timeZone: string)
+    // @ts-ignore
+    public setTimeZone(value: string): this
     {
-        given(timeZone, "timeZone").ensureHasValue().ensureIsString();
-        this._timeZone = timeZone;
+        throw new Exception("Not Implemented yet");
     }
-
 
     // 0-59
     public setMinute(value: number): this
@@ -46,7 +45,7 @@ export class Schedule
     public setDayOfWeek(value: number): this
     {
         given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 0 && t <= 6)
-            .ensure(_ => this._dayOfMonth === null);
+            .ensure(_ => this._dayOfMonth === null, "Can not set dayOfWeek when dayOfMonth is set");
         this._dayOfWeek = value;
         return this;
     }
@@ -54,7 +53,7 @@ export class Schedule
     public setDayOfMonth(value: number): this
     {
         given(value, "value").ensureHasValue().ensureIsNumber().ensure(t => t >= 1 && t <= 31)
-            .ensure(_ => this._dayOfWeek === null);
+            .ensure(_ => this._dayOfWeek === null, "Can not set dayOfMonth when dayOfWeek is set");
         this._dayOfMonth = value;
         return this;
     }
@@ -68,9 +67,9 @@ export class Schedule
 
     public calculateNext(referenceDateTime: number): number
     {
-        const currentDate = moment(referenceDateTime);
+        const referenceDate = moment(referenceDateTime);
 
-        let nextDate = currentDate.clone().millisecond(0).second(0).add(1, "minute"); // now + 1 min assuming checks are done every min.
+        const nextDate = referenceDate.clone().millisecond(0).second(0).add(1, "minute"); // now + 1 min assuming checks are done every min.
 
         if (this._dayOfMonth !== null && this._month !== null)
         {
@@ -117,7 +116,7 @@ export class Schedule
 
         if (moment().month(this._month).daysInMonth() < this._dayOfMonth)
         {
-            throw new InvalidScheduleDateException();
+            throw new InvalidScheduleException(`${this._month} does not have ${this._dayOfMonth} day.`);
         }
     }
 }
