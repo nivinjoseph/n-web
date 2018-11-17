@@ -271,7 +271,7 @@ suite.only("Schedule", () => {
 
     suite("Invalid config", () =>
     {
-        test("given schedule has config dayOfMonth = 31 dayOfWeek = 2, then ArgumentException with message 'Argument 'value' Can not set dayOfWeek when dayOfMonth is set.' should be thrown", () =>
+        test("given schedule has config dayOfMonth = 31, when dayOfWeek is set to 2, then ArgumentException with message 'Argument 'value' Can not set dayOfWeek when dayOfMonth is set.' should be thrown", () =>
         {
             const schedule = new Schedule();
             schedule.setDayOfMonth(31);
@@ -279,7 +279,7 @@ suite.only("Schedule", () => {
                 (exp: Exception) => exp.name === "ArgumentException" && exp.message === "Argument 'value' Can not set dayOfWeek when dayOfMonth is set.");
         });
 
-        test("given schedule has config dayOfWeek = 2 dayOfMonth = 31, then ArgumentException with message 'Argument 'value' Can not set dayOfMonth when dayOfWeek is set.' should be thrown", () =>
+        test("given schedule has config dayOfWeek = 2, when dayOfMonth is set to 31, then ArgumentException with message 'Argument 'value' Can not set dayOfMonth when dayOfWeek is set.' should be thrown", () =>
         {
             const schedule = new Schedule();
             schedule.setDayOfWeek(2);

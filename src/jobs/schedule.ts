@@ -1,7 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
 import * as moment from "moment";
 import { InvalidScheduleException } from "../exceptions/InvalidScheduleException";
-import { Exception } from "@nivinjoseph/n-exception";
+import { NotImplementedException } from "@nivinjoseph/n-exception";
 
 
 export class Schedule
@@ -24,7 +24,7 @@ export class Schedule
     // @ts-ignore
     public setTimeZone(value: string): this
     {
-        throw new Exception("Not Implemented yet");
+        throw new NotImplementedException();
     }
     // 0-59
     public setMinute(value: number): this
