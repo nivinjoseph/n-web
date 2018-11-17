@@ -26,7 +26,6 @@ export class Schedule
     {
         throw new Exception("Not Implemented yet");
     }
-
     // 0-59
     public setMinute(value: number): this
     {
