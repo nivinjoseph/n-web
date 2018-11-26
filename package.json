@@ -1,6 +1,6 @@
 {
   "name": "@nivinjoseph/n-web",
-  "version": "2.0.23",
+  "version": "3.0.0",
   "description": "Koa based web application framework",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
