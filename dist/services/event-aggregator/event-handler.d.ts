@@ -1,3 +1,3 @@
-export declare abstract class EventHandler {
-    abstract handle(...params: any[]): Promise<void>;
+export declare abstract class EventHandler<TEvent> {
+    abstract handle(event: TEvent): Promise<void>;
 }

@@ -5,6 +5,6 @@ export declare class DefaultEventAggregator implements EventAggregator {
     private readonly _subscriptions;
     private _processor;
     useProcessor(processor: BackgroundProcessor): void;
-    subscribe(event: string, handler: EventHandler): void;
-    publish(event: string, ...eventArgs: any[]): Promise<void>;
+    subscribe(event: string, handler: EventHandler<any>): void;
+    publish(event: object): Promise<void>;
 }

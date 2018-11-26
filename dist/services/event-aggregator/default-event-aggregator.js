@@ -27,14 +27,14 @@ class DefaultEventAggregator {
         const eventHandlers = this._subscriptions[event];
         eventHandlers.push(handler);
     }
-    publish(event, ...eventArgs) {
+    publish(event) {
         return __awaiter(this, void 0, void 0, function* () {
-            n_defensive_1.given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-            event = event.trim();
-            if (!this._subscriptions[event])
+            n_defensive_1.given(event, "event").ensureHasValue().ensureIsObject();
+            const eventName = event.getTypeName();
+            if (!this._subscriptions[eventName])
                 return;
-            const eventHandlers = this._subscriptions[event];
-            eventHandlers.forEach(t => this._processor.processAction(() => t.handle(...eventArgs)));
+            const eventHandlers = this._subscriptions[eventName];
+            eventHandlers.forEach(t => this._processor.processAction(() => t.handle(event)));
         });
     }
 }
