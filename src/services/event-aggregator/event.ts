@@ -6,10 +6,9 @@ import "@nivinjoseph/n-ext";
 export const eventSymbol = Symbol("eventName");
 
 // public
-export function event(event: string): Function
+export function event(event: Function): Function
 {
-    given(event, "event").ensureHasValue()
-        .ensure(t => !t.isEmptyOrWhiteSpace(), "cannot be empty or whitespace");
+    given(event, "event").ensureHasValue().ensureIsFunction();
 
-    return (target: Function) => Reflect.defineMetadata(eventSymbol, event.trim(), target);
+    return (target: Function) => Reflect.defineMetadata(eventSymbol, (<Object>event).getTypeName(), target);
 }

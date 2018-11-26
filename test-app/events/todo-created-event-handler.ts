@@ -1,13 +1,13 @@
 import { EventHandler, event } from "../../src/index";
-import { Event } from "./event";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Logger } from "@nivinjoseph/n-log";
+import { TodoCreated } from "./todo-created";
 
 
-@event(Event.todoCreated)
+@event(TodoCreated)
 @inject("Logger")    
-export class TodoCreatedEventHandler extends EventHandler
+export class TodoCreatedEventHandler extends EventHandler<TodoCreated>
 {
     private readonly _logger: Logger;
     
@@ -20,8 +20,10 @@ export class TodoCreatedEventHandler extends EventHandler
     }
     
     
-    public async handle(todoId: number): Promise<void>
+    public async handle(event: TodoCreated): Promise<void>
     {
-        await this._logger.logInfo(`TODO WITH ID ${todoId} CREATED.`);
+        given(event, "event").ensureHasValue().ensureIsType(TodoCreated);
+        
+        await this._logger.logInfo(`TODO WITH ID ${event.todoId} CREATED.`);
     }
 }

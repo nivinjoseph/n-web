@@ -6,7 +6,7 @@ import { BackgroundProcessor } from "@nivinjoseph/n-util";
 
 export class DefaultEventAggregator implements EventAggregator
 {
-    private readonly _subscriptions: { [index: string]: Array<EventHandler> } = {};
+    private readonly _subscriptions: { [index: string]: Array<EventHandler<any>> } = {};
     private _processor: BackgroundProcessor;
     
     
@@ -16,7 +16,7 @@ export class DefaultEventAggregator implements EventAggregator
         this._processor = processor;
     }
     
-    public subscribe(event: string, handler: EventHandler): void
+    public subscribe(event: string, handler: EventHandler<any>): void
     {
         given(event, "event").ensureHasValue();
         given(handler, "handler").ensureHasValue().ensureIsObject();
@@ -24,22 +24,22 @@ export class DefaultEventAggregator implements EventAggregator
         event = event.trim();
 
         if (!this._subscriptions[event])
-            this._subscriptions[event] = new Array<EventHandler>();
+            this._subscriptions[event] = new Array<EventHandler<any>>();
 
         const eventHandlers = this._subscriptions[event];
         eventHandlers.push(handler);
     }
     
-    public async publish(event: string, ...eventArgs: any[]): Promise<void>
+    public async publish(event: object): Promise<void>
     {
-        given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(event, "event").ensureHasValue().ensureIsObject();
 
-        event = event.trim();
+        const eventName = (<Object>event).getTypeName();
 
-        if (!this._subscriptions[event])
+        if (!this._subscriptions[eventName])
             return;
         
-        const eventHandlers = this._subscriptions[event];
-        eventHandlers.forEach(t => this._processor.processAction(() => t.handle(...eventArgs)));
+        const eventHandlers = this._subscriptions[eventName];
+        eventHandlers.forEach(t => this._processor.processAction(() => t.handle(event)));
     }
 }

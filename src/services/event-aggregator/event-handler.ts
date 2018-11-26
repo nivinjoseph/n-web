@@ -1,5 +1,5 @@
 // public
-export abstract class EventHandler // concrete name pattern => [EventName]Event[Action]Handler, eg. UserCreatedEventSendActivationEmailHandler
+export abstract class EventHandler<TEvent>
 {
-    public abstract handle(...params: any[]): Promise<void>;
+    public abstract handle(event: TEvent): Promise<void>;
 }
