@@ -1,0 +1,1 @@
+{"version":3,"file":"event-bus.js","sourceRoot":"","sources":["../../../src/services/event-bus/event-bus.ts"],"names":[],"mappings":"","sourcesContent":["// public\nexport interface EventBus\n{\n    publish(event: object): Promise<void>;   \n}"]}

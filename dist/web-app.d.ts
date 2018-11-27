@@ -7,7 +7,7 @@ export declare class WebApp {
     private readonly _container;
     private readonly _router;
     private readonly _callContextKey;
-    private readonly _eventAggregatorKey;
+    private readonly _eventBusKey;
     private readonly _eventRegistrations;
     private _backgroundProcessor;
     private readonly _jobRegistrations;

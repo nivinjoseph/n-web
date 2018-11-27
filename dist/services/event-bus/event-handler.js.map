@@ -1,0 +1,1 @@
+{"version":3,"file":"event-handler.js","sourceRoot":"","sources":["../../../src/services/event-bus/event-handler.ts"],"names":[],"mappings":";;AACA,MAAsB,YAAY;CAGjC;AAHD,oCAGC","sourcesContent":["// public\nexport abstract class EventHandler<TEvent>\n{\n    public abstract handle(event: TEvent): Promise<void>;\n}"]}

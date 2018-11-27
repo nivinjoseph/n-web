@@ -27,14 +27,14 @@ const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
 const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
-const default_event_aggregator_1 = require("./services/event-aggregator/default-event-aggregator");
-const event_handler_registration_1 = require("./services/event-aggregator/event-handler-registration");
+const default_event_bus_1 = require("./services/event-bus/default-event-bus");
+const event_handler_registration_1 = require("./services/event-bus/event-handler-registration");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 class WebApp {
     constructor(port) {
         this._callContextKey = "CallContext";
-        this._eventAggregatorKey = "EventAggregator";
+        this._eventBusKey = "EventBus";
         this._eventRegistrations = new Array();
         this._jobRegistrations = new Array();
         this._jobInstances = new Array();
@@ -221,17 +221,17 @@ class WebApp {
     }
     configureContainer() {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
-        this._container.registerSingleton(this._eventAggregatorKey, default_event_aggregator_1.DefaultEventAggregator);
-        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerName, t.eventHandler));
+        this._container.registerSingleton(this._eventBusKey, default_event_bus_1.DefaultEventBus);
+        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerTypeName, t.eventHandlerType));
         this._jobRegistrations.forEach(jobClass => this._container.registerSingleton(jobClass.getTypeName(), jobClass));
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
             this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
-        const eventAggregatorInstance = this._container.resolve(this._eventAggregatorKey);
-        eventAggregatorInstance.useProcessor(this._backgroundProcessor);
-        this._eventRegistrations.forEach(t => eventAggregatorInstance.subscribe(t.eventName, this._container.resolve(t.eventHandlerName)));
+        const eventBusInstance = this._container.resolve(this._eventBusKey);
+        eventBusInstance.useProcessor(this._backgroundProcessor);
+        this._eventRegistrations.forEach(t => eventBusInstance.subscribe(t.eventTypeName, this._container.resolve(t.eventHandlerTypeName)));
         this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve(jobClass.getTypeName())));
         this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
     }
