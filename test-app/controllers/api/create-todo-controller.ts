@@ -1,31 +1,32 @@
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { given } from "@nivinjoseph/n-defensive";
-import { command, route, Controller, HttpException, Utils, EventAggregator } from "./../../../src/index";
+import { command, route, Controller, HttpException, Utils, EventBus } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
 import { TodoCreated } from "../../events/todo-created";
 
+
 @command
 @route(Routes.createTodo)
-@inject("TodoManager", "ConfigService", "EventAggregator")    
+@inject("TodoManager", "ConfigService", "EventBus")    
 export class CreateTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
-    private readonly _eventAggregator: EventAggregator;
+    private readonly _eventBus: EventBus;
     
     
-    public constructor(todoManager: TodoManager, configService: ConfigService, eventAggregator: EventAggregator)
+    public constructor(todoManager: TodoManager, configService: ConfigService, eventBus: EventBus)
     {
         given(todoManager, "todoManager").ensureHasValue();
         given(configService, "configService").ensureHasValue();
-        given(eventAggregator, "eventAggregator").ensureHasValue().ensureIsObject();
+        given(eventBus, "eventBus").ensureHasValue().ensureIsObject();
         super();
         this._todoManager = todoManager;
         this._configService = configService;
-        this._eventAggregator = eventAggregator;
+        this._eventBus = eventBus;
     }
     
     
@@ -34,7 +35,7 @@ export class CreateTodoController extends Controller
         this.validateModel(model);   
         
         let todo = await this._todoManager.addTodo(model.title, model.description);
-        await this._eventAggregator.publish(new TodoCreated(todo.id));
+        await this._eventBus.publish(new TodoCreated(todo.id));
         
         let baseUrl = await this._configService.getBaseUrl();
         return {

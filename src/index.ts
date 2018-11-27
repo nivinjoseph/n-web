@@ -19,9 +19,9 @@ import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
 import { authorize } from "./security/authorize";
 
-import { EventAggregator } from "./services/event-aggregator/event-aggregator";
-import { event } from "./services/event-aggregator/event";
-import { EventHandler } from "./services/event-aggregator/event-handler";
+import { EventBus } from "./services/event-bus/event-bus";
+import { event } from "./services/event-bus/event";
+import { EventHandler } from "./services/event-bus/event-handler";
 
 import { Job } from "./jobs/job";
 import { TimedJob } from "./jobs/timed-job";
@@ -45,7 +45,7 @@ export
     
     AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize,
     
-    EventAggregator, event, EventHandler,
+    EventBus, event, EventHandler,
 
     Job, TimedJob
 };

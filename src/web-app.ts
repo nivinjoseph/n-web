@@ -20,8 +20,8 @@ import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as koaWebpack from "koa-webpack";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
-import { DefaultEventAggregator } from "./services/event-aggregator/default-event-aggregator";
-import { EventHandlerRegistration } from "./services/event-aggregator/event-handler-registration";
+import { DefaultEventBus } from "./services/event-bus/default-event-bus";
+import { EventHandlerRegistration } from "./services/event-bus/event-handler-registration";
 import { BackgroundProcessor, Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { Job } from "./jobs/job";
@@ -37,7 +37,7 @@ export class WebApp
     
     private readonly _callContextKey = "CallContext";
 
-    private readonly _eventAggregatorKey = "EventAggregator";
+    private readonly _eventBusKey = "EventBus";
     private readonly _eventRegistrations = new Array<EventHandlerRegistration>();
     private _backgroundProcessor: BackgroundProcessor;
 
@@ -325,8 +325,8 @@ export class WebApp
     { 
         this._container.registerScoped(this._callContextKey, DefaultCallContext);
         
-        this._container.registerSingleton(this._eventAggregatorKey, DefaultEventAggregator);
-        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerName, t.eventHandler));
+        this._container.registerSingleton(this._eventBusKey, DefaultEventBus);
+        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerTypeName, t.eventHandlerType));
 
         this._jobRegistrations.forEach(jobClass => this._container.registerSingleton((<Object>jobClass).getTypeName(), jobClass));
         
@@ -338,9 +338,9 @@ export class WebApp
         
         this._container.bootstrap();
         
-        const eventAggregatorInstance = this._container.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
-        eventAggregatorInstance.useProcessor(this._backgroundProcessor);
-        this._eventRegistrations.forEach(t => eventAggregatorInstance.subscribe(t.eventName, this._container.resolve(t.eventHandlerName)));
+        const eventBusInstance = this._container.resolve<DefaultEventBus>(this._eventBusKey);
+        eventBusInstance.useProcessor(this._backgroundProcessor);
+        this._eventRegistrations.forEach(t => eventBusInstance.subscribe(t.eventTypeName, this._container.resolve(t.eventHandlerTypeName)));
 
         this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
         this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
