@@ -60,6 +60,7 @@ export class WebApp
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
     private _enableCors = false;
     private _viewResolutionRoot: string;
+    private _webPackDevMiddlewarePublicPath: string | null = null;
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
@@ -218,6 +219,8 @@ export class WebApp
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
+        this._webPackDevMiddlewarePublicPath = publicPath;
+        
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     this._koa.use(webPackMiddleware(
         //         {
@@ -227,20 +230,21 @@ export class WebApp
         //     ));
         
         
-        if (ConfigurationManager.getConfig<string>("env") === "dev")
-        {
-            // tslint:disable-next-line
-            koaWebpack({
-                devMiddleware: {
-                    publicPath: publicPath,
-                    writeToDisk: true,
-                },
-                hotClient: {
-                    hmr: true,
-                    reload: true
-                }
-            }).then((middleware) => this._koa.use(middleware));
-        }
+        // if (ConfigurationManager.getConfig<string>("env") === "dev")
+        // {
+        //     // tslint:disable-next-line
+        //     koaWebpack({
+        //         devMiddleware: {
+        //             publicPath: publicPath,
+        //             writeToDisk: true,
+        //         },
+        //         hotClient: {
+        //             hmr: true,
+        //             reload: true,
+        //             server: this._server
+        //         }
+        //     }).then((middleware) => this._koa.use(middleware));
+        // }
             
         return this;
     }
@@ -308,6 +312,7 @@ export class WebApp
         console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
         this._server.listen(this._port);
+        this.configureWebPackDevMiddleware();
         this.configureShutDown();
         
         this._isBootstrapped = true;
@@ -493,6 +498,25 @@ export class WebApp
     private configureRouting(): void
     {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    
+    private configureWebPackDevMiddleware(): void
+    {
+        if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
+        {
+            // tslint:disable-next-line
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: this._webPackDevMiddlewarePublicPath,
+                    writeToDisk: true,
+                },
+                hotClient: {
+                    hmr: true,
+                    reload: true,
+                    server: this._server
+                }
+            }).then((middleware) => this._koa.use(middleware));
+        }
     }
     
     private configureShutDown(): void
