@@ -23,6 +23,7 @@ export declare class WebApp {
     private readonly _staticFilePaths;
     private _enableCors;
     private _viewResolutionRoot;
+    private _webPackDevMiddlewarePublicPath;
     private _disposeActions;
     private _server;
     private _isBootstrapped;
@@ -51,5 +52,6 @@ export declare class WebApp {
     private configureStaticFileServing;
     private configureBodyParser;
     private configureRouting;
+    private configureWebPackDevMiddleware;
     private configureShutDown;
 }

@@ -47,6 +47,7 @@ class WebApp {
         this._hasAuthorizationHandler = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
+        this._webPackDevMiddlewarePublicPath = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         n_defensive_1.given(port, "port").ensureHasValue();
@@ -152,18 +153,7 @@ class WebApp {
     enableWebPackDevMiddleware(publicPath = "/") {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
-        if (n_config_1.ConfigurationManager.getConfig("env") === "dev") {
-            koaWebpack({
-                devMiddleware: {
-                    publicPath: publicPath,
-                    writeToDisk: true,
-                },
-                hotClient: {
-                    hmr: true,
-                    reload: true
-                }
-            }).then((middleware) => this._koa.use(middleware));
-        }
+        this._webPackDevMiddlewarePublicPath = publicPath;
         return this;
     }
     registerDisposeAction(disposeAction) {
@@ -211,6 +201,7 @@ class WebApp {
         console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
         this._server.listen(this._port);
+        this.configureWebPackDevMiddleware();
         this.configureShutDown();
         this._isBootstrapped = true;
         console.log("SERVER STARTED.");
@@ -322,6 +313,21 @@ class WebApp {
     }
     configureRouting() {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    configureWebPackDevMiddleware() {
+        if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: this._webPackDevMiddlewarePublicPath,
+                    writeToDisk: true,
+                },
+                hotClient: {
+                    hmr: true,
+                    reload: true,
+                    server: this._server
+                }
+            }).then((middleware) => this._koa.use(middleware));
+        }
     }
     configureShutDown() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
