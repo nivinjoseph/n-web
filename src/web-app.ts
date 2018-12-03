@@ -519,7 +519,7 @@ export class WebApp
     {
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
-            // // tslint:disable-next-line
+            // tslint:disable-next-line
             koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
