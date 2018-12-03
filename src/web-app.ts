@@ -62,6 +62,7 @@ export class WebApp
     private _enableCors = false;
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
+    // @ts-ignore
     private _webPackDevMiddlewareClientHost: string | null = null;
     // @ts-ignore
     private _webPackDevMiddlewareServerHost: string | null = null;    
