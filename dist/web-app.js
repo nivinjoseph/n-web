@@ -332,13 +332,7 @@ class WebApp {
                         writeToDisk: true,
                     },
                     hotClient: {
-                        hmr: true,
-                        reload: true,
-                        host: {
-                            client: this._webPackDevMiddlewareClientHost,
-                            server: this._webPackDevMiddlewareServerHost || this._host
-                        },
-                        port: this._port
+                        hmr: false,
                     }
                 }).then((middleware) => this._koa.use(middleware));
             }
@@ -349,9 +343,7 @@ class WebApp {
                         writeToDisk: true,
                     },
                     hotClient: {
-                        hmr: true,
-                        reload: true,
-                        server: this._server
+                        hmr: false,
                     }
                 }).then((middleware) => this._koa.use(middleware));
             }
