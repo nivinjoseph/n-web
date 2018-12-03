@@ -519,6 +519,15 @@ export class WebApp
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
             // // tslint:disable-next-line
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: this._webPackDevMiddlewarePublicPath,
+                    writeToDisk: true,
+                },
+                hotClient: false
+            }).then((middleware) => this._koa.use(middleware));
+            
+            // // tslint:disable-next-line
             // koaWebpack({
             //     devMiddleware: {
             //         publicPath: this._webPackDevMiddlewarePublicPath,
@@ -531,40 +540,41 @@ export class WebApp
             //     }
             // }).then((middleware) => this._koa.use(middleware));
             
-            if (this._webPackDevMiddlewareClientHost)
-            {
-                // tslint:disable-next-line
-                koaWebpack({
-                    devMiddleware: {
-                        publicPath: this._webPackDevMiddlewarePublicPath,
-                        writeToDisk: true,
-                    },
-                    hotClient: {
-                        hmr: false,
-                        // reload: true,
-                        // host: {
-                        //     client: this._webPackDevMiddlewareClientHost,
-                        //     server: this._webPackDevMiddlewareServerHost || this._host
-                        // },
-                        // port: this._port
-                    }
-                }).then((middleware) => this._koa.use(middleware));
-            }
-            else
-            {
-                // tslint:disable-next-line
-                koaWebpack({
-                    devMiddleware: {
-                        publicPath: this._webPackDevMiddlewarePublicPath,
-                        writeToDisk: true,
-                    },
-                    hotClient: {
-                        hmr: false,
-                        // reload: true,
-                        // server: this._server
-                    }
-                }).then((middleware) => this._koa.use(middleware));
-            }
+            // if (this._webPackDevMiddlewareClientHost)
+            // {
+            //     // tslint:disable-next-line
+            //     koaWebpack({
+            //         devMiddleware: {
+            //             publicPath: this._webPackDevMiddlewarePublicPath,
+            //             writeToDisk: true,
+            //         },
+            //         hotClient: false
+            //         // hotClient: {
+            //         //     hmr: false,
+            //         //     // reload: true,
+            //         //     // host: {
+            //         //     //     client: this._webPackDevMiddlewareClientHost,
+            //         //     //     server: this._webPackDevMiddlewareServerHost || this._host
+            //         //     // },
+            //         //     // port: this._port
+            //         // }
+            //     }).then((middleware) => this._koa.use(middleware));
+            // }
+            // else
+            // {
+            //     // tslint:disable-next-line
+            //     koaWebpack({
+            //         devMiddleware: {
+            //             publicPath: this._webPackDevMiddlewarePublicPath,
+            //             writeToDisk: true,
+            //         },
+            //         hotClient: {
+            //             hmr: false,
+            //             // reload: true,
+            //             // server: this._server
+            //         }
+            //     }).then((middleware) => this._koa.use(middleware));
+            // }
         }
     }
     
