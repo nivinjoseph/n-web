@@ -63,6 +63,7 @@ export class WebApp
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     private _webPackDevMiddlewareClientHost: string | null = null;
+    // @ts-ignore
     private _webPackDevMiddlewareServerHost: string | null = null;    
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
