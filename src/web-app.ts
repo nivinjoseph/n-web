@@ -540,7 +540,7 @@ export class WebApp
                         reload: true,
                         host: {
                             client: this._webPackDevMiddlewareClientHost,
-                            server: this._host || "localhost"
+                            server: null
                         },
                         port: this._port
                     }
