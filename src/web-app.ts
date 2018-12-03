@@ -63,6 +63,7 @@ export class WebApp
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     private _webPackDevMiddlewareClientHost: string | null = null;
+    private _webPackDevMiddlewareServerHost: string | null = null;    
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
@@ -220,16 +221,18 @@ export class WebApp
         return this;
     }
     
-    public enableWebPackDevMiddleware(publicPath: string = "/", clientHost?: string): this
+    public enableWebPackDevMiddleware(publicPath: string = "/", clientHost?: string, serverHost?: string): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         given(clientHost, "clientHost").ensureIsString();
+        given(serverHost, "serverHost").ensureIsString();
         
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
         this._webPackDevMiddlewarePublicPath = publicPath.trim();
         this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
+        this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     this._koa.use(webPackMiddleware(
@@ -540,7 +543,7 @@ export class WebApp
                         reload: true,
                         host: {
                             client: this._webPackDevMiddlewareClientHost,
-                            server: null
+                            server: this._webPackDevMiddlewareServerHost || this._host
                         },
                         port: this._port
                     }
