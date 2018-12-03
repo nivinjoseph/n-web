@@ -48,6 +48,7 @@ class WebApp {
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._webPackDevMiddlewarePublicPath = null;
+        this._webPackDevMiddlewareClientHost = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         n_defensive_1.given(port, "port").ensureHasValue().ensureIsNumber();
@@ -152,10 +153,13 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
-    enableWebPackDevMiddleware(publicPath = "/") {
+    enableWebPackDevMiddleware(publicPath = "/", clientHost) {
+        n_defensive_1.given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        n_defensive_1.given(clientHost, "clientHost").ensureIsString();
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
-        this._webPackDevMiddlewarePublicPath = publicPath;
+        this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         return this;
     }
     registerDisposeAction(disposeAction) {
@@ -318,17 +322,36 @@ class WebApp {
     }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
-            koaWebpack({
-                devMiddleware: {
-                    publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: true,
-                },
-                hotClient: {
-                    hmr: true,
-                    reload: true,
-                    server: this._server
-                }
-            }).then((middleware) => this._koa.use(middleware));
+            if (this._webPackDevMiddlewareClientHost) {
+                koaWebpack({
+                    devMiddleware: {
+                        publicPath: this._webPackDevMiddlewarePublicPath,
+                        writeToDisk: true,
+                    },
+                    hotClient: {
+                        hmr: true,
+                        reload: true,
+                        host: {
+                            client: this._webPackDevMiddlewareClientHost,
+                            server: this._host || "localhost"
+                        },
+                        port: this._port
+                    }
+                }).then((middleware) => this._koa.use(middleware));
+            }
+            else {
+                koaWebpack({
+                    devMiddleware: {
+                        publicPath: this._webPackDevMiddlewarePublicPath,
+                        writeToDisk: true,
+                    },
+                    hotClient: {
+                        hmr: true,
+                        reload: true,
+                        server: this._server
+                    }
+                }).then((middleware) => this._koa.use(middleware));
+            }
         }
     }
     configureShutDown() {
