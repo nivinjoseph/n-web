@@ -62,10 +62,10 @@ export class WebApp
     private _enableCors = false;
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
-    // @ts-ignore
-    private _webPackDevMiddlewareClientHost: string | null = null;
-    // @ts-ignore
-    private _webPackDevMiddlewareServerHost: string | null = null;    
+    // // @ts-ignore
+    // private _webPackDevMiddlewareClientHost: string | null = null;
+    // // @ts-ignore
+    // private _webPackDevMiddlewareServerHost: string | null = null;    
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
@@ -223,18 +223,18 @@ export class WebApp
         return this;
     }
     
-    public enableWebPackDevMiddleware(publicPath: string = "/", clientHost?: string, serverHost?: string): this
+    public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
-        given(clientHost, "clientHost").ensureIsString();
-        given(serverHost, "serverHost").ensureIsString();
+        // given(clientHost, "clientHost").ensureIsString();
+        // given(serverHost, "serverHost").ensureIsString();
         
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
         this._webPackDevMiddlewarePublicPath = publicPath.trim();
-        this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
-        this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
+        // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
+        // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     this._koa.use(webPackMiddleware(
@@ -519,27 +519,27 @@ export class WebApp
     {
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
-            // tslint:disable-next-line
-            koaWebpack({
-                devMiddleware: {
-                    publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: true,
-                },
-                hotClient: false
-            }).then((middleware) => this._koa.use(middleware));
-            
             // // tslint:disable-next-line
             // koaWebpack({
             //     devMiddleware: {
             //         publicPath: this._webPackDevMiddlewarePublicPath,
             //         writeToDisk: true,
             //     },
-            //     hotClient: {
-            //         hmr: true,
-            //         reload: true,
-            //         server: this._server
-            //     }
+            //     hotClient: false
             // }).then((middleware) => this._koa.use(middleware));
+            
+            // tslint:disable-next-line
+            koaWebpack({
+                devMiddleware: {
+                    publicPath: this._webPackDevMiddlewarePublicPath,
+                    writeToDisk: true,
+                },
+                hotClient: {
+                    hmr: true,
+                    reload: true,
+                    server: this._server
+                }
+            }).then((middleware) => this._koa.use(middleware));
             
             // if (this._webPackDevMiddlewareClientHost)
             // {
