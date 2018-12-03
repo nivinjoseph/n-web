@@ -31,6 +31,7 @@ import { Job } from "./jobs/job";
 export class WebApp
 {
     private readonly _port: number;
+    private readonly _host: string | null;
     private readonly _koa: Koa;
     private readonly _container: Container;
     private readonly _router: Router;
@@ -66,10 +67,14 @@ export class WebApp
     private _isBootstrapped: boolean = false;
     
     
-    public constructor(port: number)
+    public constructor(port: number, host?: string)
     {
-        given(port, "port").ensureHasValue();
+        given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
+        
+        given(host, "host").ensureIsString();
+        this._host = host ? host.trim() : null;
+        
         this._koa = new Koa();
         this._container = new Container();
         this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
@@ -311,7 +316,7 @@ export class WebApp
         console.log("SERVER STARTING.");
         console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
-        this._server.listen(this._port);
+        this._server.listen(this._port, this._host);
         this.configureWebPackDevMiddleware();
         this.configureShutDown();
         
