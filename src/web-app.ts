@@ -62,6 +62,7 @@ export class WebApp
     private _enableCors = false;
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
+    private _webPackDevMiddlewareClientHost: string | null = null;
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
@@ -219,12 +220,16 @@ export class WebApp
         return this;
     }
     
-    public enableWebPackDevMiddleware(publicPath: string = "/"): this
+    public enableWebPackDevMiddleware(publicPath: string = "/", clientHost?: string): this
     {
+        given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        given(clientHost, "clientHost").ensureIsString();
+        
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
-        this._webPackDevMiddlewarePublicPath = publicPath;
+        this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     this._koa.use(webPackMiddleware(
@@ -509,18 +514,53 @@ export class WebApp
     {
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
-            // tslint:disable-next-line
-            koaWebpack({
-                devMiddleware: {
-                    publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: true,
-                },
-                hotClient: {
-                    hmr: true,
-                    reload: true,
-                    server: this._server
-                }
-            }).then((middleware) => this._koa.use(middleware));
+            // // tslint:disable-next-line
+            // koaWebpack({
+            //     devMiddleware: {
+            //         publicPath: this._webPackDevMiddlewarePublicPath,
+            //         writeToDisk: true,
+            //     },
+            //     hotClient: {
+            //         hmr: true,
+            //         reload: true,
+            //         server: this._server
+            //     }
+            // }).then((middleware) => this._koa.use(middleware));
+            
+            if (this._webPackDevMiddlewareClientHost)
+            {
+                // tslint:disable-next-line
+                koaWebpack({
+                    devMiddleware: {
+                        publicPath: this._webPackDevMiddlewarePublicPath,
+                        writeToDisk: true,
+                    },
+                    hotClient: {
+                        hmr: true,
+                        reload: true,
+                        host: {
+                            client: this._webPackDevMiddlewareClientHost,
+                            server: this._host || "localhost"
+                        },
+                        port: this._port
+                    }
+                }).then((middleware) => this._koa.use(middleware));
+            }
+            else
+            {
+                // tslint:disable-next-line
+                koaWebpack({
+                    devMiddleware: {
+                        publicPath: this._webPackDevMiddlewarePublicPath,
+                        writeToDisk: true,
+                    },
+                    hotClient: {
+                        hmr: true,
+                        reload: true,
+                        server: this._server
+                    }
+                }).then((middleware) => this._koa.use(middleware));
+            }
         }
     }
     
