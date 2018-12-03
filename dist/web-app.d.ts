@@ -3,6 +3,7 @@ import "@nivinjoseph/n-ext";
 import { Logger } from "@nivinjoseph/n-log";
 export declare class WebApp {
     private readonly _port;
+    private readonly _host;
     private readonly _koa;
     private readonly _container;
     private readonly _router;
@@ -27,7 +28,7 @@ export declare class WebApp {
     private _disposeActions;
     private _server;
     private _isBootstrapped;
-    constructor(port: number);
+    constructor(port: number, host?: string);
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;

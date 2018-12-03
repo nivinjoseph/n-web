@@ -32,7 +32,7 @@ const event_handler_registration_1 = require("./services/event-bus/event-handler
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 class WebApp {
-    constructor(port) {
+    constructor(port, host) {
         this._callContextKey = "CallContext";
         this._eventBusKey = "EventBus";
         this._eventRegistrations = new Array();
@@ -50,8 +50,10 @@ class WebApp {
         this._webPackDevMiddlewarePublicPath = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
-        n_defensive_1.given(port, "port").ensureHasValue();
+        n_defensive_1.given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
+        n_defensive_1.given(host, "host").ensureIsString();
+        this._host = host ? host.trim() : null;
         this._koa = new Koa();
         this._container = new n_ject_1.Container();
         this._router = new router_1.Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
@@ -200,7 +202,7 @@ class WebApp {
         console.log("SERVER STARTING.");
         console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
         this._server = Http.createServer(this._koa.callback());
-        this._server.listen(this._port);
+        this._server.listen(this._port, this._host);
         this.configureWebPackDevMiddleware();
         this.configureShutDown();
         this._isBootstrapped = true;
