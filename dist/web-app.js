@@ -48,8 +48,6 @@ class WebApp {
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._webPackDevMiddlewarePublicPath = null;
-        this._webPackDevMiddlewareClientHost = null;
-        this._webPackDevMiddlewareServerHost = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         n_defensive_1.given(port, "port").ensureHasValue().ensureIsNumber();
@@ -154,15 +152,11 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
-    enableWebPackDevMiddleware(publicPath = "/", clientHost, serverHost) {
+    enableWebPackDevMiddleware(publicPath = "/") {
         n_defensive_1.given(publicPath, "publicPath").ensureHasValue().ensureIsString();
-        n_defensive_1.given(clientHost, "clientHost").ensureIsString();
-        n_defensive_1.given(serverHost, "serverHost").ensureIsString();
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
         this._webPackDevMiddlewarePublicPath = publicPath.trim();
-        this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
-        this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         return this;
     }
     registerDisposeAction(disposeAction) {
@@ -330,7 +324,11 @@ class WebApp {
                     publicPath: this._webPackDevMiddlewarePublicPath,
                     writeToDisk: true,
                 },
-                hotClient: false
+                hotClient: {
+                    hmr: true,
+                    reload: true,
+                    server: this._server
+                }
             }).then((middleware) => this._koa.use(middleware));
         }
     }

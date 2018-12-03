@@ -25,8 +25,6 @@ export declare class WebApp {
     private _enableCors;
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
-    private _webPackDevMiddlewareClientHost;
-    private _webPackDevMiddlewareServerHost;
     private _disposeActions;
     private _server;
     private _isBootstrapped;
@@ -42,7 +40,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
-    enableWebPackDevMiddleware(publicPath?: string, clientHost?: string, serverHost?: string): this;
+    enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private configureCors;
