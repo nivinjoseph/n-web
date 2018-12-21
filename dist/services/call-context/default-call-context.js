@@ -14,11 +14,11 @@ class DefaultCallContext {
     get authToken() { return this._authToken; }
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
-    configure(ctx, authHeader) {
+    configure(ctx, authHeaders) {
         n_defensive_1.given(ctx, "ctx").ensureHasValue().ensureIsObject();
-        n_defensive_1.given(authHeader, "authHeader").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        n_defensive_1.given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._ctx = ctx;
-        this._authHeader = authHeader;
+        this._authHeaders = authHeaders;
         this.populateSchemeAndToken();
     }
     getRequestHeader(header) {
@@ -47,22 +47,28 @@ class DefaultCallContext {
         this._ctx.set(header, value);
     }
     populateSchemeAndToken() {
-        if (this._ctx.header && this._ctx.header[this._authHeader]) {
-            let authorization = this._ctx.header[this._authHeader];
-            if (!authorization.isEmptyOrWhiteSpace()) {
+        if (this._ctx.header) {
+            for (let i = 0; i < this._authHeaders.length; i++) {
+                const authHeader = this._authHeaders[i];
+                if (!this._ctx.header[authHeader])
+                    continue;
+                let authorization = this._ctx.header[authHeader];
+                if (authorization.isEmptyOrWhiteSpace())
+                    continue;
                 authorization = authorization.trim();
                 while (authorization.contains("  "))
                     authorization = authorization.replaceAll("  ", " ");
-                let splitted = authorization.split(" ");
-                if (splitted.length === 2) {
-                    let scheme = splitted[0].trim().toLowerCase();
-                    let token = splitted[1].trim();
-                    if (!scheme.isEmptyOrWhiteSpace() && !token.isEmptyOrWhiteSpace()) {
-                        this._hasAuth = true;
-                        this._authScheme = scheme;
-                        this._authToken = token;
-                    }
-                }
+                const splitted = authorization.split(" ");
+                if (splitted.length !== 2)
+                    continue;
+                let scheme = splitted[0].trim().toLowerCase();
+                let token = splitted[1].trim();
+                if (scheme.isEmptyOrWhiteSpace() || token.isEmptyOrWhiteSpace())
+                    continue;
+                this._hasAuth = true;
+                this._authScheme = scheme;
+                this._authToken = token;
+                break;
             }
         }
     }

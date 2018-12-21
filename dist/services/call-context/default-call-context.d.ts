@@ -6,7 +6,7 @@ import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import "@nivinjoseph/n-ext";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
-    private _authHeader;
+    private _authHeaders;
     private _hasAuth;
     private _authScheme;
     private _authToken;
@@ -18,7 +18,7 @@ export declare class DefaultCallContext implements CallContext {
     readonly authToken: string;
     readonly isAuthenticated: boolean;
     readonly identity: ClaimsIdentity;
-    configure(ctx: Koa.Context, authHeader: string): void;
+    configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void;
     getRequestHeader(header: string): string;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;

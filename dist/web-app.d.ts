@@ -17,7 +17,7 @@ export declare class WebApp {
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
     private _hasAuthenticationHandler;
-    private _authHeader;
+    private _authHeaders;
     private readonly _authorizationHandlerKey;
     private _hasAuthorizationHandler;
     private _logger;
@@ -37,7 +37,7 @@ export declare class WebApp {
     useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
-    registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this;
+    registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
     enableWebPackDevMiddleware(publicPath?: string): this;

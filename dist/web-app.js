@@ -42,7 +42,7 @@ class WebApp {
         this._hasExceptionHandler = false;
         this._authenticationHandlerKey = "$authenticationHandler";
         this._hasAuthenticationHandler = false;
-        this._authHeader = "authorization";
+        this._authHeaders = ["authorization"];
         this._authorizationHandlerKey = "$authorizationHandler";
         this._hasAuthorizationHandler = false;
         this._staticFilePaths = new Array();
@@ -126,15 +126,15 @@ class WebApp {
         this._hasExceptionHandler = true;
         return this;
     }
-    registerAuthenticationHandler(authenticationHandler, authHeader) {
+    registerAuthenticationHandler(authenticationHandler, ...authHeaders) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerAuthenticationHandler");
         n_defensive_1.given(authenticationHandler, "authenticationHandler").ensureHasValue();
-        n_defensive_1.given(authHeader, "authHeader").ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        n_defensive_1.given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
         this._hasAuthenticationHandler = true;
-        if (authHeader)
-            this._authHeader = authHeader.trim();
+        if (authHeaders.length > 0)
+            this._authHeaders = authHeaders;
         return this;
     }
     registerAuthorizationHandler(authorizationHandler) {
@@ -239,7 +239,7 @@ class WebApp {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             let scope = ctx.state.scope;
             let defaultCallContext = scope.resolve(this._callContextKey);
-            defaultCallContext.configure(ctx, this._authHeader);
+            defaultCallContext.configure(ctx, this._authHeaders);
             yield next();
         }));
     }
