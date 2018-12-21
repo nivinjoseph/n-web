@@ -50,7 +50,7 @@ export class WebApp
     
     private readonly _authenticationHandlerKey = "$authenticationHandler";
     private _hasAuthenticationHandler = false;
-    private _authHeader = "authorization";
+    private _authHeaders = ["authorization"];
     
     private readonly _authorizationHandlerKey = "$authorizationHandler";
     private _hasAuthorizationHandler = false;
@@ -188,17 +188,17 @@ export class WebApp
         return this;
     }
     
-    public registerAuthenticationHandler(authenticationHandler: Function, authHeader?: string): this
+    public registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerAuthenticationHandler");
         
         given(authenticationHandler, "authenticationHandler").ensureHasValue();
-        given(authHeader, "authHeader").ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
         this._hasAuthenticationHandler = true;
-        if (authHeader)
-            this._authHeader = authHeader.trim();    
+        if (authHeaders.length > 0)
+            this._authHeaders = authHeaders;
         return this;
     }
     
@@ -381,7 +381,7 @@ export class WebApp
         {
             let scope: Scope = ctx.state.scope;
             let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
-            defaultCallContext.configure(ctx, this._authHeader);
+            defaultCallContext.configure(ctx, this._authHeaders);
             await next();
         });
     }

@@ -9,7 +9,7 @@ import "@nivinjoseph/n-ext";
 export class DefaultCallContext implements CallContext
 {
     private _ctx: Koa.Context;
-    private _authHeader: string;
+    private _authHeaders: ReadonlyArray<string>;
     private _hasAuth: boolean = false;
     private _authScheme: string;
     private _authToken: string;
@@ -25,13 +25,13 @@ export class DefaultCallContext implements CallContext
     public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
     
     
-    public configure(ctx: Koa.Context, authHeader: string): void
+    public configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void
     {
         given(ctx, "ctx").ensureHasValue().ensureIsObject();
-        given(authHeader, "authHeader").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         
         this._ctx = ctx;
-        this._authHeader = authHeader;
+        this._authHeaders = authHeaders;
         this.populateSchemeAndToken();
     }
     
@@ -76,27 +76,35 @@ export class DefaultCallContext implements CallContext
     
     private populateSchemeAndToken(): void
     {
-        if (this._ctx.header && this._ctx.header[this._authHeader])
+        if (this._ctx.header)
         {
-            let authorization: string = this._ctx.header[this._authHeader];
-            if (!authorization.isEmptyOrWhiteSpace())
+            for (let i = 0; i < this._authHeaders.length; i++)
             {
+                const authHeader = this._authHeaders[i];
+                if (!this._ctx.header[authHeader])
+                    continue;
+                
+                let authorization: string = this._ctx.header[authHeader];
+                if (authorization.isEmptyOrWhiteSpace())
+                    continue;
+                
                 authorization = authorization.trim();
                 while (authorization.contains("  ")) // double space
-                    authorization = authorization.replaceAll("  ", " ");    
+                    authorization = authorization.replaceAll("  ", " ");
+
+                const splitted = authorization.split(" ");
+                if (splitted.length !== 2)
+                    continue;
                 
-                let splitted = authorization.split(" ");
-                if (splitted.length === 2)
-                {
-                    let scheme = splitted[0].trim().toLowerCase();
-                    let token = splitted[1].trim();
-                    if (!scheme.isEmptyOrWhiteSpace() && !token.isEmptyOrWhiteSpace())
-                    {
-                        this._hasAuth = true;
-                        this._authScheme = scheme;
-                        this._authToken = token;
-                    }
-                }
+                let scheme = splitted[0].trim().toLowerCase();
+                let token = splitted[1].trim();
+                if (scheme.isEmptyOrWhiteSpace() || token.isEmptyOrWhiteSpace())
+                    continue;
+                
+                this._hasAuth = true;
+                this._authScheme = scheme;
+                this._authToken = token;
+                break;
             }
         } 
     }
