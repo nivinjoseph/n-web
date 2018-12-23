@@ -36,7 +36,7 @@ export class DefaultExceptionHandler extends ExceptionHandler
     }
 
 
-    protected registerHandler(exceptionType: Function, handler: (e: Exception) => Promise<any>): void
+    protected registerHandler<T extends Exception>(exceptionType: Function, handler: (e: T) => Promise<any>): void
     {
         given(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
         given(handler, "handler").ensureHasValue().ensureIsFunction();
