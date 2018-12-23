@@ -8,6 +8,6 @@ export declare class DefaultExceptionHandler extends ExceptionHandler {
     private readonly _handlers;
     constructor(logger: Logger, logEverything?: boolean);
     handle(exp: Exception): Promise<any>;
-    protected registerHandler(exceptionType: Function, handler: (e: Exception) => Promise<any>): void;
+    protected registerHandler<T extends Exception>(exceptionType: Function, handler: (e: T) => Promise<any>): void;
     protected log(exp: Exception | Error | any): Promise<void>;
 }
