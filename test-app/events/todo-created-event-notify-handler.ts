@@ -1,4 +1,4 @@
-import { EventHandler, event } from "../../src/index";
+import { event, EdaEventHandler } from "../../src/index";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 // import { ApplicationException } from "@nivinjoseph/n-exception";
@@ -8,14 +8,13 @@ import { TodoCreated } from "./todo-created";
 
 @event(TodoCreated)
 @inject("Logger")
-export class TodoCreatedEventNotifyHandler extends EventHandler<TodoCreated>
+export class TodoCreatedEventNotifyHandler implements EdaEventHandler<TodoCreated>
 {
     private readonly _logger: Logger;
 
 
     public constructor(logger: Logger)
     {
-        super();
         given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
     }

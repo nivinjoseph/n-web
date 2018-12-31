@@ -42,7 +42,7 @@ const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .useInstaller(new AppInstaller())
     .useLogger(logger)
     .registerControllers(...controllers)
-    .registerEventHandlers(...eventHandlers)
+    .enableEda({ eventBus: null, eventSubMgr: null, eventHandlerClasses: eventHandlers, iocInstaller: new AppInstaller()})
     .registerAuthenticationHandler(AppAuthenticationHandler)
     .registerAuthorizationHandler(AppAuthorizationHandler)
     .registerExceptionHandler(AppExceptionHandler);
