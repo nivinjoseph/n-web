@@ -27,15 +27,14 @@ const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
 const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
-const default_event_bus_1 = require("./services/event-bus/default-event-bus");
-const event_handler_registration_1 = require("./services/event-bus/event-handler-registration");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
+const in_memory_event_bus_1 = require("./services/event-driven-architecture/in-memory-implementation/in-memory-event-bus");
+const in_memory_event_sub_mgr_1 = require("./services/event-driven-architecture/in-memory-implementation/in-memory-event-sub-mgr");
+const eda_architect_1 = require("./services/event-driven-architecture/eda-architect");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
-        this._eventBusKey = "EventBus";
-        this._eventRegistrations = new Array();
         this._jobRegistrations = new Array();
         this._jobInstances = new Array();
         this._exceptionHandlerKey = "$exceptionHandler";
@@ -64,6 +63,15 @@ class WebApp {
         this._enableCors = true;
         return this;
     }
+    enableEda(config) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableEda");
+        n_defensive_1.given(config, "config").ensureHasValue().ensureIsObject();
+        if ((!config.eventBus && config.eventSubMgr) || (!config.eventSubMgr && config.eventBus))
+            throw new n_exception_1.ArgumentException("config", "either both eventBus and eventSubMgr must be provided or neither should be provided");
+        this._edaConfig = config;
+        return this;
+    }
     registerStaticFilePath(filePath, cache = false) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
@@ -90,12 +98,6 @@ class WebApp {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerControllers");
         this._router.registerControllers(...controllerClasses);
-        return this;
-    }
-    registerEventHandlers(...eventHandlerClasses) {
-        if (this._isBootstrapped)
-            throw new n_exception_1.InvalidOperationException("registerEventHandlers");
-        this._eventRegistrations.push(...eventHandlerClasses.map(t => new event_handler_registration_1.EventHandlerRegistration(t)));
         return this;
     }
     registerJobs(...jobClasses) {
@@ -187,6 +189,7 @@ class WebApp {
         this._backgroundProcessor = new n_util_1.BackgroundProcessor((e) => this._logger.logError(e));
         this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         this.configureCors();
+        this.configureEda();
         this.configureContainer();
         this.configureScoping();
         this.configureCallContext();
@@ -213,19 +216,25 @@ class WebApp {
         if (this._enableCors)
             this._koa.use(cors());
     }
+    configureEda() {
+        if (this._edaConfig) {
+            if (!this._edaConfig.eventBus)
+                this._edaConfig.eventBus = new in_memory_event_bus_1.InMemoryEventBus();
+            if (!this._edaConfig.eventSubMgr)
+                this._edaConfig.eventSubMgr = new in_memory_event_sub_mgr_1.InMemoryEventSubMgr(this._backgroundProcessor);
+            this._edaArchitect = new eda_architect_1.EdaArchitect(this._edaConfig);
+            this._container.registerInstance(this._edaArchitect.eventBusKey, this._edaArchitect.eventBus);
+            this._container.registerInstance(this._edaArchitect.eventSubMgrKey, this._edaArchitect.eventSubMgr);
+        }
+    }
     configureContainer() {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
-        this._container.registerSingleton(this._eventBusKey, default_event_bus_1.DefaultEventBus);
-        this._eventRegistrations.forEach(t => this._container.registerSingleton(t.eventHandlerTypeName, t.eventHandlerType));
         this._jobRegistrations.forEach(jobClass => this._container.registerSingleton(jobClass.getTypeName(), jobClass));
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
             this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
-        const eventBusInstance = this._container.resolve(this._eventBusKey);
-        eventBusInstance.useProcessor(this._backgroundProcessor);
-        this._eventRegistrations.forEach(t => eventBusInstance.subscribe(t.eventTypeName, this._container.resolve(t.eventHandlerTypeName)));
         this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve(jobClass.getTypeName())));
         this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
     }
