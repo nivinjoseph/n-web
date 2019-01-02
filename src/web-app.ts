@@ -20,13 +20,10 @@ import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import * as koaWebpack from "koa-webpack";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
-import { BackgroundProcessor, Delay } from "@nivinjoseph/n-util";
+import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { Job } from "./jobs/job";
-import { EdaConfig } from "./services/event-driven-architecture/eda-config";
-import { InMemoryEventBus } from "./services/event-driven-architecture/in-memory-implementation/in-memory-event-bus";
-import { InMemoryEventSubMgr } from "./services/event-driven-architecture/in-memory-implementation/in-memory-event-sub-mgr";
-import { EdaArchitect } from "./services/event-driven-architecture/eda-architect";
+import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
 // public
@@ -41,9 +38,9 @@ export class WebApp
     private readonly _callContextKey = "CallContext";
 
     private _edaConfig: EdaConfig;
-    private _edaArchitect: EdaArchitect;
+    private _edaManager: EdaManager;
         
-    private _backgroundProcessor: BackgroundProcessor;
+    // private _backgroundProcessor: BackgroundProcessor;
 
     private readonly _jobRegistrations = new Array<Function>();
     private readonly _jobInstances = new Array<Job>();
@@ -103,10 +100,6 @@ export class WebApp
             throw new InvalidOperationException("enableEda"); 
         
         given(config, "config").ensureHasValue().ensureIsObject();
-        
-        if ((!config.eventBus && config.eventSubMgr) || (!config.eventSubMgr && config.eventBus))
-            throw new ArgumentException("config", "either both eventBus and eventSubMgr must be provided or neither should be provided");
-        
         this._edaConfig = config;
         return this;
     }
@@ -320,8 +313,8 @@ export class WebApp
         if (!this._logger)
             this._logger = new ConsoleLogger();
         
-        this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
-        this.registerDisposeAction(() => this._backgroundProcessor.dispose());
+        // this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
+        // this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         
         this.configureCors();
         this.configureEda();
@@ -363,15 +356,12 @@ export class WebApp
     {
         if (this._edaConfig)
         {
-            if (!this._edaConfig.eventBus)
-                this._edaConfig.eventBus = new InMemoryEventBus();
-            if (!this._edaConfig.eventSubMgr)
-                this._edaConfig.eventSubMgr = new InMemoryEventSubMgr(this._backgroundProcessor);
+            this._edaManager = new EdaManager(this._edaConfig);
 
-            this._edaArchitect = new EdaArchitect(this._edaConfig);
-
-            this._container.registerInstance(this._edaArchitect.eventBusKey, this._edaArchitect.eventBus);
-            this._container.registerInstance(this._edaArchitect.eventSubMgrKey, this._edaArchitect.eventSubMgr);
+            this._container.registerInstance(this._edaManager.eventBusKey, this._edaManager.eventBus);
+            this._container.registerInstance(this._edaManager.eventSubMgrKey, this._edaManager.eventSubMgr);
+            
+            this.registerDisposeAction(() => this._edaManager.dispose());
         }
     }
     
@@ -408,7 +398,7 @@ export class WebApp
         {
             let scope: Scope = ctx.state.scope;
             let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
-            defaultCallContext.configure(ctx, this._authHeaders);
+            defaultCallContext.configure(ctx as any, this._authHeaders);
             await next();
         });
     }

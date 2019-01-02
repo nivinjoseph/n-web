@@ -1,11 +1,12 @@
 import { TodoManager } from "./../../services/todo-manager/todo-manager";
 import { given } from "@nivinjoseph/n-defensive";
-import { command, route, Controller, HttpException, Utils, EventBus } from "./../../../src/index";
+import { command, route, Controller, HttpException, Utils } from "./../../../src/index";
 import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
 import { TodoCreated } from "../../events/todo-created";
+import { EventBus } from "@nivinjoseph/n-eda";
 
 
 @command

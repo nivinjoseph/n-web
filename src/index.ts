@@ -23,13 +23,6 @@ import { authorize } from "./security/authorize";
 
 import { Job } from "./jobs/job";
 import { TimedJob } from "./jobs/timed-job";
-import { EdaConfig } from "./services/event-driven-architecture/eda-config";
-import { EdaEvent } from "./services/event-driven-architecture/eda-event";
-import { EdaEventHandler } from "./services/event-driven-architecture/eda-event-handler";
-import { event } from "./services/event-driven-architecture/event";
-import { EventMap } from "./services/event-driven-architecture/event-map";
-import { EventBus } from "./services/event-driven-architecture/event-bus";
-import { EventSubMgr } from "./services/event-driven-architecture/event-sub-mgr";
 
 
 
@@ -49,8 +42,6 @@ export
     CallContext,
     
     AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize,
-    
-    EdaConfig, EdaEvent, EdaEventHandler, event, EventMap, EventBus, EventSubMgr,
 
     Job, TimedJob
 };

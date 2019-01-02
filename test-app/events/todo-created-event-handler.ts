@@ -1,4 +1,4 @@
-import { event, EdaEventHandler } from "../../src/index";
+import { event, EdaEventHandler } from "@nivinjoseph/n-eda";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Logger } from "@nivinjoseph/n-log";
@@ -16,6 +16,8 @@ export class TodoCreatedEventHandler implements EdaEventHandler<TodoCreated>
     {
         given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
+        
+        console.log("CREATED");
     }
     
     

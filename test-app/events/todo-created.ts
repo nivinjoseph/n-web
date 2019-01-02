@@ -1,5 +1,5 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { EdaEvent } from "../../src";
+import { EdaEvent } from "@nivinjoseph/n-eda";
 
 
 export class TodoCreated implements EdaEvent
