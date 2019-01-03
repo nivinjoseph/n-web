@@ -6,7 +6,7 @@ import { HttpException } from "./http-exception";
 import { Logger } from "@nivinjoseph/n-log";
 
 // public
-export class DefaultExceptionHandler extends ExceptionHandler
+export class DefaultExceptionHandler implements ExceptionHandler
 {
     private readonly _logger: Logger;
     private readonly _logEverything: boolean;
@@ -15,7 +15,6 @@ export class DefaultExceptionHandler extends ExceptionHandler
 
     public constructor(logger: Logger, logEverything = true)
     {
-        super();
         this._logger = logger;
         this._logEverything = !!logEverything;
         this._handlers = {};

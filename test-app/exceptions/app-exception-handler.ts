@@ -8,7 +8,7 @@ import { Logger } from "@nivinjoseph/n-log";
 
 
 @inject("Logger")
-export class AppExceptionHandler extends ExceptionHandler
+export class AppExceptionHandler implements ExceptionHandler
 {
     private readonly _logger: Logger;
     
@@ -16,7 +16,6 @@ export class AppExceptionHandler extends ExceptionHandler
     public constructor(logger: Logger)
     {
         given(logger, "logger").ensureHasValue();
-        super();
         this._logger = logger;
     }
     

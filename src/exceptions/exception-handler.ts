@@ -1,6 +1,7 @@
 import { Exception } from "@nivinjoseph/n-exception";
 
-export abstract class ExceptionHandler
+// public
+export interface  ExceptionHandler
 {
-    public abstract handle(exp: Exception): Promise<any>;
+    handle(exp: Exception): Promise<any>;
 }
