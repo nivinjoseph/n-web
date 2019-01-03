@@ -11,11 +11,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const n_exception_1 = require("@nivinjoseph/n-exception");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 require("@nivinjoseph/n-ext");
-const exception_handler_1 = require("./exception-handler");
 const http_exception_1 = require("./http-exception");
-class DefaultExceptionHandler extends exception_handler_1.ExceptionHandler {
+class DefaultExceptionHandler {
     constructor(logger, logEverything = true) {
-        super();
         this._logger = logger;
         this._logEverything = !!logEverything;
         this._handlers = {};
