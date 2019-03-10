@@ -10,9 +10,11 @@ export abstract class TimedJob implements Job
     private readonly _intervalMilliseconds: number;
     private readonly _backgroundProcessor: BackgroundProcessor;
     private readonly _interval: any;
+    private _isDisposed = false;
 
-
+    
     protected get logger(): Logger { return this._logger; }
+    protected get isDisposed(): boolean { return this._isDisposed; }
 
 
     public constructor(logger: Logger, intervalMilliseconds: number)
@@ -39,10 +41,15 @@ export abstract class TimedJob implements Job
 
     public abstract run(): Promise<void>;
 
-    public dispose(): Promise<void>
+    public async dispose(): Promise<void>
     {
+        if (this._isDisposed)
+            return;
+        
+        this._isDisposed = true;
+        
         clearInterval(this._interval);
-        return this._backgroundProcessor.dispose(true);
+        await this._backgroundProcessor.dispose(true);
     }
 
 

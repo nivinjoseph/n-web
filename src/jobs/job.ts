@@ -1,6 +1,10 @@
+import { Disposable } from "@nivinjoseph/n-util";
+
 // public
-export interface Job
+/**
+ * @description A Job is a Singleton. Hence it cannot have Scoped dependencies.
+ */
+export interface Job extends Disposable
 {
     run(): Promise<void>;
-    dispose(): Promise<void>;
 }

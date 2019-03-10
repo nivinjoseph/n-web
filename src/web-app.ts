@@ -319,15 +319,18 @@ export class WebApp
         this.configureCors();
         this.configureEda();
         this.configureContainer();
-        this.configureScoping();
+        this.initializeJobs();
+        
+        // this is the request response pipeline START
+        this.configureScoping(); // must be first
         this.configureCallContext();
         this.configureExceptionHandling();
         this.configureErrorTrapping();
-        // this.configureEventHandling();
         this.configureAuthentication();
         this.configureStaticFileServing();
         this.configureBodyParser();
         this.configureRouting(); // must be last
+        // this is the request response pipeline END
         
         const appEnv = ConfigurationManager.getConfig<string>("env");
         const appName = ConfigurationManager.getConfig<string>("appInfo.name");
@@ -378,17 +381,34 @@ export class WebApp
             this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));    
         
         this._container.bootstrap();
-
-        this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
-        this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
+        
+        this.registerDisposeAction(() => this._container.dispose());
     }
     
+    private initializeJobs(): void
+    {
+        this._jobRegistrations.forEach(jobClass =>
+            this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
+    }
+    
+    // this is the first
     private configureScoping(): void
     {
         this._koa.use(async (ctx, next) =>
         {
             ctx.state.scope = this._container.createScope();
-            await next();
+            try 
+            {
+                await next();    
+            }
+            catch (error)
+            {
+                throw error;
+            }
+            finally
+            {
+                await (<Scope>ctx.state.scope).dispose();
+            }
         });
     }
     
@@ -527,6 +547,7 @@ export class WebApp
         }));
     }
     
+    // this is the last
     private configureRouting(): void
     {
         this._router.configureRouting(this._viewResolutionRoot);
