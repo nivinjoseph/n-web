@@ -344,11 +344,9 @@ class WebApp {
         }
     }
     configureShutDown() {
-        if (n_config_1.ConfigurationManager.getConfig("env") === "dev")
-            return;
         this.registerDisposeAction(() => {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return n_util_1.Delay.seconds(10);
+            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 10);
         });
         const shutDown = (signal) => {
             this._server.close(() => {
