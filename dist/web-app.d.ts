@@ -46,6 +46,7 @@ export declare class WebApp {
     private configureCors;
     private configureEda;
     private configureContainer;
+    private initializeJobs;
     private configureScoping;
     private configureCallContext;
     private configureExceptionHandling;

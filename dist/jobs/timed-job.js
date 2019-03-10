@@ -11,8 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 const n_util_1 = require("@nivinjoseph/n-util");
 class TimedJob {
-    get logger() { return this._logger; }
     constructor(logger, intervalMilliseconds) {
+        this._isDisposed = false;
         n_defensive_1.given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
         n_defensive_1.given(intervalMilliseconds, "intervalMilliseconds").ensureHasValue().ensureIsNumber().ensure(t => t >= 0);
@@ -26,9 +26,16 @@ class TimedJob {
             this._backgroundProcessor.processAction(() => this.runInternal());
         }, this._intervalMilliseconds);
     }
+    get logger() { return this._logger; }
+    get isDisposed() { return this._isDisposed; }
     dispose() {
-        clearInterval(this._interval);
-        return this._backgroundProcessor.dispose(true);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._isDisposed)
+                return;
+            this._isDisposed = true;
+            clearInterval(this._interval);
+            yield this._backgroundProcessor.dispose(true);
+        });
     }
     runInternal() {
         return __awaiter(this, void 0, void 0, function* () {

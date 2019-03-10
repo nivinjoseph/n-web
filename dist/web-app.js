@@ -185,6 +185,7 @@ class WebApp {
         this.configureCors();
         this.configureEda();
         this.configureContainer();
+        this.initializeJobs();
         this.configureScoping();
         this.configureCallContext();
         this.configureExceptionHandling();
@@ -226,13 +227,23 @@ class WebApp {
         if (!this._hasExceptionHandler)
             this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
+        this.registerDisposeAction(() => this._container.dispose());
+    }
+    initializeJobs() {
         this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve(jobClass.getTypeName())));
-        this._jobInstances.forEach(t => this.registerDisposeAction(() => t.dispose()));
     }
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             ctx.state.scope = this._container.createScope();
-            yield next();
+            try {
+                yield next();
+            }
+            catch (error) {
+                throw error;
+            }
+            finally {
+                yield ctx.state.scope.dispose();
+            }
         }));
     }
     configureCallContext() {
