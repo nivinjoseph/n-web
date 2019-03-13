@@ -29,7 +29,6 @@ const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
-const n_eda_1 = require("@nivinjoseph/n-eda");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
@@ -55,17 +54,11 @@ class WebApp {
         this._container = new n_ject_1.Container();
         this._router = new router_1.Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
     }
+    get containerRegistry() { return this._container; }
     enableCors() {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableCors");
         this._enableCors = true;
-        return this;
-    }
-    enableEda(config) {
-        if (this._isBootstrapped)
-            throw new n_exception_1.InvalidOperationException("enableEda");
-        n_defensive_1.given(config, "config").ensureHasValue().ensureIsObject();
-        this._edaConfig = config;
         return this;
     }
     registerStaticFilePath(filePath, cache = false) {
@@ -183,7 +176,6 @@ class WebApp {
         if (!this._logger)
             this._logger = new n_log_1.ConsoleLogger();
         this.configureCors();
-        this.configureEda();
         this.configureContainer();
         this.initializeJobs();
         this.configureScoping();
@@ -210,14 +202,6 @@ class WebApp {
     configureCors() {
         if (this._enableCors)
             this._koa.use(cors());
-    }
-    configureEda() {
-        if (this._edaConfig) {
-            this._edaManager = new n_eda_1.EdaManager(this._edaConfig);
-            this._container.registerInstance(this._edaManager.eventBusKey, this._edaManager.eventBus);
-            this._container.registerInstance(this._edaManager.eventSubMgrKey, this._edaManager.eventSubMgr);
-            this.registerDisposeAction(() => this._edaManager.dispose());
-        }
     }
     configureContainer() {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);

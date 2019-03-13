@@ -1,4 +1,4 @@
-import { ComponentInstaller } from "@nivinjoseph/n-ject";
+import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
 import { Logger } from "@nivinjoseph/n-log";
 export declare class WebApp {
@@ -8,8 +8,6 @@ export declare class WebApp {
     private readonly _container;
     private readonly _router;
     private readonly _callContextKey;
-    private _edaConfig;
-    private _edaManager;
     private readonly _jobRegistrations;
     private readonly _jobInstances;
     private readonly _exceptionHandlerKey;
@@ -27,6 +25,7 @@ export declare class WebApp {
     private _disposeActions;
     private _server;
     private _isBootstrapped;
+    readonly containerRegistry: Registry;
     constructor(port: number, host?: string);
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
@@ -42,7 +41,6 @@ export declare class WebApp {
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private configureCors;
-    private configureEda;
     private configureContainer;
     private initializeJobs;
     private configureScoping;
