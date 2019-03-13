@@ -55,7 +55,6 @@
     "dependencies": {
         "@nivinjoseph/n-config": "^1.0.23",
         "@nivinjoseph/n-defensive": "^1.0.25",
-        "@nivinjoseph/n-eda": "^1.0.6",
         "@nivinjoseph/n-exception": "^1.0.17",
         "@nivinjoseph/n-ext": "^1.1.5",
         "@nivinjoseph/n-ject": "^1.1.5",

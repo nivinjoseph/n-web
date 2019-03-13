@@ -1,7 +1,6 @@
 import { ComponentInstaller } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
 import { Logger } from "@nivinjoseph/n-log";
-import { EdaConfig } from "@nivinjoseph/n-eda";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -30,7 +29,6 @@ export declare class WebApp {
     private _isBootstrapped;
     constructor(port: number, host?: string);
     enableCors(): this;
-    enableEda(config: EdaConfig): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
     registerJobs(...jobClasses: Function[]): this;

@@ -13,9 +13,9 @@ import { AppExceptionHandler } from "./exceptions/app-exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { AppAuthenticationHandler } from "./security/app-authentication-handler";
 import { AppAuthorizationHandler } from "./security/app-authorization-handler";
-import { TodoCreatedEventHandler } from "./events/todo-created-event-handler";
+// import { TodoCreatedEventHandler } from "./events/todo-created-event-handler";
 import { ConsoleLogger, LogDateTimeZone } from "@nivinjoseph/n-log";
-import { InMemoryEventBus, InMemoryEventSubMgr } from "@nivinjoseph/n-eda";
+// import { InMemoryEventBus, InMemoryEventSubMgr } from "@nivinjoseph/n-eda";
 
 
 const logger = new ConsoleLogger(LogDateTimeZone.est);
@@ -34,7 +34,7 @@ class AppInstaller implements ComponentInstaller
 const controllers = [GetTodosController, GetTodoController, CreateTodoController,
     UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController];
 
-const eventHandlers = [TodoCreatedEventHandler];
+// const eventHandlers = [TodoCreatedEventHandler];
 
 const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
@@ -42,12 +42,12 @@ const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .useInstaller(new AppInstaller())
     .useLogger(logger)
     .registerControllers(...controllers)
-    .enableEda({
-        eventBus: InMemoryEventBus,
-        eventSubMgr: InMemoryEventSubMgr,
-        eventHandlerClasses: eventHandlers,
-        iocInstaller: new AppInstaller()
-    })
+    // .enableEda({
+    //     eventBus: InMemoryEventBus,
+    //     eventSubMgr: InMemoryEventSubMgr,
+    //     eventHandlerClasses: eventHandlers,
+    //     iocInstaller: new AppInstaller()
+    // })
     .registerAuthenticationHandler(AppAuthenticationHandler)
     .registerAuthorizationHandler(AppAuthorizationHandler)
     .registerExceptionHandler(AppExceptionHandler);

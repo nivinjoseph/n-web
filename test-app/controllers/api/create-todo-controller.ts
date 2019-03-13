@@ -5,29 +5,29 @@ import * as Routes from "./../routes";
 import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
-import { TodoCreated } from "../../events/todo-created";
-import { EventBus } from "@nivinjoseph/n-eda";
+// import { TodoCreated } from "../../events/todo-created";
+// import { EventBus } from "@nivinjoseph/n-eda";
 
 
 @command
 @route(Routes.createTodo)
-@inject("TodoManager", "ConfigService", "EventBus")    
+@inject("TodoManager", "ConfigService")    
 export class CreateTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
-    private readonly _eventBus: EventBus;
+    // private readonly _eventBus: EventBus;
     
     
-    public constructor(todoManager: TodoManager, configService: ConfigService, eventBus: EventBus)
+    public constructor(todoManager: TodoManager, configService: ConfigService)
     {
         given(todoManager, "todoManager").ensureHasValue();
         given(configService, "configService").ensureHasValue();
-        given(eventBus, "eventBus").ensureHasValue().ensureIsObject();
+        // given(eventBus, "eventBus").ensureHasValue().ensureIsObject();
         super();
         this._todoManager = todoManager;
         this._configService = configService;
-        this._eventBus = eventBus;
+        // this._eventBus = eventBus;
     }
     
     
@@ -36,7 +36,7 @@ export class CreateTodoController extends Controller
         this.validateModel(model);   
         
         let todo = await this._todoManager.addTodo(model.title, model.description);
-        await this._eventBus.publish(new TodoCreated(todo.id));
+        // await this._eventBus.publish(new TodoCreated(todo.id));
         
         let baseUrl = await this._configService.getBaseUrl();
         return {

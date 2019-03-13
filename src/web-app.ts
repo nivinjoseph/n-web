@@ -1,6 +1,6 @@
 import * as Koa from "koa";
 import * as KoaBodyParser from "koa-bodyparser";
-import { Container, ComponentInstaller, Scope } from "@nivinjoseph/n-ject";
+import { Container, ComponentInstaller, Scope, Registry } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Router } from "./router";
 import { Exception, ArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
@@ -23,7 +23,7 @@ import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { Job } from "./jobs/job";
-import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
+// import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
 // public
@@ -37,8 +37,8 @@ export class WebApp
     
     private readonly _callContextKey = "CallContext";
 
-    private _edaConfig: EdaConfig;
-    private _edaManager: EdaManager;
+    // private _edaConfig: EdaConfig;
+    // private _edaManager: EdaManager;
         
     // private _backgroundProcessor: BackgroundProcessor;
 
@@ -71,6 +71,9 @@ export class WebApp
     private _isBootstrapped: boolean = false;
     
     
+    public get containerRegistry(): Registry { return this._container; }
+    
+    
     public constructor(port: number, host?: string)
     {
         given(port, "port").ensureHasValue().ensureIsNumber();
@@ -94,15 +97,15 @@ export class WebApp
         return this;
     }
     
-    public enableEda(config: EdaConfig): this
-    {
-        if (this._isBootstrapped)
-            throw new InvalidOperationException("enableEda"); 
+    // public enableEda(config: EdaConfig): this
+    // {
+    //     if (this._isBootstrapped)
+    //         throw new InvalidOperationException("enableEda"); 
         
-        given(config, "config").ensureHasValue().ensureIsObject();
-        this._edaConfig = config;
-        return this;
-    }
+    //     given(config, "config").ensureHasValue().ensureIsObject();
+    //     this._edaConfig = config;
+    //     return this;
+    // }
     
     public registerStaticFilePath(filePath: string, cache = false): this
     {
@@ -317,7 +320,7 @@ export class WebApp
         // this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         
         this.configureCors();
-        this.configureEda();
+        // this.configureEda();
         this.configureContainer();
         this.initializeJobs();
         
@@ -355,18 +358,18 @@ export class WebApp
             this._koa.use(cors());    
     }
     
-    private configureEda(): void
-    {
-        if (this._edaConfig)
-        {
-            this._edaManager = new EdaManager(this._edaConfig);
+    // private configureEda(): void
+    // {
+    //     if (this._edaConfig)
+    //     {
+    //         this._edaManager = new EdaManager(this._edaConfig);
 
-            this._container.registerInstance(this._edaManager.eventBusKey, this._edaManager.eventBus);
-            this._container.registerInstance(this._edaManager.eventSubMgrKey, this._edaManager.eventSubMgr);
+    //         this._container.registerInstance(this._edaManager.eventBusKey, this._edaManager.eventBus);
+    //         this._container.registerInstance(this._edaManager.eventSubMgrKey, this._edaManager.eventSubMgr);
             
-            this.registerDisposeAction(() => this._edaManager.dispose());
-        }
-    }
+    //         this.registerDisposeAction(() => this._edaManager.dispose());
+    //     }
+    // }
     
     private configureContainer(): void
     { 
