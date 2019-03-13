@@ -20,13 +20,6 @@ import { DefaultAuthorizationHandler } from "./security/default-authorization-ha
 import { authorize } from "./security/authorize";
 
 
-
-import { Job } from "./jobs/job";
-import { TimedJob } from "./jobs/timed-job";
-
-
-
-
 export
 {
     WebApp, 
@@ -41,7 +34,5 @@ export
     
     CallContext,
     
-    AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize,
-
-    Job, TimedJob
+    AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize
 };

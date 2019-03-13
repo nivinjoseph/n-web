@@ -22,7 +22,6 @@ import * as koaWebpack from "koa-webpack";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
-import { Job } from "./jobs/job";
 // import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
@@ -42,8 +41,8 @@ export class WebApp
         
     // private _backgroundProcessor: BackgroundProcessor;
 
-    private readonly _jobRegistrations = new Array<Function>();
-    private readonly _jobInstances = new Array<Job>();
+    // private readonly _jobRegistrations = new Array<Function>();
+    // private readonly _jobInstances = new Array<Job>();
     
     private readonly _exceptionHandlerKey = "$exceptionHandler";
     private _hasExceptionHandler = false;
@@ -160,14 +159,14 @@ export class WebApp
     //     return this;
     // }
 
-    public registerJobs(...jobClasses: Function[]): this
-    {
-        if (this._isBootstrapped)
-            throw new InvalidOperationException("registerJobs");
+    // public registerJobs(...jobClasses: Function[]): this
+    // {
+    //     if (this._isBootstrapped)
+    //         throw new InvalidOperationException("registerJobs");
         
-        this._jobRegistrations.push(...jobClasses);
-        return this;
-    }
+    //     this._jobRegistrations.push(...jobClasses);
+    //     return this;
+    // }
     
     public useLogger(logger: Logger): this
     {
@@ -322,7 +321,7 @@ export class WebApp
         this.configureCors();
         // this.configureEda();
         this.configureContainer();
-        this.initializeJobs();
+        // this.initializeJobs();
         
         // this is the request response pipeline START
         this.configureScoping(); // must be first
@@ -375,7 +374,7 @@ export class WebApp
     { 
         this._container.registerScoped(this._callContextKey, DefaultCallContext);
 
-        this._jobRegistrations.forEach(jobClass => this._container.registerSingleton((<Object>jobClass).getTypeName(), jobClass));
+        // this._jobRegistrations.forEach(jobClass => this._container.registerSingleton((<Object>jobClass).getTypeName(), jobClass));
         
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
@@ -388,11 +387,11 @@ export class WebApp
         this.registerDisposeAction(() => this._container.dispose());
     }
     
-    private initializeJobs(): void
-    {
-        this._jobRegistrations.forEach(jobClass =>
-            this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
-    }
+    // private initializeJobs(): void
+    // {
+    //     this._jobRegistrations.forEach(jobClass =>
+    //         this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
+    // }
     
     // this is the first
     private configureScoping(): void
