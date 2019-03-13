@@ -8,8 +8,6 @@ export declare class WebApp {
     private readonly _container;
     private readonly _router;
     private readonly _callContextKey;
-    private readonly _jobRegistrations;
-    private readonly _jobInstances;
     private readonly _exceptionHandlerKey;
     private _hasExceptionHandler;
     private readonly _authenticationHandlerKey;
@@ -30,7 +28,6 @@ export declare class WebApp {
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
-    registerJobs(...jobClasses: Function[]): this;
     useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
@@ -42,7 +39,6 @@ export declare class WebApp {
     bootstrap(): void;
     private configureCors;
     private configureContainer;
-    private initializeJobs;
     private configureScoping;
     private configureCallContext;
     private configureExceptionHandling;

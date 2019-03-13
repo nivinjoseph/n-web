@@ -32,8 +32,6 @@ const Http = require("http");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
-        this._jobRegistrations = new Array();
-        this._jobInstances = new Array();
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
         this._authenticationHandlerKey = "$authenticationHandler";
@@ -87,12 +85,6 @@ class WebApp {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerControllers");
         this._router.registerControllers(...controllerClasses);
-        return this;
-    }
-    registerJobs(...jobClasses) {
-        if (this._isBootstrapped)
-            throw new n_exception_1.InvalidOperationException("registerJobs");
-        this._jobRegistrations.push(...jobClasses);
         return this;
     }
     useLogger(logger) {
@@ -177,7 +169,6 @@ class WebApp {
             this._logger = new n_log_1.ConsoleLogger();
         this.configureCors();
         this.configureContainer();
-        this.initializeJobs();
         this.configureScoping();
         this.configureCallContext();
         this.configureExceptionHandling();
@@ -205,16 +196,12 @@ class WebApp {
     }
     configureContainer() {
         this._container.registerScoped(this._callContextKey, default_call_context_1.DefaultCallContext);
-        this._jobRegistrations.forEach(jobClass => this._container.registerSingleton(jobClass.getTypeName(), jobClass));
         if (!this._hasAuthorizationHandler)
             this._container.registerScoped(this._authorizationHandlerKey, default_authorization_handler_1.DefaultAuthorizationHandler);
         if (!this._hasExceptionHandler)
             this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
         this.registerDisposeAction(() => this._container.dispose());
-    }
-    initializeJobs() {
-        this._jobRegistrations.forEach(jobClass => this._jobInstances.push(this._container.resolve(jobClass.getTypeName())));
     }
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {

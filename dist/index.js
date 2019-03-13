@@ -29,6 +29,4 @@ const default_authorization_handler_1 = require("./security/default-authorizatio
 exports.DefaultAuthorizationHandler = default_authorization_handler_1.DefaultAuthorizationHandler;
 const authorize_1 = require("./security/authorize");
 exports.authorize = authorize_1.authorize;
-const timed_job_1 = require("./jobs/timed-job");
-exports.TimedJob = timed_job_1.TimedJob;
 //# sourceMappingURL=index.js.map

@@ -15,6 +15,4 @@ import { AuthenticationHandler } from "./security/authentication-handler";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
 import { authorize } from "./security/authorize";
-import { Job } from "./jobs/job";
-import { TimedJob } from "./jobs/timed-job";
-export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize, Job, TimedJob };
+export { WebApp, Controller, route, httpGet, httpPost, httpPut, httpDelete, query, command, view, viewLayout, Utils, HttpException, ExceptionHandler, DefaultExceptionHandler, CallContext, AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize };
