@@ -22,6 +22,7 @@ import * as koaWebpack from "koa-webpack";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
+import { ApplicationScript } from "./application-script";
 // import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
@@ -55,6 +56,12 @@ export class WebApp
     private _hasAuthorizationHandler = false;
     
     private _logger: Logger;
+    
+    private readonly _startupScriptKey = "$startupScript";
+    private _hasStartupScript = false;
+    
+    private readonly _shutdownScriptKey = "$shutdownScript";
+    private _hasShutdownScript = false;
     
     
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
@@ -189,6 +196,30 @@ export class WebApp
         return this;
     }
     
+    public registerStartupScript(applicationScriptClass: Function): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerStartupScript");
+        
+        given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        
+        this._container.registerSingleton(this._startupScriptKey, applicationScriptClass);
+        this._hasStartupScript = true;
+        return this;
+    }
+    
+    public registerShutdownScript(applicationScriptClass: Function): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("registerShutdownScript");
+
+        given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        
+        this._container.registerSingleton(this._shutdownScriptKey, applicationScriptClass);
+        this._hasShutdownScript = true;
+        return this;
+    }
+    
     public registerExceptionHandler(exceptionHandlerClass: Function): this
     {
         if (this._isBootstrapped)
@@ -293,14 +324,18 @@ export class WebApp
                         .then(() => resolve())
                         .catch((e) =>
                         {
-                            // tslint:disable-next-line
-                            this._logger.logError(e).then(() => resolve());
+                            console.error(e);
+                            resolve();
+                            // // tslint:disable-next-line
+                            // this._logger.logError(e).then(() => resolve());
                         });
                 }
                 catch (error)
                 {
-                    // tslint:disable-next-line
-                    this._logger.logError(error).then(() => resolve());
+                    console.error(error);
+                    resolve();
+                    // // tslint:disable-next-line
+                    // this._logger.logError(error).then(() => resolve());
                 }
             });
         });
@@ -322,32 +357,40 @@ export class WebApp
         // this.configureEda();
         this.configureContainer();
         // this.initializeJobs();
-        
-        // this is the request response pipeline START
-        this.configureScoping(); // must be first
-        this.configureCallContext();
-        this.configureExceptionHandling();
-        this.configureErrorTrapping();
-        this.configureAuthentication();
-        this.configureStaticFileServing();
-        this.configureBodyParser();
-        this.configureRouting(); // must be last
-        // this is the request response pipeline END
-        
-        const appEnv = ConfigurationManager.getConfig<string>("env");
-        const appName = ConfigurationManager.getConfig<string>("appInfo.name");
-        const appVersion = ConfigurationManager.getConfig<string>("appInfo.version");
-        const appDescription = ConfigurationManager.getConfig<string>("appInfo.description");
-        
-        console.log("SERVER STARTING.");
-        console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-        this._server = Http.createServer(this._koa.callback());
-        this._server.listen(this._port, this._host);
-        this.configureWebPackDevMiddleware();
-        this.configureShutDown();
-        
-        this._isBootstrapped = true;
-        console.log("SERVER STARTED.");
+        this.configureStartup()
+            .then(() =>
+            {
+                // this is the request response pipeline START
+                this.configureScoping(); // must be first
+                this.configureCallContext();
+                this.configureExceptionHandling();
+                this.configureErrorTrapping();
+                this.configureAuthentication();
+                this.configureStaticFileServing();
+                this.configureBodyParser();
+                this.configureRouting(); // must be last
+                // this is the request response pipeline END
+
+                const appEnv = ConfigurationManager.getConfig<string>("env");
+                const appName = ConfigurationManager.getConfig<string>("appInfo.name");
+                const appVersion = ConfigurationManager.getConfig<string>("appInfo.version");
+                const appDescription = ConfigurationManager.getConfig<string>("appInfo.description");
+
+                console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
+                this._server = Http.createServer(this._koa.callback());
+                this._server.listen(this._port, this._host);
+                this.configureWebPackDevMiddleware();
+                this.configureShutDown();
+
+                this._isBootstrapped = true;
+                console.log("SERVER STARTED.");
+            })
+            .catch(e =>
+            {
+                console.error("STARTUP FAILED!!!");
+                console.error(e);
+                throw e;
+            });
     }
     
     
@@ -385,6 +428,16 @@ export class WebApp
         this._container.bootstrap();
         
         this.registerDisposeAction(() => this._container.dispose());
+    }
+    
+    private configureStartup(): Promise<void>
+    {
+        console.log("SERVER STARTING.");
+        
+        if (!this._hasStartupScript)
+            return Promise.resolve();
+        
+        return this._container.resolve<ApplicationScript>(this._startupScriptKey).run();
     }
     
     // private initializeJobs(): void
@@ -636,17 +689,51 @@ export class WebApp
             {
                 console.log(`SERVER STOPPING (${signal}).`);
                 
-                Promise.all(this._disposeActions.map(t => t()))
+                const shutDownScriptPromise = !this._hasShutdownScript
+                    ? Promise.resolve()
+                    : (() =>
+                    {
+                        return new Promise<void>((resolve) =>
+                        {
+                            try 
+                            {
+                                this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
+                                    .then(() => resolve())
+                                    .catch((e) =>
+                                    {
+                                        console.error(e);
+                                        resolve();
+                                        // // tslint:disable-next-line
+                                        // this._logger.logError(e).then(() => resolve());
+                                    });
+                            }
+                            catch (error)
+                            {
+                                console.error(error);
+                                resolve();
+                                
+                                // tslint:disable-next-line
+                                // this._logger.logError(error).then(() => resolve());
+                            }
+                        });
+                    })();
+                
+                // tslint:disable-next-line
+                shutDownScriptPromise
                     .then(() =>
                     {
-                        console.log(`SERVER STOPPED (${signal}).`);
-                        process.exit(0);
-                    })
-                    .catch((e) =>
-                    {
-                        // this will never happen because of how disposeActions work
-                        console.error(e);
-                        process.exit(1);
+                        Promise.all(this._disposeActions.map(t => t()))
+                            .then(() =>
+                            {
+                                console.log(`SERVER STOPPED (${signal}).`);
+                                process.exit(0);
+                            })
+                            .catch((e) =>
+                            {
+                                // this will never happen because of how disposeActions work
+                                console.error(e);
+                                process.exit(1);
+                            });
                     });
             });
         };

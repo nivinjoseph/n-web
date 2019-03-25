@@ -14,6 +14,8 @@ import { DefaultExceptionHandler } from "./exceptions/default-exception-handler"
 
 import { CallContext } from "./services/call-context/call-context";
 
+import { ApplicationScript } from "./application-script";
+
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
@@ -33,6 +35,8 @@ export
     HttpException, ExceptionHandler, DefaultExceptionHandler,
     
     CallContext,
+    
+    ApplicationScript,
     
     AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize
 };
