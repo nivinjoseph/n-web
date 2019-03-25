@@ -39,6 +39,10 @@ class WebApp {
         this._authHeaders = ["authorization"];
         this._authorizationHandlerKey = "$authorizationHandler";
         this._hasAuthorizationHandler = false;
+        this._startupScriptKey = "$startupScript";
+        this._hasStartupScript = false;
+        this._shutdownScriptKey = "$shutdownScript";
+        this._hasShutdownScript = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._webPackDevMiddlewarePublicPath = null;
@@ -101,6 +105,22 @@ class WebApp {
         this._container.install(installer);
         return this;
     }
+    registerStartupScript(applicationScriptClass) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerStartupScript");
+        n_defensive_1.given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        this._container.registerSingleton(this._startupScriptKey, applicationScriptClass);
+        this._hasStartupScript = true;
+        return this;
+    }
+    registerShutdownScript(applicationScriptClass) {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("registerShutdownScript");
+        n_defensive_1.given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        this._container.registerSingleton(this._shutdownScriptKey, applicationScriptClass);
+        this._hasShutdownScript = true;
+        return this;
+    }
     registerExceptionHandler(exceptionHandlerClass) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerExceptionHandler");
@@ -152,11 +172,13 @@ class WebApp {
                     disposeAction()
                         .then(() => resolve())
                         .catch((e) => {
-                        this._logger.logError(e).then(() => resolve());
+                        console.error(e);
+                        resolve();
                     });
                 }
                 catch (error) {
-                    this._logger.logError(error).then(() => resolve());
+                    console.error(error);
+                    resolve();
                 }
             });
         });
@@ -169,26 +191,33 @@ class WebApp {
             this._logger = new n_log_1.ConsoleLogger();
         this.configureCors();
         this.configureContainer();
-        this.configureScoping();
-        this.configureCallContext();
-        this.configureExceptionHandling();
-        this.configureErrorTrapping();
-        this.configureAuthentication();
-        this.configureStaticFileServing();
-        this.configureBodyParser();
-        this.configureRouting();
-        const appEnv = n_config_1.ConfigurationManager.getConfig("env");
-        const appName = n_config_1.ConfigurationManager.getConfig("appInfo.name");
-        const appVersion = n_config_1.ConfigurationManager.getConfig("appInfo.version");
-        const appDescription = n_config_1.ConfigurationManager.getConfig("appInfo.description");
-        console.log("SERVER STARTING.");
-        console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-        this._server = Http.createServer(this._koa.callback());
-        this._server.listen(this._port, this._host);
-        this.configureWebPackDevMiddleware();
-        this.configureShutDown();
-        this._isBootstrapped = true;
-        console.log("SERVER STARTED.");
+        this.configureStartup()
+            .then(() => {
+            this.configureScoping();
+            this.configureCallContext();
+            this.configureExceptionHandling();
+            this.configureErrorTrapping();
+            this.configureAuthentication();
+            this.configureStaticFileServing();
+            this.configureBodyParser();
+            this.configureRouting();
+            const appEnv = n_config_1.ConfigurationManager.getConfig("env");
+            const appName = n_config_1.ConfigurationManager.getConfig("appInfo.name");
+            const appVersion = n_config_1.ConfigurationManager.getConfig("appInfo.version");
+            const appDescription = n_config_1.ConfigurationManager.getConfig("appInfo.description");
+            console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
+            this._server = Http.createServer(this._koa.callback());
+            this._server.listen(this._port, this._host);
+            this.configureWebPackDevMiddleware();
+            this.configureShutDown();
+            this._isBootstrapped = true;
+            console.log("SERVER STARTED.");
+        })
+            .catch(e => {
+            console.error("STARTUP FAILED!!!");
+            console.error(e);
+            throw e;
+        });
     }
     configureCors() {
         if (this._enableCors)
@@ -202,6 +231,12 @@ class WebApp {
             this._container.registerInstance(this._exceptionHandlerKey, new default_exception_handler_1.DefaultExceptionHandler(this._logger));
         this._container.bootstrap();
         this.registerDisposeAction(() => this._container.dispose());
+    }
+    configureStartup() {
+        console.log("SERVER STARTING.");
+        if (!this._hasStartupScript)
+            return Promise.resolve();
+        return this._container.resolve(this._startupScriptKey).run();
     }
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
@@ -322,14 +357,35 @@ class WebApp {
         const shutDown = (signal) => {
             this._server.close(() => {
                 console.log(`SERVER STOPPING (${signal}).`);
-                Promise.all(this._disposeActions.map(t => t()))
+                const shutDownScriptPromise = !this._hasShutdownScript
+                    ? Promise.resolve()
+                    : (() => {
+                        return new Promise((resolve) => {
+                            try {
+                                this._container.resolve(this._shutdownScriptKey).run()
+                                    .then(() => resolve())
+                                    .catch((e) => {
+                                    console.error(e);
+                                    resolve();
+                                });
+                            }
+                            catch (error) {
+                                console.error(error);
+                                resolve();
+                            }
+                        });
+                    })();
+                shutDownScriptPromise
                     .then(() => {
-                    console.log(`SERVER STOPPED (${signal}).`);
-                    process.exit(0);
-                })
-                    .catch((e) => {
-                    console.error(e);
-                    process.exit(1);
+                    Promise.all(this._disposeActions.map(t => t()))
+                        .then(() => {
+                        console.log(`SERVER STOPPED (${signal}).`);
+                        process.exit(0);
+                    })
+                        .catch((e) => {
+                        console.error(e);
+                        process.exit(1);
+                    });
                 });
             });
         };

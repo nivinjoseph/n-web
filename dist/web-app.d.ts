@@ -16,6 +16,10 @@ export declare class WebApp {
     private readonly _authorizationHandlerKey;
     private _hasAuthorizationHandler;
     private _logger;
+    private readonly _startupScriptKey;
+    private _hasStartupScript;
+    private readonly _shutdownScriptKey;
+    private _hasShutdownScript;
     private readonly _staticFilePaths;
     private _enableCors;
     private _viewResolutionRoot;
@@ -30,6 +34,8 @@ export declare class WebApp {
     registerControllers(...controllerClasses: Function[]): this;
     useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
+    registerStartupScript(applicationScriptClass: Function): this;
+    registerShutdownScript(applicationScriptClass: Function): this;
     registerExceptionHandler(exceptionHandlerClass: Function): this;
     registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
@@ -39,6 +45,7 @@ export declare class WebApp {
     bootstrap(): void;
     private configureCors;
     private configureContainer;
+    private configureStartup;
     private configureScoping;
     private configureCallContext;
     private configureExceptionHandling;
