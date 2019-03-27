@@ -359,22 +359,20 @@ class WebApp {
                 console.log(`SERVER STOPPING (${signal}).`);
                 const shutDownScriptPromise = !this._hasShutdownScript
                     ? Promise.resolve()
-                    : (() => {
-                        return new Promise((resolve) => {
-                            try {
-                                this._container.resolve(this._shutdownScriptKey).run()
-                                    .then(() => resolve())
-                                    .catch((e) => {
-                                    console.error(e);
-                                    resolve();
-                                });
-                            }
-                            catch (error) {
-                                console.error(error);
+                    : new Promise((resolve) => {
+                        try {
+                            this._container.resolve(this._shutdownScriptKey).run()
+                                .then(() => resolve())
+                                .catch((e) => {
+                                console.error(e);
                                 resolve();
-                            }
-                        });
-                    })();
+                            });
+                        }
+                        catch (error) {
+                            console.error(error);
+                            resolve();
+                        }
+                    });
                 shutDownScriptPromise
                     .then(() => {
                     Promise.all(this._disposeActions.map(t => t()))
