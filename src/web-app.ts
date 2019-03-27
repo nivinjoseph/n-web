@@ -691,32 +691,24 @@ export class WebApp
                 
                 const shutDownScriptPromise = !this._hasShutdownScript
                     ? Promise.resolve()
-                    : (() =>
+                    : new Promise<void>((resolve) =>
                     {
-                        return new Promise<void>((resolve) =>
+                        try 
                         {
-                            try 
-                            {
-                                this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
-                                    .then(() => resolve())
-                                    .catch((e) =>
-                                    {
-                                        console.error(e);
-                                        resolve();
-                                        // // tslint:disable-next-line
-                                        // this._logger.logError(e).then(() => resolve());
-                                    });
-                            }
-                            catch (error)
-                            {
-                                console.error(error);
-                                resolve();
-                                
-                                // tslint:disable-next-line
-                                // this._logger.logError(error).then(() => resolve());
-                            }
-                        });
-                    })();
+                            this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
+                                .then(() => resolve())
+                                .catch((e) =>
+                                {
+                                    console.error(e);
+                                    resolve();
+                                });
+                        }
+                        catch (error)
+                        {
+                            console.error(error);
+                            resolve();
+                        }
+                    });
                 
                 // tslint:disable-next-line
                 shutDownScriptPromise
