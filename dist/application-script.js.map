@@ -1,1 +1,1 @@
-{"version":3,"file":"application-script.js","sourceRoot":"","sources":["../src/application-script.ts"],"names":[],"mappings":"","sourcesContent":["export interface ApplicationScript\n{\n    run(): Promise<void>;\n}"]}
+{"version":3,"file":"application-script.js","sourceRoot":"","sources":["../src/application-script.ts"],"names":[],"mappings":""}

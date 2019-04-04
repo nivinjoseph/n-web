@@ -1,1 +1,1 @@
-{"version":3,"file":"exception-handler.js","sourceRoot":"","sources":["../../src/exceptions/exception-handler.ts"],"names":[],"mappings":"","sourcesContent":["import { Exception } from \"@nivinjoseph/n-exception\";\n\n// public\nexport interface  ExceptionHandler\n{\n    handle(exp: Exception): Promise<any>;\n}"]}
+{"version":3,"file":"exception-handler.js","sourceRoot":"","sources":["../../src/exceptions/exception-handler.ts"],"names":[],"mappings":""}
