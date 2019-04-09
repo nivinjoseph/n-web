@@ -698,66 +698,96 @@ export class WebApp
             
             this._isShutDown = true;
             
-            this._server.close(() =>
+            this._server.close(async () =>
             {
                 console.log(`SERVER STOPPING (${signal}).`);
                 
-                const shutDownScriptPromise = !this._hasShutdownScript
-                    ? Promise.resolve()
-                    : new Promise<void>((resolve) =>
+                if (this._hasShutdownScript)
+                {
+                    console.log("Shutdown script executing.");
+                    try 
                     {
-                        try 
-                        {
-                            console.log("Shutdown script executing.");
-                            this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
-                                .then(() =>
-                                {
-                                    console.log("Shutdown script complete.");
-                                    resolve();
-                                })
-                                .catch((e) =>
-                                {
-                                    console.warn("Shutdown script error.");
-                                    console.error(e);
-                                    resolve();
-                                });
-                        }
-                        catch (error)
-                        {
-                            console.warn("Shutdown script error.");
-                            console.error(error);
-                            resolve();
-                        }
-                    });
+                        await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();    
+                        console.log("Shutdown script complete.");
+                    }
+                    catch (error)
+                    {
+                        console.warn("Shutdown script error.");
+                        console.error(error);
+                    }
+                }
                 
-                // tslint:disable-next-line
-                shutDownScriptPromise
-                    .then(() =>
-                    {
-                        console.log("Dispose actions executing.");
-                        return Promise.all(this._disposeActions.map(t => t()))
-                            .then(() =>
-                            {
-                                console.log("Dispose actions complete.");
-                            })
-                            .catch((e) =>
-                            {
-                                // this will never happen because of how disposeActions work
-                                console.log("Dispose actions error.");
-                                console.error(e);
-                            });
-                    })
-                    .then(() =>
-                    {
-                        console.log(`SERVER STOPPED (${signal}).`);
-                        process.exit(0);
-                    })
-                    .catch((e) =>
-                    {
-                        console.error(e);
-                        console.log(`SERVER STOPPED (${signal}).`);
-                        process.exit(1);
-                    });
+                console.log("Dispose actions executing.");
+                try
+                {
+                    await Promise.all(this._disposeActions.map(t => t()));
+                    console.log("Dispose actions complete.");
+                }
+                catch (error)
+                {
+                    console.log("Dispose actions error.");
+                    console.error(error);
+                }
+                
+                console.log(`SERVER STOPPED (${signal}).`);
+                process.exit(0);
+                
+                // const shutDownScriptPromise = !this._hasShutdownScript
+                //     ? Promise.resolve()
+                //     : new Promise<void>((resolve) =>
+                //     {
+                //         try 
+                //         {
+                //             console.log("Shutdown script executing.");
+                //             this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
+                //                 .then(() =>
+                //                 {
+                //                     console.log("Shutdown script complete.");
+                //                     resolve();
+                //                 })
+                //                 .catch((e) =>
+                //                 {
+                //                     console.warn("Shutdown script error.");
+                //                     console.error(e);
+                //                     resolve();
+                //                 });
+                //         }
+                //         catch (error)
+                //         {
+                //             console.warn("Shutdown script error.");
+                //             console.error(error);
+                //             resolve();
+                //         }
+                //     });
+                
+                // // tslint:disable-next-line
+                // shutDownScriptPromise
+                //     .then(() =>
+                //     {
+                //         console.log("Dispose actions executing.");
+                //         return Promise.all(this._disposeActions.map(t => t()))
+                //             .then(() =>
+                //             {
+                //                 console.log("Dispose actions complete.");
+                //             })
+                //             .catch((e) =>
+                //             {
+                //                 // this will never happen because of how disposeActions work
+                //                 console.log("Dispose actions error.");
+                //                 console.error(e);
+                //             });
+                //     })
+                //     .then(() =>
+                //     {
+                //         console.log(`SERVER STOPPED (${signal}).`);
+                //         process.exit(0);
+                //     })
+                //     .catch((e) =>
+                //     {
+                //         console.error(e);
+                //         console.log(`SERVER STOPPED (${signal}).`);
+                //         process.exit(1);
+                //     });
             });
         };
         
