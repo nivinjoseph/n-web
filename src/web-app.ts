@@ -691,104 +691,85 @@ export class WebApp
             return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
         });
         
-        const shutDown = (signal: string) =>
+        const shutDown = async (signal: string) =>
         {
             if (this._isShutDown)
                 return;
             
             this._isShutDown = true;
             
-            this._server.close(async () =>
+            
+            console.warn(`SERVER STOPPING (${signal}).`);
+
+            if (this._hasShutdownScript)
             {
-                console.log(`SERVER STOPPING (${signal}).`);
-                
-                if (this._hasShutdownScript)
+                console.log("Shutdown script executing.");
+                try 
                 {
-                    console.log("Shutdown script executing.");
-                    try 
-                    {
-                        await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();    
-                        console.log("Shutdown script complete.");
-                    }
-                    catch (error)
-                    {
-                        console.warn("Shutdown script error.");
-                        console.error(error);
-                    }
-                }
-                
-                console.log("Dispose actions executing.");
-                try
-                {
-                    await Promise.all(this._disposeActions.map(t => t()));
-                    console.log("Dispose actions complete.");
+                    await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
+                    console.log("Shutdown script complete.");
                 }
                 catch (error)
                 {
-                    console.log("Dispose actions error.");
+                    console.warn("Shutdown script error.");
                     console.error(error);
                 }
-                
-                console.log(`SERVER STOPPED (${signal}).`);
+            }
+
+            console.log("Dispose actions executing.");
+            try
+            {
+                await Promise.all(this._disposeActions.map(t => t()));
+                console.log("Dispose actions complete.");
+            }
+            catch (error)
+            {
+                console.warn("Dispose actions error.");
+                console.error(error);
+            }
+
+            this._server.close(() =>
+            {
+                console.warn(`SERVER STOPPED (${signal}).`);
                 process.exit(0);
-                
-                // const shutDownScriptPromise = !this._hasShutdownScript
-                //     ? Promise.resolve()
-                //     : new Promise<void>((resolve) =>
-                //     {
-                //         try 
-                //         {
-                //             console.log("Shutdown script executing.");
-                //             this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
-                //                 .then(() =>
-                //                 {
-                //                     console.log("Shutdown script complete.");
-                //                     resolve();
-                //                 })
-                //                 .catch((e) =>
-                //                 {
-                //                     console.warn("Shutdown script error.");
-                //                     console.error(e);
-                //                     resolve();
-                //                 });
-                //         }
-                //         catch (error)
-                //         {
-                //             console.warn("Shutdown script error.");
-                //             console.error(error);
-                //             resolve();
-                //         }
-                //     });
-                
-                // // tslint:disable-next-line
-                // shutDownScriptPromise
-                //     .then(() =>
-                //     {
-                //         console.log("Dispose actions executing.");
-                //         return Promise.all(this._disposeActions.map(t => t()))
-                //             .then(() =>
-                //             {
-                //                 console.log("Dispose actions complete.");
-                //             })
-                //             .catch((e) =>
-                //             {
-                //                 // this will never happen because of how disposeActions work
-                //                 console.log("Dispose actions error.");
-                //                 console.error(e);
-                //             });
-                //     })
-                //     .then(() =>
-                //     {
-                //         console.log(`SERVER STOPPED (${signal}).`);
-                //         process.exit(0);
-                //     })
-                //     .catch((e) =>
-                //     {
-                //         console.error(e);
-                //         console.log(`SERVER STOPPED (${signal}).`);
-                //         process.exit(1);
-                //     });
             });
+            
+            
+            
+            // this._server.close(async () =>
+            // {
+            //     console.log(`SERVER STOPPING (${signal}).`);
+                
+            //     if (this._hasShutdownScript)
+            //     {
+            //         console.log("Shutdown script executing.");
+            //         try 
+            //         {
+            //             await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();    
+            //             console.log("Shutdown script complete.");
+            //         }
+            //         catch (error)
+            //         {
+            //             console.warn("Shutdown script error.");
+            //             console.error(error);
+            //         }
+            //     }
+                
+            //     console.log("Dispose actions executing.");
+            //     try
+            //     {
+            //         await Promise.all(this._disposeActions.map(t => t()));
+            //         console.log("Dispose actions complete.");
+            //     }
+            //     catch (error)
+            //     {
+            //         console.log("Dispose actions error.");
+            //         console.error(error);
+            //     }
+                
+            //     console.log(`SERVER STOPPED (${signal}).`);
+            //     process.exit(0);
+            // });
         };
         
         process.on("SIGTERM", () => shutDown("SIGTERM"));
