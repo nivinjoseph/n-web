@@ -691,85 +691,47 @@ export class WebApp
             return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
         });
         
-        const shutDown = async (signal: string) =>
+        const shutDown = (signal: string) =>
         {
             if (this._isShutDown)
                 return;
             
             this._isShutDown = true;
-            
-            
-            console.warn(`SERVER STOPPING (${signal}).`);
-
-            if (this._hasShutdownScript)
+                       
+            this._server.close(async () =>
             {
-                console.log("Shutdown script executing.");
-                try 
+                console.warn(`SERVER STOPPING (${signal}).`);
+                
+                if (this._hasShutdownScript)
                 {
-                    await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
-                    console.log("Shutdown script complete.");
+                    console.log("Shutdown script executing.");
+                    try 
+                    {
+                        await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();    
+                        console.log("Shutdown script complete.");
+                    }
+                    catch (error)
+                    {
+                        console.warn("Shutdown script error.");
+                        console.error(error);
+                    }
+                }
+                
+                console.log("Dispose actions executing.");
+                try
+                {
+                    await Promise.all(this._disposeActions.map(t => t()));
+                    console.log("Dispose actions complete.");
                 }
                 catch (error)
                 {
-                    console.warn("Shutdown script error.");
+                    console.warn("Dispose actions error.");
                     console.error(error);
                 }
-            }
-
-            console.log("Dispose actions executing.");
-            try
-            {
-                await Promise.all(this._disposeActions.map(t => t()));
-                console.log("Dispose actions complete.");
-            }
-            catch (error)
-            {
-                console.warn("Dispose actions error.");
-                console.error(error);
-            }
-
-            this._server.close(() =>
-            {
+                
                 console.warn(`SERVER STOPPED (${signal}).`);
                 process.exit(0);
             });
-            
-            
-            
-            // this._server.close(async () =>
-            // {
-            //     console.log(`SERVER STOPPING (${signal}).`);
-                
-            //     if (this._hasShutdownScript)
-            //     {
-            //         console.log("Shutdown script executing.");
-            //         try 
-            //         {
-            //             await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();    
-            //             console.log("Shutdown script complete.");
-            //         }
-            //         catch (error)
-            //         {
-            //             console.warn("Shutdown script error.");
-            //             console.error(error);
-            //         }
-            //     }
-                
-            //     console.log("Dispose actions executing.");
-            //     try
-            //     {
-            //         await Promise.all(this._disposeActions.map(t => t()));
-            //         console.log("Dispose actions complete.");
-            //     }
-            //     catch (error)
-            //     {
-            //         console.log("Dispose actions error.");
-            //         console.error(error);
-            //     }
-                
-            //     console.log(`SERVER STOPPED (${signal}).`);
-            //     process.exit(0);
-            // });
         };
         
         process.on("SIGTERM", () => shutDown("SIGTERM"));
