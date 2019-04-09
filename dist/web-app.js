@@ -359,36 +359,36 @@ class WebApp {
             console.log("CLEANING UP. PLEASE WAIT...");
             return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 20);
         });
-        const shutDown = (signal) => {
+        const shutDown = (signal) => __awaiter(this, void 0, void 0, function* () {
             if (this._isShutDown)
                 return;
             this._isShutDown = true;
-            this._server.close(() => __awaiter(this, void 0, void 0, function* () {
-                console.log(`SERVER STOPPING (${signal}).`);
-                if (this._hasShutdownScript) {
-                    console.log("Shutdown script executing.");
-                    try {
-                        yield this._container.resolve(this._shutdownScriptKey).run();
-                        console.log("Shutdown script complete.");
-                    }
-                    catch (error) {
-                        console.warn("Shutdown script error.");
-                        console.error(error);
-                    }
-                }
-                console.log("Dispose actions executing.");
+            console.warn(`SERVER STOPPING (${signal}).`);
+            if (this._hasShutdownScript) {
+                console.log("Shutdown script executing.");
                 try {
-                    yield Promise.all(this._disposeActions.map(t => t()));
-                    console.log("Dispose actions complete.");
+                    yield this._container.resolve(this._shutdownScriptKey).run();
+                    console.log("Shutdown script complete.");
                 }
                 catch (error) {
-                    console.log("Dispose actions error.");
+                    console.warn("Shutdown script error.");
                     console.error(error);
                 }
-                console.log(`SERVER STOPPED (${signal}).`);
+            }
+            console.log("Dispose actions executing.");
+            try {
+                yield Promise.all(this._disposeActions.map(t => t()));
+                console.log("Dispose actions complete.");
+            }
+            catch (error) {
+                console.warn("Dispose actions error.");
+                console.error(error);
+            }
+            this._server.close(() => {
+                console.warn(`SERVER STOPPED (${signal}).`);
                 process.exit(0);
-            }));
-        };
+            });
+        });
         process.on("SIGTERM", () => shutDown("SIGTERM"));
         process.on("SIGINT", () => shutDown("SIGINT"));
     }
