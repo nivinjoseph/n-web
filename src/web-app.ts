@@ -76,6 +76,8 @@ export class WebApp
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
     
+    private _isShutDown = false;
+    
     
     public get containerRegistry(): Registry { return this._container; }
     
@@ -451,6 +453,12 @@ export class WebApp
     {
         this._koa.use(async (ctx, next) =>
         {
+            if (this._isShutDown)
+            {
+                ctx.status = 503;
+                throw new Error("Server shutdown.");
+            }
+            
             ctx.state.scope = this._container.createScope();
             try 
             {
@@ -680,11 +688,16 @@ export class WebApp
         this.registerDisposeAction(() =>
         {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 10);
+            return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 30);
         });
         
         const shutDown = (signal: string) =>
         {
+            if (this._isShutDown)
+                return;
+            
+            this._isShutDown = true;
+            
             this._server.close(() =>
             {
                 console.log(`SERVER STOPPING (${signal}).`);
@@ -695,16 +708,23 @@ export class WebApp
                     {
                         try 
                         {
+                            console.log("Shutdown script executing.");
                             this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run()
-                                .then(() => resolve())
+                                .then(() =>
+                                {
+                                    console.log("Shutdown script complete.");
+                                    resolve();
+                                })
                                 .catch((e) =>
                                 {
+                                    console.warn("Shutdown script error.");
                                     console.error(e);
                                     resolve();
                                 });
                         }
                         catch (error)
                         {
+                            console.warn("Shutdown script error.");
                             console.error(error);
                             resolve();
                         }
@@ -714,18 +734,29 @@ export class WebApp
                 shutDownScriptPromise
                     .then(() =>
                     {
-                        Promise.all(this._disposeActions.map(t => t()))
+                        console.log("Dispose actions executing.");
+                        return Promise.all(this._disposeActions.map(t => t()))
                             .then(() =>
                             {
-                                console.log(`SERVER STOPPED (${signal}).`);
-                                process.exit(0);
+                                console.log("Dispose actions complete.");
                             })
                             .catch((e) =>
                             {
                                 // this will never happen because of how disposeActions work
+                                console.log("Dispose actions error.");
                                 console.error(e);
-                                process.exit(1);
                             });
+                    })
+                    .then(() =>
+                    {
+                        console.log(`SERVER STOPPED (${signal}).`);
+                        process.exit(0);
+                    })
+                    .catch((e) =>
+                    {
+                        console.error(e);
+                        console.log(`SERVER STOPPED (${signal}).`);
+                        process.exit(1);
                     });
             });
         };

@@ -1,1 +1,0 @@
-{"version":3,"file":"default-authorization-handler.js","sourceRoot":"","sources":["../../src/security/default-authorization-handler.ts"],"names":[],"mappings":";;AAKA,MAAa,2BAA2B;IAE7B,SAAS,CAAC,QAAwB,EAAE,eAAqC;QAE5E,OAAO,OAAO,CAAC,OAAO,CAAC,eAAe,CAAC,KAAK,CAAC,CAAC,CAAC,EAAE,CAAC,QAAQ,CAAC,QAAQ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;IAC7E,CAAC;CACJ;AAND,kEAMC"}
