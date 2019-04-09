@@ -357,7 +357,7 @@ class WebApp {
     configureShutDown() {
         this.registerDisposeAction(() => {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 30);
+            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 20);
         });
         const shutDown = (signal) => {
             if (this._isShutDown)
