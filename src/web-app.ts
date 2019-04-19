@@ -454,9 +454,10 @@ export class WebApp
         this._koa.use(async (ctx, next) =>
         {
             if (this._isShutDown)
-            {
-                ctx.status = 503;
-                throw new Error("Server shutdown.");
+            {    
+                ctx.response.status = 503;
+                ctx.response.body = "Server shutdown.";
+                return;
             }
             
             ctx.state.scope = this._container.createScope();
