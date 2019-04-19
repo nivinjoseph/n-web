@@ -242,8 +242,9 @@ class WebApp {
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             if (this._isShutDown) {
-                ctx.status = 503;
-                throw new Error("Server shutdown.");
+                ctx.response.status = 503;
+                ctx.response.body = "Server shutdown.";
+                return;
             }
             ctx.state.scope = this._container.createScope();
             try {
