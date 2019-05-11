@@ -1,4 +1,3 @@
-/// <reference types="koa-router" />
 import { CallContext } from "./call-context";
 import { Scope } from "@nivinjoseph/n-ject";
 import * as Koa from "koa";
