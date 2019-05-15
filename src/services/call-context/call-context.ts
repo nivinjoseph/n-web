@@ -1,11 +1,16 @@
 import { Scope } from "@nivinjoseph/n-ject";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
+import { URL } from "url";
 
 
 // public
 export interface CallContext
 {
     dependencyScope: Scope;
+    protocol: string;
+    isSecure: boolean;
+    href: string;
+    url: URL;
     pathParams: Object;
     queryParams: Object;
     hasAuth: boolean;

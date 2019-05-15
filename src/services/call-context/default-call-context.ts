@@ -4,6 +4,7 @@ import { given } from "@nivinjoseph/n-defensive";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import "@nivinjoseph/n-ext";
+import { URL } from "url";
 
 
 export class DefaultCallContext implements CallContext
@@ -16,6 +17,10 @@ export class DefaultCallContext implements CallContext
     
     
     public get dependencyScope(): Scope { return this._ctx.state.scope; }
+    public get protocol(): string { return this._ctx.request.protocol; }
+    public get isSecure(): boolean { return this._ctx.request.secure; }
+    public get href(): string { return this._ctx.request.href; }
+    public get url(): URL { return this._ctx.request.URL; }
     public get pathParams(): Object { return JSON.parse(JSON.stringify(this._ctx.params)); }
     public get queryParams(): Object { return JSON.parse(JSON.stringify(this._ctx.query)); }
     public get hasAuth(): boolean { return this._hasAuth; }
