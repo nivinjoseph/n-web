@@ -7,6 +7,10 @@ class DefaultCallContext {
         this._hasAuth = false;
     }
     get dependencyScope() { return this._ctx.state.scope; }
+    get protocol() { return this._ctx.request.protocol; }
+    get isSecure() { return this._ctx.request.secure; }
+    get href() { return this._ctx.request.href; }
+    get url() { return this._ctx.request.URL; }
     get pathParams() { return JSON.parse(JSON.stringify(this._ctx.params)); }
     get queryParams() { return JSON.parse(JSON.stringify(this._ctx.query)); }
     get hasAuth() { return this._hasAuth; }

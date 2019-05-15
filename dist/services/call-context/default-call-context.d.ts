@@ -1,8 +1,10 @@
+/// <reference types="node" />
 import { CallContext } from "./call-context";
 import { Scope } from "@nivinjoseph/n-ject";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import "@nivinjoseph/n-ext";
+import { URL } from "url";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _authHeaders;
@@ -10,6 +12,10 @@ export declare class DefaultCallContext implements CallContext {
     private _authScheme;
     private _authToken;
     readonly dependencyScope: Scope;
+    readonly protocol: string;
+    readonly isSecure: boolean;
+    readonly href: string;
+    readonly url: URL;
     readonly pathParams: Object;
     readonly queryParams: Object;
     readonly hasAuth: boolean;
