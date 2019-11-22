@@ -23,6 +23,7 @@ import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
+import { SocketServer } from "@nivinjoseph/n-sock";
 // import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
@@ -72,6 +73,10 @@ export class WebApp
     // private _webPackDevMiddlewareClientHost: string | null = null;
     // // @ts-ignore
     // private _webPackDevMiddlewareServerHost: string | null = null;    
+    
+    private _enableWebSockets = false;
+    private _socketServer: SocketServer | null = null;
+    
     private _disposeActions = new Array<() => Promise<void>>();
     private _server: Http.Server;
     private _isBootstrapped: boolean = false;
@@ -268,6 +273,15 @@ export class WebApp
         return this;
     }
     
+    public enableWebSockets(): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("enableWebSockets");
+        
+        this._enableWebSockets = true;
+        return this;
+    }
+    
     public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
@@ -380,6 +394,7 @@ export class WebApp
 
                 console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
                 this._server = Http.createServer(this._koa.callback());
+                this.configureWebSockets();
                 this._server.listen(this._port, this._host);
                 this.configureWebPackDevMiddleware();
                 this.configureShutDown();
@@ -615,6 +630,15 @@ export class WebApp
     private configureRouting(): void
     {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    
+    private configureWebSockets(): void
+    {
+        if (!this._enableWebSockets)
+            return;
+        
+        this._socketServer = new SocketServer(this._server);
+        this.registerDisposeAction(() => this._socketServer.dispose());
     }
     
     private configureWebPackDevMiddleware(): void
