@@ -24,6 +24,8 @@ export declare class WebApp {
     private _enableCors;
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
+    private _enableWebSockets;
+    private _socketServer;
     private _disposeActions;
     private _server;
     private _isBootstrapped;
@@ -41,6 +43,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
+    enableWebSockets(): this;
     enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
@@ -55,6 +58,7 @@ export declare class WebApp {
     private configureStaticFileServing;
     private configureBodyParser;
     private configureRouting;
+    private configureWebSockets;
     private configureWebPackDevMiddleware;
     private configureShutDown;
 }

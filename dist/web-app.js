@@ -29,6 +29,7 @@ const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
+const n_sock_1 = require("@nivinjoseph/n-sock");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
@@ -46,6 +47,8 @@ class WebApp {
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._webPackDevMiddlewarePublicPath = null;
+        this._enableWebSockets = false;
+        this._socketServer = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         this._isShutDown = false;
@@ -156,6 +159,12 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
+    enableWebSockets() {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableWebSockets");
+        this._enableWebSockets = true;
+        return this;
+    }
     enableWebPackDevMiddleware(publicPath = "/") {
         n_defensive_1.given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         if (this._isBootstrapped)
@@ -208,6 +217,7 @@ class WebApp {
             const appDescription = n_config_1.ConfigurationManager.getConfig("appInfo.description");
             console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
             this._server = Http.createServer(this._koa.callback());
+            this.configureWebSockets();
             this._server.listen(this._port, this._host);
             this.configureWebPackDevMiddleware();
             this.configureShutDown();
@@ -339,6 +349,12 @@ class WebApp {
     }
     configureRouting() {
         this._router.configureRouting(this._viewResolutionRoot);
+    }
+    configureWebSockets() {
+        if (!this._enableWebSockets)
+            return;
+        this._socketServer = new n_sock_1.SocketServer(this._server);
+        this.registerDisposeAction(() => this._socketServer.dispose());
     }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
