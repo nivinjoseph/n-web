@@ -4,10 +4,10 @@ export declare class HttpMethods {
     private static readonly _post;
     private static readonly _put;
     private static readonly _delete;
-    static readonly Get: string;
-    static readonly Post: string;
-    static readonly Put: string;
-    static readonly Delete: string;
+    static get Get(): string;
+    static get Post(): string;
+    static get Put(): string;
+    static get Delete(): string;
 }
 export declare const httpMethodSymbol: unique symbol;
 export declare function httpGet(target: Function): void;

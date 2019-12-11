@@ -30,7 +30,7 @@ export declare class WebApp {
     private _server;
     private _isBootstrapped;
     private _isShutDown;
-    readonly containerRegistry: Registry;
+    get containerRegistry(): Registry;
     constructor(port: number, host?: string);
     enableCors(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;

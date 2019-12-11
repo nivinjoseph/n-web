@@ -7,11 +7,11 @@ class HttpMethods {
     static get Put() { return this._put; }
     static get Delete() { return this._delete; }
 }
+exports.HttpMethods = HttpMethods;
 HttpMethods._get = "GET";
 HttpMethods._post = "POST";
 HttpMethods._put = "PUT";
 HttpMethods._delete = "DELETE";
-exports.HttpMethods = HttpMethods;
 exports.httpMethodSymbol = Symbol("httpMethod");
 function httpGet(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Get, target);

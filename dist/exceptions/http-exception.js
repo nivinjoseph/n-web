@@ -4,8 +4,6 @@ const n_exception_1 = require("@nivinjoseph/n-exception");
 require("@nivinjoseph/n-ext");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 class HttpException extends n_exception_1.Exception {
-    get statusCode() { return this._statusCode; }
-    get body() { return this._body; }
     constructor(statusCode, body) {
         n_defensive_1.given(statusCode, "statusCode").ensureHasValue()
             .ensure(t => [400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410,
@@ -15,6 +13,8 @@ class HttpException extends n_exception_1.Exception {
         this._statusCode = statusCode;
         this._body = body;
     }
+    get statusCode() { return this._statusCode; }
+    get body() { return this._body; }
 }
 exports.HttpException = HttpException;
 //# sourceMappingURL=http-exception.js.map
