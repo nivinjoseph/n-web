@@ -23,7 +23,7 @@ import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
-import { SocketServer } from "@nivinjoseph/n-sock";
+import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
 // import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
 
 
