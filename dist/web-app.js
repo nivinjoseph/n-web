@@ -30,7 +30,7 @@ const koaWebpack = require("koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
-const n_sock_1 = require("@nivinjoseph/n-sock");
+const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
@@ -354,7 +354,7 @@ class WebApp {
     configureWebSockets() {
         if (!this._enableWebSockets)
             return;
-        this._socketServer = new n_sock_1.SocketServer(this._server);
+        this._socketServer = new backend_1.SocketServer(this._server);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     configureWebPackDevMiddleware() {
