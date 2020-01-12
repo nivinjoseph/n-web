@@ -18,4 +18,11 @@ export abstract class Controller
         given(url, "url").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         throw new HttpRedirectException(url.trim());
     }
+    
+    protected disableCompression(): void
+    {
+        given(this, "this").ensure(t => (<any>t).__ctx != null, "cannot invoke method before context is set");
+        
+        (<any>this).__ctx.compress = false;
+    }
 }

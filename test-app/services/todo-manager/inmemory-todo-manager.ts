@@ -18,12 +18,14 @@ export class InmemoryTodoManager implements TodoManager
     {
         given(logger, "logger").ensureHasValue();
         this._logger = logger;
+        
+        this.initializeTodos();
     }
     
     
     public async getTodos(): Promise<Todo[]>
     {
-        await this._logger.logInfo("Getting TODOs");
+        await this._logger.logInfo(`Getting TODOs ${this._todos.length}`);
         return this._todos.map(t => t);
     }
     
@@ -67,5 +69,13 @@ export class InmemoryTodoManager implements TodoManager
         
         this._todos.remove(todo);
         await this._logger.logWarning(`TODO with id ${id} deleted.`);
+    }
+    
+    private initializeTodos(): void
+    {
+        for (let i = 0; i < 1000; i++)
+        {
+            this._todos.push(new Todo(i, `Todo # ${i}`, `I am Todo number ${i}.`));
+        }
     }
 }

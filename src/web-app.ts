@@ -24,7 +24,9 @@ import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
-// import { EdaConfig, EdaManager } from "@nivinjoseph/n-eda";
+// import * as Compress from "koa-compress";
+// import Compress = require("kompression");
+const Compress = require("@nivinjoseph/kompression");
 
 
 // public
@@ -67,6 +69,7 @@ export class WebApp
     
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
     private _enableCors = false;
+    private _enableCompression = false;
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     // // @ts-ignore
@@ -107,6 +110,15 @@ export class WebApp
             throw new InvalidOperationException("enableCors");
         
         this._enableCors = true;
+        return this;
+    }
+    
+    public enableCompression(): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("enableCompression");
+        
+        this._enableCompression = true;
         return this;
     }
     
@@ -379,6 +391,7 @@ export class WebApp
                 // this is the request response pipeline START
                 this.configureScoping(); // must be first
                 this.configureCallContext();
+                this.configureCompression();
                 this.configureExceptionHandling();
                 this.configureErrorTrapping();
                 this.configureAuthentication();
@@ -500,6 +513,12 @@ export class WebApp
             defaultCallContext.configure(ctx as any, this._authHeaders);
             await next();
         });
+    }
+    
+    private configureCompression(): void
+    {
+        if (this._enableCompression)
+            this._koa.use(Compress());
     }
     
     private configureExceptionHandling(): void

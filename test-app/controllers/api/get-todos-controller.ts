@@ -34,6 +34,8 @@ export class GetTodosController extends Controller
         // if (!$search)
         //     throw new ApplicationException("this is a test1");
         
+        // this.disableCompression();
+        
         
         console.log("query", this._callContext.queryParams);
         console.log("$search", $search);

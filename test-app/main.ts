@@ -38,6 +38,7 @@ const controllers = [GetTodosController, GetTodoController, CreateTodoController
 
 const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
     .enableCors()
+    .enableCompression()
     .useViewResolutionRoot("test-app/controllers/web")
     .useInstaller(new AppInstaller())
     .useLogger(logger)

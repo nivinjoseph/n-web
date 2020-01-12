@@ -155,6 +155,7 @@ export class Router
 
         
         let controllerInstance = scope.resolve<Controller>(registration.name);
+        (<any>controllerInstance).__ctx = ctx;
         
         let result: any;
         
