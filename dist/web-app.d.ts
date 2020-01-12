@@ -22,6 +22,7 @@ export declare class WebApp {
     private _hasShutdownScript;
     private readonly _staticFilePaths;
     private _enableCors;
+    private _enableCompression;
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
     private _enableWebSockets;
@@ -33,6 +34,7 @@ export declare class WebApp {
     get containerRegistry(): Registry;
     constructor(port: number, host?: string);
     enableCors(): this;
+    enableCompression(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
     registerControllers(...controllerClasses: Function[]): this;
     useLogger(logger: Logger): this;
@@ -52,6 +54,7 @@ export declare class WebApp {
     private configureStartup;
     private configureScoping;
     private configureCallContext;
+    private configureCompression;
     private configureExceptionHandling;
     private configureErrorTrapping;
     private configureAuthentication;

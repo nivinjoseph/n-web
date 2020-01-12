@@ -31,6 +31,7 @@ const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
+const Compress = require("@nivinjoseph/kompression");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
@@ -47,6 +48,7 @@ class WebApp {
         this._hasShutdownScript = false;
         this._staticFilePaths = new Array();
         this._enableCors = false;
+        this._enableCompression = false;
         this._webPackDevMiddlewarePublicPath = null;
         this._enableWebSockets = false;
         this._socketServer = null;
@@ -66,6 +68,12 @@ class WebApp {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableCors");
         this._enableCors = true;
+        return this;
+    }
+    enableCompression() {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableCompression");
+        this._enableCompression = true;
         return this;
     }
     registerStaticFilePath(filePath, cache = false) {
@@ -206,6 +214,7 @@ class WebApp {
             .then(() => {
             this.configureScoping();
             this.configureCallContext();
+            this.configureCompression();
             this.configureExceptionHandling();
             this.configureErrorTrapping();
             this.configureAuthentication();
@@ -276,6 +285,10 @@ class WebApp {
             defaultCallContext.configure(ctx, this._authHeaders);
             yield next();
         }));
+    }
+    configureCompression() {
+        if (this._enableCompression)
+            this._koa.use(Compress());
     }
     configureExceptionHandling() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {

@@ -109,6 +109,7 @@ class Router {
             if (processBody)
                 args.push(ctx.request.body);
             let controllerInstance = scope.resolve(registration.name);
+            controllerInstance.__ctx = ctx;
             let result;
             try {
                 result = yield controllerInstance.execute(...args);
