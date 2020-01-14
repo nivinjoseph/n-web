@@ -31,7 +31,7 @@ const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
-const Compress = require("@nivinjoseph/kompression");
+const Compress = require("koa-compress");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
