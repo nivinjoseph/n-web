@@ -24,9 +24,9 @@ import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
-// import * as Compress from "koa-compress";
+import * as Compress from "koa-compress";
 // import Compress = require("kompression");
-const Compress = require("@nivinjoseph/kompression");
+// const Compress = require("@nivinjoseph/kompression");
 
 
 // public

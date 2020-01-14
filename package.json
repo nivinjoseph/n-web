@@ -64,7 +64,7 @@
         "@nivinjoseph/n-ject": "^1.1.9",
         "@nivinjoseph/n-log": "^1.0.10",
         "@nivinjoseph/n-sec": "^4.0.1",
-        "@nivinjoseph/n-sock": "^1.0.13",
+        "@nivinjoseph/n-sock": "^1.0.14",
         "@nivinjoseph/n-util": "^1.0.37",
         "kcors": "^2.2.2",
         "koa": "^2.11.0",
