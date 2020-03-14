@@ -58,23 +58,23 @@
     "dependencies": {
         "@nivinjoseph/kompression": "^1.0.2",
         "@nivinjoseph/n-config": "^1.0.25",
-        "@nivinjoseph/n-defensive": "^1.0.28",
+        "@nivinjoseph/n-defensive": "^1.0.32",
         "@nivinjoseph/n-exception": "^1.0.19",
-        "@nivinjoseph/n-ext": "^1.1.10",
-        "@nivinjoseph/n-ject": "^1.1.9",
+        "@nivinjoseph/n-ext": "^1.1.14",
+        "@nivinjoseph/n-ject": "^1.1.10",
         "@nivinjoseph/n-log": "^1.0.10",
         "@nivinjoseph/n-sec": "^4.0.1",
         "@nivinjoseph/n-sock": "^1.0.14",
-        "@nivinjoseph/n-util": "^1.0.37",
+        "@nivinjoseph/n-util": "^1.0.38",
         "kcors": "^2.2.2",
         "koa": "^2.11.0",
         "koa-bodyparser": "^4.2.1",
         "koa-compress": "^3.0.0",
         "koa-router": "^7.4.0",
         "koa-static": "^5.0.0",
-        "koa-webpack": "^5.2.4",
-        "kompression": "^1.0.1",
+        "koa-webpack": "^5.3.0",
+        "kompression": "^1.0.2",
         "reflect-metadata": "^0.1.13",
-        "webpack": "^4.41.2"
+        "webpack": "^4.42.0"
     }
 }
