@@ -214,6 +214,7 @@ class WebApp {
         this.configureStartup()
             .then(() => {
             this._server = Http.createServer();
+            this._server.listen(this._port, this._host);
             this.configureScoping();
             this.configureCallContext();
             this.configureCompression();
@@ -234,7 +235,6 @@ class WebApp {
             this.configureWebSockets();
             this.configureShutDown();
             this._server.on("request", this._koa.callback());
-            this._server.listen(this._port, this._host);
             this._isBootstrapped = true;
             console.log("SERVER STARTED.");
         })
