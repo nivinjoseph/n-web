@@ -213,6 +213,7 @@ class WebApp {
         this.configureContainer();
         this.configureStartup()
             .then(() => {
+            this._server = Http.createServer();
             this.configureScoping();
             this.configureCallContext();
             this.configureCompression();
@@ -220,6 +221,9 @@ class WebApp {
             this.configureErrorTrapping();
             this.configureAuthentication();
             this.configureStaticFileServing();
+            return this.configureWebPackDevMiddleware();
+        })
+            .then(() => {
             this.configureBodyParser();
             this.configureRouting();
             const appEnv = n_config_1.ConfigurationManager.getConfig("env");
@@ -227,11 +231,10 @@ class WebApp {
             const appVersion = n_config_1.ConfigurationManager.getConfig("appInfo.version");
             const appDescription = n_config_1.ConfigurationManager.getConfig("appInfo.description");
             console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-            this._server = Http.createServer(this._koa.callback());
             this.configureWebSockets();
-            this._server.listen(this._port, this._host);
-            this.configureWebPackDevMiddleware();
             this.configureShutDown();
+            this._server.on("request", this._koa.callback());
+            this._server.listen(this._port, this._host);
             this._isBootstrapped = true;
             console.log("SERVER STARTED.");
         })
@@ -373,7 +376,7 @@ class WebApp {
     }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
-            koaWebpack({
+            return koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
                     writeToDisk: false,
@@ -388,6 +391,7 @@ class WebApp {
                 hmr_helper_1.HmrHelper.configure(middleware.devMiddleware.fileSystem);
             });
         }
+        return Promise.resolve();
     }
     configureShutDown() {
         this.registerDisposeAction(() => {
