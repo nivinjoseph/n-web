@@ -25,6 +25,7 @@ import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
 import * as Compress from "koa-compress";
+import { HmrHelper } from "./hmr-helper";
 // import Compress = require("kompression");
 // const Compress = require("@nivinjoseph/kompression");
 
@@ -677,14 +678,18 @@ export class WebApp
             koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: true,
+                    writeToDisk: false,
                 },
                 hotClient: {
                     hmr: true,
                     reload: true,
                     server: this._server
                 }
-            }).then((middleware) => this._koa.use(middleware));
+            }).then((middleware) =>
+            {
+                this._koa.use(middleware);
+                HmrHelper.configure(middleware.devMiddleware.fileSystem);
+            });
             
             // if (this._webPackDevMiddlewareClientHost)
             // {

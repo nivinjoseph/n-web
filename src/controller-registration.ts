@@ -12,6 +12,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { Claim } from "@nivinjoseph/n-sec";
+import { HmrHelper } from "./hmr-helper";
 
 
 export class ControllerRegistration
@@ -156,7 +157,11 @@ export class ControllerRegistration
             return null;
         
         if (this.isDev())
-            return fs.readFileSync(this._viewFilePath, "utf8");
+        {
+            return HmrHelper.devFs
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName), "utf8")
+                : fs.readFileSync(this._viewFilePath, "utf8");
+        }
         
         return this._viewFileData;
     }
@@ -167,7 +172,11 @@ export class ControllerRegistration
             return null;    
         
         if (this.isDev())
-            return fs.readFileSync(this._viewLayoutFilePath, "utf8");
+        {
+            return HmrHelper.devFs
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName), "utf8")
+                : fs.readFileSync(this._viewLayoutFilePath, "utf8");
+        }
 
         return this._viewLayoutFileData;
     }
