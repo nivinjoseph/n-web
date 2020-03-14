@@ -390,6 +390,7 @@ export class WebApp
             .then(() =>
             {
                 this._server = Http.createServer();
+                this._server.listen(this._port, this._host);
                 
                 // this is the request response pipeline START
                 this.configureScoping(); // must be first
@@ -418,7 +419,7 @@ export class WebApp
                 this.configureShutDown();
                 
                 this._server.on("request", this._koa.callback());
-                this._server.listen(this._port, this._host);
+                // this._server.listen(this._port, this._host);
                 // this.configureWebPackDevMiddleware();
 
                 this._isBootstrapped = true;
