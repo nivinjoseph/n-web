@@ -389,6 +389,8 @@ export class WebApp
         this.configureStartup()
             .then(() =>
             {
+                this._server = Http.createServer();
+                
                 // this is the request response pipeline START
                 this.configureScoping(); // must be first
                 this.configureCallContext();
@@ -397,6 +399,10 @@ export class WebApp
                 this.configureErrorTrapping();
                 this.configureAuthentication();
                 this.configureStaticFileServing();
+                return this.configureWebPackDevMiddleware();
+            })
+            .then(() =>
+            {
                 this.configureBodyParser();
                 this.configureRouting(); // must be last
                 // this is the request response pipeline END
@@ -407,11 +413,13 @@ export class WebApp
                 const appDescription = ConfigurationManager.getConfig<string>("appInfo.description");
 
                 console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-                this._server = Http.createServer(this._koa.callback());
+                // this._server = Http.createServer(this._koa.callback());
                 this.configureWebSockets();
-                this._server.listen(this._port, this._host);
-                this.configureWebPackDevMiddleware();
                 this.configureShutDown();
+                
+                this._server.on("request", this._koa.callback());
+                this._server.listen(this._port, this._host);
+                // this.configureWebPackDevMiddleware();
 
                 this._isBootstrapped = true;
                 console.log("SERVER STARTED.");
@@ -661,7 +669,7 @@ export class WebApp
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     
-    private configureWebPackDevMiddleware(): void
+    private configureWebPackDevMiddleware(): Promise<void>
     {
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
@@ -675,7 +683,7 @@ export class WebApp
             // }).then((middleware) => this._koa.use(middleware));
             
             // tslint:disable-next-line
-            koaWebpack({
+            return koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
                     writeToDisk: false,
@@ -727,6 +735,8 @@ export class WebApp
             //     }).then((middleware) => this._koa.use(middleware));
             // }
         }
+        
+        return Promise.resolve();
     }
     
     private configureShutDown(): void
