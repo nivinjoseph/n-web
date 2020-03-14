@@ -32,6 +32,7 @@ const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
 const Compress = require("koa-compress");
+const hmr_helper_1 = require("./hmr-helper");
 class WebApp {
     constructor(port, host) {
         this._callContextKey = "CallContext";
@@ -375,14 +376,17 @@ class WebApp {
             koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: true,
+                    writeToDisk: false,
                 },
                 hotClient: {
                     hmr: true,
                     reload: true,
                     server: this._server
                 }
-            }).then((middleware) => this._koa.use(middleware));
+            }).then((middleware) => {
+                this._koa.use(middleware);
+                hmr_helper_1.HmrHelper.configure(middleware.devMiddleware.fileSystem);
+            });
         }
     }
     configureShutDown() {
