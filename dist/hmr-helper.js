@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 const path = require("path");
 class HmrHelper {
-    constructor() {
-    }
+    constructor() { }
     static get devFs() { return this._devFs; }
     static get outputPath() { return this._outputPath; }
     static configure(devFs) {
