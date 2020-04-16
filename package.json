@@ -44,6 +44,7 @@
         "@types/koa-compress": "^2.0.9",
         "@types/koa-router": "^7.4.0",
         "@types/koa-static": "^4.0.1",
+        "@types/memory-fs": "^0.3.2",
         "@types/mocha": "^5.2.7",
         "@types/node": "^12.12.17",
         "mocha": "^6.2.2",
@@ -70,6 +71,7 @@
         "koa-compress": "^3.1.0",
         "koa-router": "^8.0.8",
         "koa-static": "^5.0.0",
+        "memory-fs": "^0.5.0",
         "reflect-metadata": "^0.1.13"
     }
 }
