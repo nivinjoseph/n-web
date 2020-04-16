@@ -54,8 +54,8 @@ export class CreateTodoController extends Controller
     private validateModel(model: Model): void
     {
         let validator = new Validator<Model>();
-        validator.for<string>("title").isRequired().useValidationRule(strval.hasMaxLength(10));
-        validator.for<string>("description").isOptional().useValidationRule(strval.hasMaxLength(100));
+        validator.for("title").isRequired().useValidationRule(strval.hasMaxLength(10));
+        validator.for("description").isOptional().useValidationRule(strval.hasMaxLength(100));
         
         validator.validate(model);
         if (validator.hasErrors)
