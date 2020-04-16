@@ -18,7 +18,7 @@ import { DefaultExceptionHandler } from "./exceptions/default-exception-handler"
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
-import * as koaWebpack from "koa-webpack";
+const koaWebpack = require("@nivinjoseph/koa-webpack");
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
@@ -694,7 +694,7 @@ export class WebApp
                     reload: true,
                     server: this._server
                 }
-            }).then((middleware) =>
+            }).then((middleware: any) =>
             {
                 this._koa.use(middleware);
                 HmrHelper.configure(middleware.devMiddleware.fileSystem);

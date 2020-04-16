@@ -44,7 +44,6 @@
         "@types/koa-compress": "^2.0.9",
         "@types/koa-router": "^7.4.0",
         "@types/koa-static": "^4.0.1",
-        "@types/koa-webpack": "^5.0.1",
         "@types/mocha": "^5.2.7",
         "@types/node": "^12.12.17",
         "mocha": "^6.2.2",
@@ -55,6 +54,7 @@
         "typescript-tslint-plugin": "^0.5.5"
     },
     "dependencies": {
+        "@nivinjoseph/koa-webpack": "^5.3.0",
         "@nivinjoseph/n-config": "^1.0.27",
         "@nivinjoseph/n-defensive": "^1.0.32",
         "@nivinjoseph/n-exception": "^1.0.19",
@@ -70,8 +70,6 @@
         "koa-compress": "^3.1.0",
         "koa-router": "^8.0.8",
         "koa-static": "^5.0.0",
-        "koa-webpack": "^5.3.0",
-        "reflect-metadata": "^0.1.13",
-        "webpack": "^4.42.1"
+        "reflect-metadata": "^0.1.13"
     }
 }
