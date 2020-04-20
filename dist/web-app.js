@@ -26,7 +26,6 @@ const n_sec_1 = require("@nivinjoseph/n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
-const koaWebpack = require("@nivinjoseph/koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
@@ -376,6 +375,7 @@ class WebApp {
     }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
+            const koaWebpack = require("@nivinjoseph/koa-webpack");
             return koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
