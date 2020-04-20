@@ -18,7 +18,7 @@ import { DefaultExceptionHandler } from "./exceptions/default-exception-handler"
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
-const koaWebpack = require("@nivinjoseph/koa-webpack");
+// const koaWebpack = require("@nivinjoseph/koa-webpack");
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
@@ -682,7 +682,8 @@ export class WebApp
             //     },
             //     hotClient: false
             // }).then((middleware) => this._koa.use(middleware));
-            
+  
+            const koaWebpack = require("@nivinjoseph/koa-webpack");
             // tslint:disable-next-line
             return koaWebpack({
                 devMiddleware: {
