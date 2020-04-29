@@ -28,6 +28,7 @@ import * as Compress from "koa-compress";
 import { HmrHelper } from "./hmr-helper";
 // import Compress = require("kompression");
 // const Compress = require("@nivinjoseph/kompression");
+import * as Redis from "redis";
 
 
 // public
@@ -79,6 +80,7 @@ export class WebApp
     // private _webPackDevMiddlewareServerHost: string | null = null;    
     
     private _enableWebSockets = false;
+    private _redisClient: Redis.RedisClient | null = null;
     private _socketServer: SocketServer | null = null;
     
     private _disposeActions = new Array<() => Promise<void>>();
@@ -286,12 +288,15 @@ export class WebApp
         return this;
     }
     
-    public enableWebSockets(): this
+    public enableWebSockets(redisClient: Redis.RedisClient): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebSockets");
         
+        given(redisClient, "redisClient").ensureHasValue().ensureIsObject();
+        
         this._enableWebSockets = true;
+        this._redisClient = redisClient;
         return this;
     }
     
@@ -666,7 +671,7 @@ export class WebApp
         if (!this._enableWebSockets)
             return;
         
-        this._socketServer = new SocketServer(this._server);
+        this._socketServer = new SocketServer(this._server, this._redisClient);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     
