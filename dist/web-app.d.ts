@@ -1,6 +1,7 @@
 import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
 import { Logger } from "@nivinjoseph/n-log";
+import * as Redis from "redis";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -26,6 +27,7 @@ export declare class WebApp {
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
     private _enableWebSockets;
+    private _redisClient;
     private _socketServer;
     private _disposeActions;
     private _server;
@@ -45,7 +47,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: Function): this;
     useViewResolutionRoot(path: string): this;
-    enableWebSockets(): this;
+    enableWebSockets(redisClient: Redis.RedisClient): this;
     enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;

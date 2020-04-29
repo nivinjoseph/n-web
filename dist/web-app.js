@@ -51,6 +51,7 @@ class WebApp {
         this._enableCompression = false;
         this._webPackDevMiddlewarePublicPath = null;
         this._enableWebSockets = false;
+        this._redisClient = null;
         this._socketServer = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
@@ -168,10 +169,12 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
-    enableWebSockets() {
+    enableWebSockets(redisClient) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebSockets");
+        n_defensive_1.given(redisClient, "redisClient").ensureHasValue().ensureIsObject();
         this._enableWebSockets = true;
+        this._redisClient = redisClient;
         return this;
     }
     enableWebPackDevMiddleware(publicPath = "/") {
@@ -370,7 +373,7 @@ class WebApp {
     configureWebSockets() {
         if (!this._enableWebSockets)
             return;
-        this._socketServer = new backend_1.SocketServer(this._server);
+        this._socketServer = new backend_1.SocketServer(this._server, this._redisClient);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     configureWebPackDevMiddleware() {
