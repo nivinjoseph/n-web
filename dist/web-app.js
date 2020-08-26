@@ -339,7 +339,12 @@ class WebApp {
             catch (error) {
                 if (error instanceof Error)
                     throw error;
-                throw new n_exception_1.Exception("TRAPPED ERROR | " + error.toString());
+                let message = error.toString();
+                if (message === "[object Object]") {
+                    console.error(error);
+                    message = JSON.stringify(error);
+                }
+                throw new n_exception_1.Exception("TRAPPED ERROR | " + message);
             }
         }));
     }
