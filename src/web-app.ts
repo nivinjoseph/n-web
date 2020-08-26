@@ -609,7 +609,14 @@ export class WebApp
                 if (error instanceof Error)
                     throw error;    
                 
-                throw new Exception("TRAPPED ERROR | " + error.toString());
+                let message = error.toString() as string;
+                if (message === "[object Object]")
+                {
+                    console.error(error);
+                    message = JSON.stringify(error);
+                }
+                
+                throw new Exception("TRAPPED ERROR | " + message);
             }
         });
     }
