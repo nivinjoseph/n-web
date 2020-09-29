@@ -36,7 +36,7 @@ const controllers = [GetTodosController, GetTodoController, CreateTodoController
 
 // const eventHandlers = [TodoCreatedEventHandler];
 
-const app = new WebApp(ConfigurationManager.getConfig<number>("port"))
+const app = new WebApp(ConfigurationManager.getConfig<number>("port"), null)
     .enableCors()
     .enableCompression()
     .useViewResolutionRoot("test-app/controllers/web")

@@ -92,7 +92,7 @@ export class WebApp
     public get containerRegistry(): Registry { return this._container; }
     
     
-    public constructor(port: number, host?: string)
+    public constructor(port: number, host: string | null, container?: Container)
     {
         given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
@@ -100,8 +100,10 @@ export class WebApp
         given(host, "host").ensureIsString();
         this._host = host ? host.trim() : null;
         
+        given(container as Container, "container").ensureIsObject().ensureIsType(Container);
+        
         this._koa = new Koa();
-        this._container = new Container();
+        this._container = container ?? new Container();
         this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
     }
     
