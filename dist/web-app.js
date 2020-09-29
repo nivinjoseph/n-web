@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebApp = void 0;
 const Koa = require("koa");
 const KoaBodyParser = require("koa-bodyparser");
 const n_ject_1 = require("@nivinjoseph/n-ject");
@@ -33,7 +34,7 @@ const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
 const Compress = require("koa-compress");
 const hmr_helper_1 = require("./hmr-helper");
 class WebApp {
-    constructor(port, host) {
+    constructor(port, host, container) {
         this._callContextKey = "CallContext";
         this._exceptionHandlerKey = "$exceptionHandler";
         this._hasExceptionHandler = false;
@@ -60,8 +61,9 @@ class WebApp {
         this._port = port;
         n_defensive_1.given(host, "host").ensureIsString();
         this._host = host ? host.trim() : null;
+        n_defensive_1.given(container, "container").ensureIsObject().ensureIsType(n_ject_1.Container);
         this._koa = new Koa();
-        this._container = new n_ject_1.Container();
+        this._container = container !== null && container !== void 0 ? container : new n_ject_1.Container();
         this._router = new router_1.Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
     }
     get containerRegistry() { return this._container; }

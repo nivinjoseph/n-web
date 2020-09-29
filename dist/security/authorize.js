@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.authorize = exports.authorizeSymbol = void 0;
 require("reflect-metadata");
 exports.authorizeSymbol = Symbol("authorize");
 function authorize(...claims) {

@@ -1,4 +1,4 @@
-import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
+import { Container, ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
 import { Logger } from "@nivinjoseph/n-log";
 export declare class WebApp {
@@ -33,7 +33,7 @@ export declare class WebApp {
     private _isBootstrapped;
     private _isShutDown;
     get containerRegistry(): Registry;
-    constructor(port: number, host?: string);
+    constructor(port: number, host: string | null, container?: Container);
     enableCors(): this;
     enableCompression(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.httpDelete = exports.httpPut = exports.httpPost = exports.httpGet = exports.httpMethodSymbol = exports.HttpMethods = void 0;
 require("reflect-metadata");
 class HttpMethods {
     static get Get() { return this._get; }
