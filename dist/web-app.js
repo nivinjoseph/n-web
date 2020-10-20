@@ -386,7 +386,7 @@ class WebApp {
     }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
-            const koaWebpack = require("@nivinjoseph/koa-webpack");
+            const koaWebpack = require("koa-webpack");
             return koaWebpack({
                 devMiddleware: {
                     publicPath: this._webPackDevMiddlewarePublicPath,
