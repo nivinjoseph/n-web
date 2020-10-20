@@ -698,7 +698,8 @@ export class WebApp
             //     hotClient: false
             // }).then((middleware) => this._koa.use(middleware));
   
-            const koaWebpack = require("@nivinjoseph/koa-webpack");
+            // const koaWebpack = require("@nivinjoseph/koa-webpack");
+            const koaWebpack = require("koa-webpack");
             // tslint:disable-next-line
             return koaWebpack({
                 devMiddleware: {
