@@ -20,12 +20,14 @@ import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 // const koaWebpack = require("@nivinjoseph/koa-webpack");
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
-import { Delay } from "@nivinjoseph/n-util";
+import { ClassHierarchy, Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
 import * as Compress from "koa-compress";
 import { HmrHelper } from "./hmr-helper";
+import { Controller } from "./controller";
+import { AuthorizationHandler } from "./security/authorization-handler";
 // import Compress = require("kompression");
 // const Compress = require("@nivinjoseph/kompression");
 
@@ -171,7 +173,7 @@ export class WebApp
         return this;
     }
     
-    public registerControllers(...controllerClasses: Function[]): this
+    public registerControllers(...controllerClasses: ReadonlyArray<ClassHierarchy<Controller>>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerControllers");
@@ -219,7 +221,7 @@ export class WebApp
         return this;
     }
     
-    public registerStartupScript(applicationScriptClass: Function): this
+    public registerStartupScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStartupScript");
@@ -231,7 +233,7 @@ export class WebApp
         return this;
     }
     
-    public registerShutdownScript(applicationScriptClass: Function): this
+    public registerShutdownScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerShutdownScript");
@@ -243,23 +245,24 @@ export class WebApp
         return this;
     }
     
-    public registerExceptionHandler(exceptionHandlerClass: Function): this
+    public registerExceptionHandler(exceptionHandlerClass: ClassHierarchy<ExceptionHandler>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerExceptionHandler");
         
-        given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue();
+        given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue().ensureIsFunction();
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
         this._hasExceptionHandler = true;
         return this;
     }
     
-    public registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this
+    public registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>,
+        ...authHeaders: Array<string>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerAuthenticationHandler");
         
-        given(authenticationHandler, "authenticationHandler").ensureHasValue();
+        given(authenticationHandler, "authenticationHandler").ensureHasValue().ensureIsFunction();
         given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
         this._hasAuthenticationHandler = true;
@@ -268,7 +271,7 @@ export class WebApp
         return this;
     }
     
-    public registerAuthorizationHandler(authorizationHandler: Function): this
+    public registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerAuthorizationHandler");

@@ -4,6 +4,7 @@ import "@nivinjoseph/n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
 import { Logger } from "@nivinjoseph/n-log";
+import { ClassDefinition } from "@nivinjoseph/n-util";
 
 // public
 export class DefaultExceptionHandler implements ExceptionHandler
@@ -35,7 +36,7 @@ export class DefaultExceptionHandler implements ExceptionHandler
     }
 
 
-    protected registerHandler<T extends Exception>(exceptionType: Function, handler: (e: T) => Promise<any>): void
+    protected registerHandler<T extends Exception>(exceptionType: ClassDefinition<T>, handler: (e: T) => Promise<any>): void
     {
         given(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
         given(handler, "handler").ensureHasValue().ensureIsFunction();
