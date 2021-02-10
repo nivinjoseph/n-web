@@ -17,9 +17,11 @@ const n_config_1 = require("@nivinjoseph/n-config");
 const hmr_helper_1 = require("./hmr-helper");
 class ControllerRegistration {
     constructor(controller) {
+        // @ts-ignore
         this._viewFileName = null;
         this._viewFilePath = null;
         this._viewFileData = null;
+        // @ts-ignore
         this._viewLayoutFileName = null;
         this._viewLayoutFilePath = null;
         this._viewLayoutFileData = null;

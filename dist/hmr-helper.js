@@ -4,6 +4,9 @@ exports.HmrHelper = void 0;
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 const path = require("path");
 class HmrHelper {
+    /**
+     * @static
+     */
     constructor() { }
     static get devFs() { return this._devFs; }
     static get outputPath() { return this._outputPath; }

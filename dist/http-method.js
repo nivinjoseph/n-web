@@ -14,18 +14,22 @@ HttpMethods._post = "POST";
 HttpMethods._put = "PUT";
 HttpMethods._delete = "DELETE";
 exports.httpMethodSymbol = Symbol("httpMethod");
+// public
 function httpGet(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Get, target);
 }
 exports.httpGet = httpGet;
+// public
 function httpPost(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Post, target);
 }
 exports.httpPost = httpPost;
+// public
 function httpPut(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Put, target);
 }
 exports.httpPut = httpPut;
+// public
 function httpDelete(target) {
     Reflect.defineMetadata(exports.httpMethodSymbol, HttpMethods.Delete, target);
 }

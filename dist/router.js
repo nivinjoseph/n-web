@@ -70,6 +70,7 @@ class Router {
         this._koa.use(this._koaRouter.routes());
         this._koa.use(this._koaRouter.allowedMethods());
         if (catchAllRegistration) {
+            // @ts-ignore
             this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
                 yield this.handleRequest(ctx, catchAllRegistration, false);
             }));
@@ -129,8 +130,10 @@ class Router {
                 let view = registration.view;
                 let viewLayout = registration.viewLayout;
                 if (viewLayout !== null)
+                    // tslint:disable
                     view = eval("`" + viewLayout + "`");
                 let html = eval("`" + view + "`");
+                // tslint:enable
                 let config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config || {});
                 html = html.replace("<body>", `
                     <body>

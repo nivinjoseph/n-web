@@ -5,6 +5,7 @@ require("reflect-metadata");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 require("@nivinjoseph/n-ext");
 exports.viewSymbol = Symbol("webView");
+// public
 function view(file) {
     n_defensive_1.given(file, "file")
         .ensureHasValue()

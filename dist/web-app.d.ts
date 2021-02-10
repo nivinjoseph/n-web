@@ -1,6 +1,12 @@
 import { Container, ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import "@nivinjoseph/n-ext";
+import { AuthenticationHandler } from "./security/authentication-handler";
+import { ExceptionHandler } from "./exceptions/exception-handler";
 import { Logger } from "@nivinjoseph/n-log";
+import { ClassHierarchy } from "@nivinjoseph/n-util";
+import { ApplicationScript } from "./application-script";
+import { Controller } from "./controller";
+import { AuthorizationHandler } from "./security/authorization-handler";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -37,14 +43,14 @@ export declare class WebApp {
     enableCors(): this;
     enableCompression(): this;
     registerStaticFilePath(filePath: string, cache?: boolean): this;
-    registerControllers(...controllerClasses: Function[]): this;
+    registerControllers(...controllerClasses: ReadonlyArray<ClassHierarchy<Controller>>): this;
     useLogger(logger: Logger): this;
     useInstaller(installer: ComponentInstaller): this;
-    registerStartupScript(applicationScriptClass: Function): this;
-    registerShutdownScript(applicationScriptClass: Function): this;
-    registerExceptionHandler(exceptionHandlerClass: Function): this;
-    registerAuthenticationHandler(authenticationHandler: Function, ...authHeaders: Array<string>): this;
-    registerAuthorizationHandler(authorizationHandler: Function): this;
+    registerStartupScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this;
+    registerShutdownScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this;
+    registerExceptionHandler(exceptionHandlerClass: ClassHierarchy<ExceptionHandler>): this;
+    registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>, ...authHeaders: Array<string>): this;
+    registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
     useViewResolutionRoot(path: string): this;
     enableWebSockets(redisUrl?: string): this;
     enableWebPackDevMiddleware(publicPath?: string): this;

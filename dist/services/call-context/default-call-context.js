@@ -61,7 +61,7 @@ class DefaultCallContext {
                 if (authorization.isEmptyOrWhiteSpace())
                     continue;
                 authorization = authorization.trim();
-                while (authorization.contains("  "))
+                while (authorization.contains("  ")) // double space
                     authorization = authorization.replaceAll("  ", " ");
                 const splitted = authorization.split(" ");
                 if (splitted.length !== 2)

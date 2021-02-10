@@ -5,6 +5,7 @@ require("reflect-metadata");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 require("@nivinjoseph/n-ext");
 exports.httpRouteSymbol = Symbol("httpRoute");
+// public
 function route(route) {
     n_defensive_1.given(route, "route").ensureHasValue()
         .ensure(t => !t.isEmptyOrWhiteSpace(), "cannot be empty or whitespace")

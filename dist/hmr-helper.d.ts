@@ -4,6 +4,9 @@ export declare class HmrHelper {
     private static _outputPath;
     static get devFs(): MemoryFileSystem;
     static get outputPath(): string;
+    /**
+     * @static
+     */
     private constructor();
     static configure(devFs: MemoryFileSystem): void;
 }
