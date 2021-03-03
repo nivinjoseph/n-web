@@ -405,6 +405,7 @@ export class WebApp
             .then(() =>
             {
                 this._server = Http.createServer();
+                // this.configureWebSockets();
                 this._server.listen(this._port, this._host);
                 
                 // this is the request response pipeline START
