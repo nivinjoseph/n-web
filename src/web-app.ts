@@ -300,8 +300,8 @@ export class WebApp
         given(redisUrl, "redisUrl").ensureIsString();
         
         this._enableWebSockets = true;
-        if (redisUrl)
-            this._redisUrl = redisUrl;
+        if (redisUrl && redisUrl.isNotEmptyOrWhiteSpace())
+            this._redisUrl = redisUrl.trim();
         
         return this;
     }
