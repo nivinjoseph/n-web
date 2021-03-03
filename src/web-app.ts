@@ -81,6 +81,7 @@ export class WebApp
     // private _webPackDevMiddlewareServerHost: string | null = null;    
     
     private _enableWebSockets = false;
+    private _corsOrigin: string | null = null;
     private _redisUrl: string | null = null;
     private _socketServer: SocketServer | null = null;
     
@@ -292,10 +293,13 @@ export class WebApp
         return this;
     }
     
-    public enableWebSockets(redisUrl?: string): this
+    public enableWebSockets(corsOrigin: string, redisUrl?: string): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebSockets");
+        
+        given(corsOrigin, "corsOrigin").ensureHasValue().ensureIsString();
+        this._corsOrigin = corsOrigin.trim();
         
         given(redisUrl, "redisUrl").ensureIsString();
         
@@ -684,7 +688,7 @@ export class WebApp
         if (!this._enableWebSockets)
             return;
         
-        this._socketServer = new SocketServer(this._server, this._redisUrl);
+        this._socketServer = new SocketServer(this._server, this._corsOrigin, this._redisUrl);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     
