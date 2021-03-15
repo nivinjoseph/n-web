@@ -89,7 +89,7 @@ export class DefaultCallContext implements CallContext
                 if (!this._ctx.header[authHeader])
                     continue;
                 
-                let authorization: string = this._ctx.header[authHeader];
+                let authorization: string = this._ctx.header[authHeader] as string;
                 if (authorization.isEmptyOrWhiteSpace())
                     continue;
                 

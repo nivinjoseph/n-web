@@ -212,13 +212,13 @@ export class Router
             let routeParam = route.findRouteParam(key);
             if (routeParam)
             {
-                let parsed = routeParam.parseParam(queryParams[key]);
+                let parsed = routeParam.parseParam(queryParams[key] as string);
                 model[routeParam.paramKey] = parsed;
                 queryParams[key] = parsed;
             }
             else
             {
-                let value = queryParams[key];
+                let value = queryParams[key] as string;
                 if (value === undefined || value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
                     queryParams[key] = null;    
             }

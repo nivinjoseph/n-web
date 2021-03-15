@@ -28,6 +28,7 @@ import * as Compress from "koa-compress";
 import { HmrHelper } from "./hmr-helper";
 import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
+import * as Redis from "redis";
 // import Compress = require("kompression");
 // const Compress = require("@nivinjoseph/kompression");
 
@@ -82,7 +83,7 @@ export class WebApp
     
     private _enableWebSockets = false;
     private _corsOrigin: string | null = null;
-    private _redisUrl: string | null = null;
+    private _socketServerRedisClient: Redis.RedisClient | null = null;
     private _socketServer: SocketServer | null = null;
     
     private _disposeActions = new Array<() => Promise<void>>();
@@ -293,7 +294,7 @@ export class WebApp
         return this;
     }
     
-    public enableWebSockets(corsOrigin: string, redisUrl?: string): this
+    public enableWebSockets(corsOrigin: string, socketServerRedisClient: Redis.RedisClient): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebSockets");
@@ -301,11 +302,10 @@ export class WebApp
         given(corsOrigin, "corsOrigin").ensureHasValue().ensureIsString();
         this._corsOrigin = corsOrigin.trim();
         
-        given(redisUrl, "redisUrl").ensureIsString();
+        given(socketServerRedisClient, "socketServerRedisClient").ensureHasValue().ensureIsObject();
+        this._socketServerRedisClient = socketServerRedisClient;
         
         this._enableWebSockets = true;
-        if (redisUrl && redisUrl.isNotEmptyOrWhiteSpace())
-            this._redisUrl = redisUrl.trim();
         
         return this;
     }
@@ -689,7 +689,7 @@ export class WebApp
         if (!this._enableWebSockets)
             return;
         
-        this._socketServer = new SocketServer(this._server, this._corsOrigin, this._redisUrl);
+        this._socketServer = new SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     
