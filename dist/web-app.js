@@ -66,7 +66,7 @@ class WebApp {
         // private _webPackDevMiddlewareServerHost: string | null = null;    
         this._enableWebSockets = false;
         this._corsOrigin = null;
-        this._redisUrl = null;
+        this._socketServerRedisClient = null;
         this._socketServer = null;
         this._disposeActions = new Array();
         this._isBootstrapped = false;
@@ -208,15 +208,14 @@ class WebApp {
         this._viewResolutionRoot = path.trim();
         return this;
     }
-    enableWebSockets(corsOrigin, redisUrl) {
+    enableWebSockets(corsOrigin, socketServerRedisClient) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebSockets");
         n_defensive_1.given(corsOrigin, "corsOrigin").ensureHasValue().ensureIsString();
         this._corsOrigin = corsOrigin.trim();
-        n_defensive_1.given(redisUrl, "redisUrl").ensureIsString();
+        n_defensive_1.given(socketServerRedisClient, "socketServerRedisClient").ensureHasValue().ensureIsObject();
+        this._socketServerRedisClient = socketServerRedisClient;
         this._enableWebSockets = true;
-        if (redisUrl && redisUrl.isNotEmptyOrWhiteSpace())
-            this._redisUrl = redisUrl.trim();
         return this;
     }
     enableWebPackDevMiddleware(publicPath = "/") {
@@ -498,7 +497,7 @@ class WebApp {
     configureWebSockets() {
         if (!this._enableWebSockets)
             return;
-        this._socketServer = new backend_1.SocketServer(this._server, this._corsOrigin, this._redisUrl);
+        this._socketServer = new backend_1.SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
     configureWebPackDevMiddleware() {

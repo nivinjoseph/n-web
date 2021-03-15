@@ -7,6 +7,7 @@ import { ClassHierarchy } from "@nivinjoseph/n-util";
 import { ApplicationScript } from "./application-script";
 import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
+import * as Redis from "redis";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -33,7 +34,7 @@ export declare class WebApp {
     private _webPackDevMiddlewarePublicPath;
     private _enableWebSockets;
     private _corsOrigin;
-    private _redisUrl;
+    private _socketServerRedisClient;
     private _socketServer;
     private _disposeActions;
     private _server;
@@ -53,7 +54,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
     useViewResolutionRoot(path: string): this;
-    enableWebSockets(corsOrigin: string, redisUrl?: string): this;
+    enableWebSockets(corsOrigin: string, socketServerRedisClient: Redis.RedisClient): this;
     enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
