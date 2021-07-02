@@ -309,6 +309,11 @@ export class WebApp
         return this;
     }
     
+    /**
+     * 
+     * @param publicPath Webpack publicPath value
+     * @description Requires dev dependencies [koa-webpack, memory-fs]
+     */
     public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
