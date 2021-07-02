@@ -14,7 +14,6 @@ require("@nivinjoseph/n-ext");
 const fs = require("fs");
 const path = require("path");
 const n_config_1 = require("@nivinjoseph/n-config");
-const hmr_helper_1 = require("./hmr-helper");
 class ControllerRegistration {
     constructor(controller) {
         // @ts-ignore
@@ -111,8 +110,9 @@ class ControllerRegistration {
         if (this._viewFilePath === null)
             return null;
         if (this.isDev()) {
-            return hmr_helper_1.HmrHelper.devFs
-                ? hmr_helper_1.HmrHelper.devFs.readFileSync(path.resolve(hmr_helper_1.HmrHelper.outputPath, this._viewFileName), "utf8")
+            const HmrHelper = require("./hmr-helper").HmrHelper;
+            return HmrHelper.devFs
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName), "utf8")
                 : fs.readFileSync(this._viewFilePath, "utf8");
         }
         return this._viewFileData;
@@ -121,8 +121,9 @@ class ControllerRegistration {
         if (this._viewLayoutFilePath === null)
             return null;
         if (this.isDev()) {
-            return hmr_helper_1.HmrHelper.devFs
-                ? hmr_helper_1.HmrHelper.devFs.readFileSync(path.resolve(hmr_helper_1.HmrHelper.outputPath, this._viewLayoutFileName), "utf8")
+            const HmrHelper = require("./hmr-helper").HmrHelper;
+            return HmrHelper.devFs
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName), "utf8")
                 : fs.readFileSync(this._viewLayoutFilePath, "utf8");
         }
         return this._viewLayoutFileData;

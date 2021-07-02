@@ -33,7 +33,6 @@ const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
 const Compress = require("koa-compress");
-const hmr_helper_1 = require("./hmr-helper");
 // import Compress = require("kompression");
 // const Compress = require("@nivinjoseph/kompression");
 // public
@@ -525,7 +524,8 @@ class WebApp {
                 }
             }).then((middleware) => {
                 this._koa.use(middleware);
-                hmr_helper_1.HmrHelper.configure(middleware.devMiddleware.fileSystem);
+                const HmrHelper = require("./hmr-helper").HmrHelper;
+                HmrHelper.configure(middleware.devMiddleware.fileSystem);
             });
             // if (this._webPackDevMiddlewareClientHost)
             // {
