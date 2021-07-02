@@ -217,6 +217,11 @@ class WebApp {
         this._enableWebSockets = true;
         return this;
     }
+    /**
+     *
+     * @param publicPath Webpack publicPath value
+     * @description Requires dev dependencies [koa-webpack, memory-fs]
+     */
     enableWebPackDevMiddleware(publicPath = "/") {
         n_defensive_1.given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();

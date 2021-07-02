@@ -55,6 +55,11 @@ export declare class WebApp {
     registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
     useViewResolutionRoot(path: string): this;
     enableWebSockets(corsOrigin: string, socketServerRedisClient: Redis.RedisClient): this;
+    /**
+     *
+     * @param publicPath Webpack publicPath value
+     * @description Requires dev dependencies [koa-webpack, memory-fs]
+     */
     enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
