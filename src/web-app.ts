@@ -25,7 +25,6 @@ import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
 import * as Compress from "koa-compress";
-import { HmrHelper } from "./hmr-helper";
 import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import * as Redis from "redis";
@@ -722,6 +721,7 @@ export class WebApp
             }).then((middleware: any) =>
             {
                 this._koa.use(middleware);
+                const HmrHelper = require("./hmr-helper").HmrHelper;
                 HmrHelper.configure(middleware.devMiddleware.fileSystem);
             });
             
