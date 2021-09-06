@@ -577,7 +577,7 @@ export class WebApp
                 
                 try 
                 {
-                    const result = await exceptionHandler.handle(error);
+                    const result = await exceptionHandler.handle(error as any);
                     ctx.body = result;
                 }
                 catch (exp)
@@ -601,7 +601,7 @@ export class WebApp
 
                         // console.log(Date.now(), logMessage);
                         
-                        await this._logger.logError(exp);
+                        await this._logger.logError(exp as any);
                         
                         ctx.status = 500;
                         ctx.body = "There was an error processing your request.";
