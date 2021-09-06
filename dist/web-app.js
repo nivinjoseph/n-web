@@ -70,11 +70,11 @@ class WebApp {
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         this._isShutDown = false;
-        n_defensive_1.given(port, "port").ensureHasValue().ensureIsNumber();
+        (0, n_defensive_1.given)(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
-        n_defensive_1.given(host, "host").ensureIsString();
+        (0, n_defensive_1.given)(host, "host").ensureIsString();
         this._host = host ? host.trim() : null;
-        n_defensive_1.given(container, "container").ensureIsObject().ensureIsType(n_ject_1.Container);
+        (0, n_defensive_1.given)(container, "container").ensureIsObject().ensureIsType(n_ject_1.Container);
         this._koa = new Koa();
         this._container = container !== null && container !== void 0 ? container : new n_ject_1.Container();
         this._router = new router_1.Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
@@ -103,8 +103,8 @@ class WebApp {
     registerStaticFilePath(filePath, cache = false) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
-        n_defensive_1.given(filePath, "filePath").ensureHasValue().ensureIsString();
-        n_defensive_1.given(cache, "cache").ensureHasValue().ensureIsBoolean();
+        (0, n_defensive_1.given)(filePath, "filePath").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(cache, "cache").ensureHasValue().ensureIsBoolean();
         filePath = filePath.trim();
         if (filePath.startsWith("/")) {
             if (filePath.length === 1) {
@@ -146,21 +146,21 @@ class WebApp {
     useLogger(logger) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("useLogger");
-        n_defensive_1.given(logger, "logger").ensureHasValue().ensureIsObject();
+        (0, n_defensive_1.given)(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
         return this;
     }
     useInstaller(installer) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerInstaller");
-        n_defensive_1.given(installer, "installer").ensureHasValue();
+        (0, n_defensive_1.given)(installer, "installer").ensureHasValue();
         this._container.install(installer);
         return this;
     }
     registerStartupScript(applicationScriptClass) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStartupScript");
-        n_defensive_1.given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
         this._container.registerSingleton(this._startupScriptKey, applicationScriptClass);
         this._hasStartupScript = true;
         return this;
@@ -168,7 +168,7 @@ class WebApp {
     registerShutdownScript(applicationScriptClass) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerShutdownScript");
-        n_defensive_1.given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
         this._container.registerSingleton(this._shutdownScriptKey, applicationScriptClass);
         this._hasShutdownScript = true;
         return this;
@@ -176,7 +176,7 @@ class WebApp {
     registerExceptionHandler(exceptionHandlerClass) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerExceptionHandler");
-        n_defensive_1.given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue().ensureIsFunction();
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
         this._hasExceptionHandler = true;
         return this;
@@ -184,8 +184,8 @@ class WebApp {
     registerAuthenticationHandler(authenticationHandler, ...authHeaders) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerAuthenticationHandler");
-        n_defensive_1.given(authenticationHandler, "authenticationHandler").ensureHasValue().ensureIsFunction();
-        n_defensive_1.given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
+        (0, n_defensive_1.given)(authenticationHandler, "authenticationHandler").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._container.registerScoped(this._authenticationHandlerKey, authenticationHandler);
         this._hasAuthenticationHandler = true;
         if (authHeaders.length > 0)
@@ -195,7 +195,7 @@ class WebApp {
     registerAuthorizationHandler(authorizationHandler) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerAuthorizationHandler");
-        n_defensive_1.given(authorizationHandler, "authorizationHandler").ensureHasValue();
+        (0, n_defensive_1.given)(authorizationHandler, "authorizationHandler").ensureHasValue();
         this._container.registerScoped(this._authorizationHandlerKey, authorizationHandler);
         this._hasAuthorizationHandler = true;
         return this;
@@ -203,16 +203,16 @@ class WebApp {
     useViewResolutionRoot(path) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("useViewResolutionRoot");
-        n_defensive_1.given(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(path, "path").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._viewResolutionRoot = path.trim();
         return this;
     }
     enableWebSockets(corsOrigin, socketServerRedisClient) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebSockets");
-        n_defensive_1.given(corsOrigin, "corsOrigin").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(corsOrigin, "corsOrigin").ensureHasValue().ensureIsString();
         this._corsOrigin = corsOrigin.trim();
-        n_defensive_1.given(socketServerRedisClient, "socketServerRedisClient").ensureHasValue().ensureIsObject();
+        (0, n_defensive_1.given)(socketServerRedisClient, "socketServerRedisClient").ensureHasValue().ensureIsObject();
         this._socketServerRedisClient = socketServerRedisClient;
         this._enableWebSockets = true;
         return this;
@@ -223,7 +223,7 @@ class WebApp {
      * @description Requires dev dependencies [koa-webpack, memory-fs]
      */
     enableWebPackDevMiddleware(publicPath = "/") {
-        n_defensive_1.given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(publicPath, "publicPath").ensureHasValue().ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
         // given(serverHost, "serverHost").ensureIsString();
         if (this._isBootstrapped)
@@ -258,7 +258,7 @@ class WebApp {
     registerDisposeAction(disposeAction) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerForDispose");
-        n_defensive_1.given(disposeAction, "disposeAction").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(disposeAction, "disposeAction").ensureHasValue().ensureIsFunction();
         this._disposeActions.push(() => {
             return new Promise((resolve) => {
                 try {
@@ -400,10 +400,12 @@ class WebApp {
     }
     configureExceptionHandling() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 yield next();
             }
             catch (error) {
+                yield this._logger.logWarning(`Error during request to URL '${(_a = ctx.url) !== null && _a !== void 0 ? _a : "UNKNOWN"}'.`);
                 if (error instanceof http_exception_1.HttpException) {
                     ctx.status = error.statusCode;
                     if (error.body !== undefined && error.body !== null)

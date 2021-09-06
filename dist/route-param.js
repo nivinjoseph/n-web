@@ -8,7 +8,7 @@ const http_exception_1 = require("./exceptions/http-exception");
 class RouteParam {
     constructor(routeParam) {
         this._order = 0;
-        n_defensive_1.given(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         let param = routeParam.trim();
         let paramKey;
         let paramType;
@@ -50,7 +50,7 @@ class RouteParam {
     get isOptional() { return this._isOptional; }
     get order() { return this._order; }
     setOrder(order) {
-        n_defensive_1.given(order, "order").ensureHasValue();
+        (0, n_defensive_1.given)(order, "order").ensureHasValue();
         if (this._order > 0)
             throw new n_exception_1.InvalidOperationException("setOrder");
         this._order = order;

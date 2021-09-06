@@ -34,8 +34,8 @@ class DefaultExceptionHandler {
         });
     }
     registerHandler(exceptionType, handler) {
-        n_defensive_1.given(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
-        n_defensive_1.given(handler, "handler").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
+        (0, n_defensive_1.given)(handler, "handler").ensureHasValue().ensureIsFunction();
         const name = exceptionType.getTypeName();
         if (this._handlers[name])
             throw new n_exception_1.ApplicationException(`Duplicate handler registration for Exception type '${name}'.`);

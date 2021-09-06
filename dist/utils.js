@@ -7,11 +7,11 @@ const n_defensive_1 = require("@nivinjoseph/n-defensive");
 class Utils // static class
  {
     static generateUrl(route, params, baseUrl) {
-        n_defensive_1.given(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(route, "route").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         if (params)
-            n_defensive_1.given(params, "params").ensureIsObject();
+            (0, n_defensive_1.given)(params, "params").ensureIsObject();
         if (baseUrl)
-            n_defensive_1.given(baseUrl, "baseUrl").ensureIsString();
+            (0, n_defensive_1.given)(baseUrl, "baseUrl").ensureIsString();
         route = route.trim().replaceAll(" ", "");
         if (baseUrl !== undefined && baseUrl != null && !baseUrl.isEmptyOrWhiteSpace()) {
             baseUrl = baseUrl.trim().replaceAll(" ", "");

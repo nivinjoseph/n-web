@@ -22,10 +22,10 @@ const n_config_1 = require("@nivinjoseph/n-config");
 class Router {
     constructor(koa, container, authorizationHandlerKey, callContextKey) {
         this._controllers = new Array();
-        n_defensive_1.given(koa, "koa").ensureHasValue();
-        n_defensive_1.given(container, "container").ensureHasValue();
-        n_defensive_1.given(authorizationHandlerKey, "authorizationHandlerKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        n_defensive_1.given(callContextKey, "callContextKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(koa, "koa").ensureHasValue();
+        (0, n_defensive_1.given)(container, "container").ensureHasValue();
+        (0, n_defensive_1.given)(authorizationHandlerKey, "authorizationHandlerKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(callContextKey, "callContextKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._koa = koa;
         this._container = container;
         this._authorizationHandlerKey = authorizationHandlerKey;

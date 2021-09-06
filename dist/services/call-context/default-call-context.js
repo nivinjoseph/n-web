@@ -20,25 +20,25 @@ class DefaultCallContext {
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
     configure(ctx, authHeaders) {
-        n_defensive_1.given(ctx, "ctx").ensureHasValue().ensureIsObject();
-        n_defensive_1.given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
+        (0, n_defensive_1.given)(ctx, "ctx").ensureHasValue().ensureIsObject();
+        (0, n_defensive_1.given)(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._ctx = ctx;
         this._authHeaders = authHeaders;
         this.populateSchemeAndToken();
     }
     getRequestHeader(header) {
-        n_defensive_1.given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         return this._ctx.get(header);
     }
     setResponseType(responseType) {
-        n_defensive_1.given(responseType, "responseType")
+        (0, n_defensive_1.given)(responseType, "responseType")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx.response.type = responseType.trim();
     }
     setResponseContentDisposition(contentDisposition) {
-        n_defensive_1.given(contentDisposition, "contentDisposition")
+        (0, n_defensive_1.given)(contentDisposition, "contentDisposition")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
@@ -47,8 +47,8 @@ class DefaultCallContext {
         });
     }
     setResponseHeader(header, value) {
-        n_defensive_1.given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
-        n_defensive_1.given(value, "value").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(value, "value").ensureHasValue().ensureIsString();
         this._ctx.set(header, value);
     }
     populateSchemeAndToken() {

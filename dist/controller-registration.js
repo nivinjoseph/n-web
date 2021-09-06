@@ -25,7 +25,7 @@ class ControllerRegistration {
         this._viewLayoutFilePath = null;
         this._viewLayoutFileData = null;
         this._authorizeClaims = null;
-        n_defensive_1.given(controller, "controller").ensureHasValue();
+        (0, n_defensive_1.given)(controller, "controller").ensureHasValue();
         this._name = controller.getTypeName();
         this._controller = controller;
     }

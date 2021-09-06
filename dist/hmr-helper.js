@@ -11,7 +11,7 @@ class HmrHelper {
     static get devFs() { return this._devFs; }
     static get outputPath() { return this._outputPath; }
     static configure(devFs) {
-        n_defensive_1.given(devFs, "defFs").ensureHasValue().ensureIsObject();
+        (0, n_defensive_1.given)(devFs, "defFs").ensureHasValue().ensureIsObject();
         this._devFs = devFs;
         const config = require(path.join(process.cwd(), "webpack.config.js"));
         this._outputPath = config.output.path;

@@ -11,12 +11,12 @@ class RouteInfo {
         this._routeParams = new Array();
         this._routeParamsRegistry = {};
         this._isCatchAll = false;
-        n_defensive_1.given(routeTemplate, "routeTemplate")
+        (0, n_defensive_1.given)(routeTemplate, "routeTemplate")
             .ensureHasValue()
             .ensure(t => !t.isEmptyOrWhiteSpace());
         routeTemplate = routeTemplate.trim().replaceAll(" ", "");
         if (!isUrlGenerator) {
-            n_defensive_1.given(routeTemplate, "routeTemplate")
+            (0, n_defensive_1.given)(routeTemplate, "routeTemplate")
                 .ensure(t => t.startsWith("/"), "has to start with '/'")
                 .ensure(t => !t.contains("//"), "cannot contain '//'");
             if (routeTemplate.length > 1 && routeTemplate.endsWith("/"))
@@ -37,7 +37,7 @@ class RouteInfo {
     get params() { return this._routeParams; }
     get isCatchAll() { return this._isCatchAll; }
     findRouteParam(key) {
-        n_defensive_1.given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         return this._routeParamsRegistry[key.trim().toLowerCase()];
     }
     generateUrl(values) {

@@ -7,7 +7,7 @@ require("@nivinjoseph/n-ext");
 exports.viewLayoutSymbol = Symbol("viewLayout");
 // public
 function viewLayout(file) {
-    n_defensive_1.given(file, "file")
+    (0, n_defensive_1.given)(file, "file")
         .ensureHasValue()
         .ensure(t => !t.isEmptyOrWhiteSpace());
     return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, file.trim(), target);
