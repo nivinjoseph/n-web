@@ -560,7 +560,9 @@ export class WebApp
                 await next();
             }
             catch (error)
-            {   
+            { 
+                await this._logger.logWarning(`Error during request to URL '${ctx.url ?? "UNKNOWN"}'.`);
+                
                 if (error instanceof HttpException)
                 {  
                     ctx.status = error.statusCode;
