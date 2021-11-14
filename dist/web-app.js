@@ -27,14 +27,11 @@ const n_sec_1 = require("@nivinjoseph/n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
-// const koaWebpack = require("@nivinjoseph/koa-webpack");
 const n_log_1 = require("@nivinjoseph/n-log");
 const n_util_1 = require("@nivinjoseph/n-util");
 const Http = require("http");
 const backend_1 = require("@nivinjoseph/n-sock/dist/backend");
 const Compress = require("koa-compress");
-// import Compress = require("kompression");
-// const Compress = require("@nivinjoseph/kompression");
 // public
 class WebApp {
     constructor(port, host, container) {
@@ -506,69 +503,122 @@ class WebApp {
         this._socketServer = new backend_1.SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
         this.registerDisposeAction(() => this._socketServer.dispose());
     }
+    // private configureWebPackDevMiddleware(): Promise<void>
+    // {
+    //     if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
+    //     {
+    //         // // tslint:disable-next-line
+    //         // koaWebpack({
+    //         //     devMiddleware: {
+    //         //         publicPath: this._webPackDevMiddlewarePublicPath,
+    //         //         writeToDisk: true,
+    //         //     },
+    //         //     hotClient: false
+    //         // }).then((middleware) => this._koa.use(middleware));
+    //         // const koaWebpack = require("@nivinjoseph/koa-webpack");
+    //         const koaWebpack = require("koa-webpack");
+    //         // tslint:disable-next-line
+    //         return koaWebpack({
+    //             devMiddleware: {
+    //                 publicPath: this._webPackDevMiddlewarePublicPath,
+    //                 writeToDisk: false,
+    //             },
+    //             hotClient: {
+    //                 hmr: true,
+    //                 reload: true,
+    //                 server: this._server
+    //             }
+    //         }).then((middleware: any) =>
+    //         {
+    //             this._koa.use(middleware);
+    //             const HmrHelper = require("./hmr-helper").HmrHelper;
+    //             HmrHelper.configure(middleware.devMiddleware.fileSystem);
+    //         });
+    //         // if (this._webPackDevMiddlewareClientHost)
+    //         // {
+    //         //     // tslint:disable-next-line
+    //         //     koaWebpack({
+    //         //         devMiddleware: {
+    //         //             publicPath: this._webPackDevMiddlewarePublicPath,
+    //         //             writeToDisk: true,
+    //         //         },
+    //         //         hotClient: false
+    //         //         // hotClient: {
+    //         //         //     hmr: false,
+    //         //         //     // reload: true,
+    //         //         //     // host: {
+    //         //         //     //     client: this._webPackDevMiddlewareClientHost,
+    //         //         //     //     server: this._webPackDevMiddlewareServerHost || this._host
+    //         //         //     // },
+    //         //         //     // port: this._port
+    //         //         // }
+    //         //     }).then((middleware) => this._koa.use(middleware));
+    //         // }
+    //         // else
+    //         // {
+    //         //     // tslint:disable-next-line
+    //         //     koaWebpack({
+    //         //         devMiddleware: {
+    //         //             publicPath: this._webPackDevMiddlewarePublicPath,
+    //         //             writeToDisk: true,
+    //         //         },
+    //         //         hotClient: {
+    //         //             hmr: false,
+    //         //             // reload: true,
+    //         //             // server: this._server
+    //         //         }
+    //         //     }).then((middleware) => this._koa.use(middleware));
+    //         // }
+    //     }
+    //     return Promise.resolve();
+    // }
     configureWebPackDevMiddleware() {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
-            // // tslint:disable-next-line
-            // koaWebpack({
-            //     devMiddleware: {
-            //         publicPath: this._webPackDevMiddlewarePublicPath,
-            //         writeToDisk: true,
-            //     },
-            //     hotClient: false
-            // }).then((middleware) => this._koa.use(middleware));
-            // const koaWebpack = require("@nivinjoseph/koa-webpack");
-            const koaWebpack = require("koa-webpack");
-            // tslint:disable-next-line
-            return koaWebpack({
-                devMiddleware: {
-                    publicPath: this._webPackDevMiddlewarePublicPath,
-                    writeToDisk: false,
-                },
-                hotClient: {
-                    hmr: true,
-                    reload: true,
-                    server: this._server
-                }
-            }).then((middleware) => {
-                this._koa.use(middleware);
-                const HmrHelper = require("./hmr-helper").HmrHelper;
-                HmrHelper.configure(middleware.devMiddleware.fileSystem);
-            });
-            // if (this._webPackDevMiddlewareClientHost)
-            // {
-            //     // tslint:disable-next-line
-            //     koaWebpack({
-            //         devMiddleware: {
-            //             publicPath: this._webPackDevMiddlewarePublicPath,
-            //             writeToDisk: true,
-            //         },
-            //         hotClient: false
-            //         // hotClient: {
-            //         //     hmr: false,
-            //         //     // reload: true,
-            //         //     // host: {
-            //         //     //     client: this._webPackDevMiddlewareClientHost,
-            //         //     //     server: this._webPackDevMiddlewareServerHost || this._host
-            //         //     // },
-            //         //     // port: this._port
-            //         // }
-            //     }).then((middleware) => this._koa.use(middleware));
-            // }
-            // else
-            // {
-            //     // tslint:disable-next-line
-            //     koaWebpack({
-            //         devMiddleware: {
-            //             publicPath: this._webPackDevMiddlewarePublicPath,
-            //             writeToDisk: true,
-            //         },
-            //         hotClient: {
-            //             hmr: false,
-            //             // reload: true,
-            //             // server: this._server
-            //         }
-            //     }).then((middleware) => this._koa.use(middleware));
-            // }
+            const webpack = require("webpack");
+            const webpackDevMiddleware = require("webpack-dev-middleware");
+            const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            const compiler = webpack(config);
+            const devMiddleware = webpackDevMiddleware(compiler, { publicPath: this._webPackDevMiddlewarePublicPath });
+            this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                // wait for webpack-dev-middleware to signal that the build is ready
+                const ready = new Promise((resolve, reject) => {
+                    for (const comp of [].concat(compiler.compilers || compiler)) {
+                        comp.hooks.failed.tap("n-web-webpack-dev-middleware", (error) => {
+                            reject(error);
+                        });
+                    }
+                    devMiddleware.waitUntilValid(() => {
+                        resolve(true);
+                    });
+                });
+                // tell webpack-dev-middleware to handle the request
+                const init = new Promise((resolve) => {
+                    devMiddleware(ctx.req, {
+                        end: (content) => {
+                            // eslint-disable-next-line no-param-reassign
+                            ctx.body = content;
+                            resolve();
+                        },
+                        getHeader: ctx.get.bind(ctx),
+                        setHeader: ctx.set.bind(ctx),
+                        locals: ctx.state
+                    }, () => resolve(next()));
+                });
+                return Promise.all([ready, init]);
+            }));
+            const disposeAction = () => {
+                return new Promise((resolve, reject) => {
+                    devMiddleware.close((err) => {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve();
+                    });
+                });
+            };
+            this._disposeActions.push(disposeAction);
+            const HmrHelper = require("./hmr-helper").HmrHelper;
+            HmrHelper.configure(devMiddleware.fileSystem);
         }
         return Promise.resolve();
     }
