@@ -4,7 +4,7 @@ import * as path from "path";
 
 export class HmrHelper
 {
-    private static _devFs: IFs = fs;
+    private static _devFs: IFs = null;
     private static _outputPath: string = null;
     
     
@@ -19,7 +19,11 @@ export class HmrHelper
     
     
     public static configure(): void
-    {    
+    {
+        const devFs: any = fs;
+        devFs.join = path.join.bind(path); // no need to bind
+        this._devFs = devFs;
+        
         const config = require(path.join(process.cwd(), "webpack.config.js"));
         this._outputPath = config.output.path;
     }
