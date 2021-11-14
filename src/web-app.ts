@@ -309,7 +309,7 @@ export class WebApp
     /**
      * 
      * @param publicPath Webpack publicPath value
-     * @description Requires dev dependencies [webpack-dev-middleware]
+     * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
     public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
@@ -775,6 +775,7 @@ export class WebApp
         {
             const webpack = require("webpack");
             const webpackDevMiddleware = require("webpack-dev-middleware");
+            const webpackHotMiddleware = require("webpack-hot-middleware");
 
             const config = require(path.resolve(process.cwd(), "webpack.config.js"));
             const compiler = webpack(config);
@@ -785,6 +786,12 @@ export class WebApp
             const devMiddleware = webpackDevMiddleware(compiler, {
                 publicPath: this._webPackDevMiddlewarePublicPath,
                 outputFileSystem: HmrHelper.devFs
+            });
+            
+            const hotMiddleware = webpackHotMiddleware(compiler, {
+                hmr: true,
+                reload: true,
+                server: this._server
             });
             
             this._koa.use(async (ctx, next) =>
@@ -828,10 +835,27 @@ export class WebApp
                 return Promise.all([ready, init]);
             });
             
+            this._koa.use(async (ctx, next) =>
+            {
+                const init = new Promise<void>((resolve) =>
+                {
+                    hotMiddleware(
+                        ctx.req,
+                        ctx.res,
+                        () => resolve(next())
+                    );
+                });
+
+                return init;
+            });
+            
+            
+            
             const disposeAction = () =>
             {
                 return new Promise<void>((resolve, reject) =>
                 {
+                    hotMiddleware.close();
                     devMiddleware.close((err: any) =>
                     {
                         if (err)
