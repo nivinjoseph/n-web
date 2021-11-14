@@ -1,5 +1,6 @@
-import { IFs, fs } from "memfs";
+import { IFs, createFsFromVolume, Volume } from "memfs";
 import * as path from "path";
+const mkdirp = require("mkdirp");
 
 
 export class HmrHelper
@@ -20,8 +21,9 @@ export class HmrHelper
     
     public static configure(): void
     {
-        const devFs: any = fs;
-        devFs.join = path.join.bind(path); // no need to bind
+        const devFs: any = createFsFromVolume(new Volume());
+        devFs.join = path.join.bind(path);
+        devFs.mkdirp = mkdirp.bind(mkdirp);
         this._devFs = devFs;
         
         const config = require(path.join(process.cwd(), "webpack.config.js"));
