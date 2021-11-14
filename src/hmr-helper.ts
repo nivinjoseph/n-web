@@ -1,15 +1,14 @@
-import MemoryFileSystem = require("memory-fs");
-import { given } from "@nivinjoseph/n-defensive";
+import { IFs, fs } from "memfs";
 import * as path from "path";
 
 
 export class HmrHelper
 {
-    private static _devFs: MemoryFileSystem = null;
+    private static _devFs: IFs = fs;
     private static _outputPath: string = null;
     
     
-    public static get devFs(): MemoryFileSystem { return this._devFs; }
+    public static get devFs(): IFs { return this._devFs; }
     public static get outputPath(): string { return this._outputPath; }
     
         
@@ -19,12 +18,8 @@ export class HmrHelper
     private constructor() { }
     
     
-    public static configure(devFs: MemoryFileSystem): void
-    {
-        given(devFs, "defFs").ensureHasValue().ensureIsObject();
-        
-        this._devFs = devFs;
-        
+    public static configure(): void
+    {    
         const config = require(path.join(process.cwd(), "webpack.config.js"));
         this._outputPath = config.output.path;
     }

@@ -309,7 +309,7 @@ export class WebApp
     /**
      * 
      * @param publicPath Webpack publicPath value
-     * @description Requires dev dependencies [koa-webpack, memory-fs]
+     * @description Requires dev dependencies [webpack-dev-middleware]
      */
     public enableWebPackDevMiddleware(publicPath: string = "/"): this
     {
@@ -779,7 +779,13 @@ export class WebApp
             const config = require(path.resolve(process.cwd(), "webpack.config.js"));
             const compiler = webpack(config);
 
-            const devMiddleware = webpackDevMiddleware(compiler, { publicPath: this._webPackDevMiddlewarePublicPath });
+            const HmrHelper = require("./hmr-helper").HmrHelper;
+            HmrHelper.configure();
+            
+            const devMiddleware = webpackDevMiddleware(compiler, {
+                publicPath: this._webPackDevMiddlewarePublicPath,
+                outputFileSystem: HmrHelper.devFs
+            });
             
             this._koa.use(async (ctx, next) =>
             {
@@ -837,9 +843,6 @@ export class WebApp
             };
             
             this._disposeActions.push(disposeAction);
-            
-            const HmrHelper = require("./hmr-helper").HmrHelper;
-            HmrHelper.configure(devMiddleware.fileSystem);
         }
         
         return Promise.resolve();
