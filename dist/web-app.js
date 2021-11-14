@@ -217,7 +217,7 @@ class WebApp {
     /**
      *
      * @param publicPath Webpack publicPath value
-     * @description Requires dev dependencies [webpack-dev-middleware]
+     * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
     enableWebPackDevMiddleware(publicPath = "/") {
         (0, n_defensive_1.given)(publicPath, "publicPath").ensureHasValue().ensureIsString();
@@ -576,6 +576,7 @@ class WebApp {
         if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
             const webpack = require("webpack");
             const webpackDevMiddleware = require("webpack-dev-middleware");
+            const webpackHotMiddleware = require("webpack-hot-middleware");
             const config = require(path.resolve(process.cwd(), "webpack.config.js"));
             const compiler = webpack(config);
             const HmrHelper = require("./hmr-helper").HmrHelper;
@@ -583,6 +584,11 @@ class WebApp {
             const devMiddleware = webpackDevMiddleware(compiler, {
                 publicPath: this._webPackDevMiddlewarePublicPath,
                 outputFileSystem: HmrHelper.devFs
+            });
+            const hotMiddleware = webpackHotMiddleware(compiler, {
+                hmr: true,
+                reload: true,
+                server: this._server
             });
             this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
                 // wait for webpack-dev-middleware to signal that the build is ready
@@ -611,8 +617,15 @@ class WebApp {
                 });
                 return Promise.all([ready, init]);
             }));
+            this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                const init = new Promise((resolve) => {
+                    hotMiddleware(ctx.req, ctx.res, () => resolve(next()));
+                });
+                return init;
+            }));
             const disposeAction = () => {
                 return new Promise((resolve, reject) => {
+                    hotMiddleware.close();
                     devMiddleware.close((err) => {
                         if (err)
                             reject(err);

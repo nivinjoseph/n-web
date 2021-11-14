@@ -58,7 +58,7 @@ export declare class WebApp {
     /**
      *
      * @param publicPath Webpack publicPath value
-     * @description Requires dev dependencies [webpack-dev-middleware]
+     * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
     enableWebPackDevMiddleware(publicPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
