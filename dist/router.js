@@ -96,7 +96,7 @@ class Router {
         }));
     }
     handleRequest(ctx, registration, processBody) {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         return __awaiter(this, void 0, void 0, function* () {
             (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request handling started");
             let scope = ctx.state.scope;
@@ -153,6 +153,7 @@ class Router {
                 (_g = ctx.state.profiler) === null || _g === void 0 ? void 0 : _g.trace("Request view rendered");
             }
             ctx.body = result;
+            (_h = ctx.state.profiler) === null || _h === void 0 ? void 0 : _h.trace("Request handling ended");
         });
     }
     createRouteArgs(route, ctx) {

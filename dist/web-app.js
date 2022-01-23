@@ -22,7 +22,6 @@ const path = require("path");
 const cors = require("kcors");
 const default_call_context_1 = require("./services/call-context/default-call-context");
 const default_authorization_handler_1 = require("./security/default-authorization-handler");
-const n_sec_1 = require("@nivinjoseph/n-sec");
 const default_exception_handler_1 = require("./exceptions/default-exception-handler");
 const http_exception_1 = require("./exceptions/http-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
@@ -373,7 +372,7 @@ class WebApp {
     // this is the first
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a, _b, _c;
             if (this._isShutDown) {
                 ctx.response.status = 503;
                 ctx.response.body = "Server shutdown.";
@@ -381,8 +380,9 @@ class WebApp {
             }
             if (this._enableProfiling)
                 ctx.state.profiler = new n_util_1.Profiler(ctx.request.URL.toString());
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request started");
             ctx.state.scope = this._container.createScope();
-            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request scope created");
+            (_b = ctx.state.profiler) === null || _b === void 0 ? void 0 : _b.trace("Request scope created");
             try {
                 yield next();
             }
@@ -392,11 +392,18 @@ class WebApp {
             finally {
                 // tslint:disable-next-line: no-floating-promises
                 ctx.state.scope.dispose();
-                (_b = ctx.state.profiler) === null || _b === void 0 ? void 0 : _b.trace("Request ended");
+                (_c = ctx.state.profiler) === null || _c === void 0 ? void 0 : _c.trace("Request ended");
                 if (this._enableProfiling) {
+                    const profiler = ctx.state.profiler;
+                    const totalTime = profiler.traces.reduce((acc, t) => acc + t.diffMs, 0);
+                    console.log(profiler.id, `Total time: ${totalTime}`);
+                    console.table(profiler.traces.map(t => ({
+                        operation: t.message,
+                        time: t.diffMs
+                    })));
                     // console.table((<Profiler>ctx.state.profiler).traces);
                     // tslint:disable-next-line: no-floating-promises
-                    this._logger.logInfo(ctx.state.profiler.id + " ==> " + JSON.stringify(ctx.state.profiler.traces));
+                    // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
                 }
             }
         }));
@@ -407,7 +414,7 @@ class WebApp {
             let scope = ctx.state.scope;
             let defaultCallContext = scope.resolve(this._callContextKey);
             defaultCallContext.configure(ctx, this._authHeaders);
-            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("CallContext configured");
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request callContext configured");
             yield next();
         }));
     }
@@ -498,10 +505,11 @@ class WebApp {
             if (callContext.hasAuth) {
                 let authenticationHandler = scope.resolve(this._authenticationHandlerKey);
                 let identity = yield authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
-                if (identity && identity instanceof n_sec_1.ClaimsIdentity)
+                if (identity) {
                     ctx.state.identity = identity;
+                    (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request authenticated");
+                }
             }
-            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Authenticated");
             yield next();
         }));
     }
