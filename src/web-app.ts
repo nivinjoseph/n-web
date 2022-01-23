@@ -12,7 +12,6 @@ import { DefaultCallContext } from "./services/call-context/default-call-context
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
-import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
 import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
@@ -527,6 +526,8 @@ export class WebApp
             
             if (this._enableProfiling)
                 ctx.state.profiler = new Profiler(ctx.request.URL.toString());
+                
+            (<Profiler>ctx.state.profiler)?.trace("Request started");
             
             ctx.state.scope = this._container.createScope();
             (<Profiler>ctx.state.profiler)?.trace("Request scope created");
@@ -545,9 +546,17 @@ export class WebApp
                 (<Profiler>ctx.state.profiler)?.trace("Request ended");
                 if (this._enableProfiling)
                 {
+                    const profiler = <Profiler>ctx.state.profiler;
+                    const totalTime = profiler.traces.reduce((acc, t) => acc + t.diffMs, 0);
+                    console.log(profiler.id, `Total time: ${totalTime}`);
+                    console.table(profiler.traces.map(t => ({
+                        operation: t.message,
+                        time: t.diffMs
+                    })));
+                    
                     // console.table((<Profiler>ctx.state.profiler).traces);
                     // tslint:disable-next-line: no-floating-promises
-                    this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
+                    // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
                 }
             }
         });
@@ -560,7 +569,7 @@ export class WebApp
             let scope: Scope = ctx.state.scope;
             let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
             defaultCallContext.configure(ctx as any, this._authHeaders);
-            (<Profiler>ctx.state.profiler)?.trace("CallContext configured");
+            (<Profiler>ctx.state.profiler)?.trace("Request callContext configured");
             await next();
         });
     }
@@ -682,11 +691,12 @@ export class WebApp
             {
                 let authenticationHandler = scope.resolve<AuthenticationHandler>(this._authenticationHandlerKey);
                 let identity = await authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
-                if (identity && identity instanceof ClaimsIdentity)
-                    ctx.state.identity = identity;  
+                if (identity)
+                {
+                    ctx.state.identity = identity;
+                    (<Profiler>ctx.state.profiler)?.trace("Request authenticated");
+                }
             }    
-            
-            (<Profiler>ctx.state.profiler)?.trace("Authenticated");
             
             await next();
         });

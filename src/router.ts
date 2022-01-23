@@ -213,6 +213,8 @@ export class Router
         }
         
         ctx.body = result;
+        
+        (<Profiler>ctx.state.profiler)?.trace("Request handling ended");
     }
     
     private createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>
