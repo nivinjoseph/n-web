@@ -19,7 +19,7 @@ import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
-import { ClassHierarchy, Delay } from "@nivinjoseph/n-util";
+import { ClassHierarchy, Delay, Profiler } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
@@ -67,9 +67,10 @@ export class WebApp
     private _hasShutdownScript = false;
     
     
-    private readonly _staticFilePaths = new Array<{ path: string; cache: boolean }>();
+    private readonly _staticFilePaths = new Array<{ path: string; cache: boolean; defer: boolean }>();
     private _enableCors = false;
     private _enableCompression = false;
+    private _enableProfiling = false;
     private _viewResolutionRoot: string;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     // // @ts-ignore
@@ -126,6 +127,15 @@ export class WebApp
         return this;
     }
     
+    public enableProfiling(): this
+    {
+        if (this._isBootstrapped)
+            throw new InvalidOperationException("enableProfiling");
+
+        this._enableProfiling = true;
+        return this;
+    }
+    
     // public enableEda(config: EdaConfig): this
     // {
     //     if (this._isBootstrapped)
@@ -136,13 +146,14 @@ export class WebApp
     //     return this;
     // }
     
-    public registerStaticFilePath(filePath: string, cache = false): this
+    public registerStaticFilePath(filePath: string, cache = false, defer = false): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStaticFilePaths");
         
         given(filePath, "filePath").ensureHasValue().ensureIsString();
         given(cache, "cache").ensureHasValue().ensureIsBoolean();
+        given(defer, "defer").ensureHasValue().ensureIsBoolean();
         
         filePath = filePath.trim();
         if (filePath.startsWith("/"))
@@ -166,7 +177,7 @@ export class WebApp
         if (this._staticFilePaths.some(t => t.path === filePath))
             throw new ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
 
-        this._staticFilePaths.push({path: filePath, cache: cache});
+        this._staticFilePaths.push({path: filePath, cache, defer});
         
         return this;
     }
@@ -515,7 +526,11 @@ export class WebApp
                 return;
             }
             
+            if (this._enableProfiling)
+                ctx.state.profiler = new Profiler(ctx.request.URL.toString());
+            
             ctx.state.scope = this._container.createScope();
+            (<Profiler>ctx.state.profiler)?.trace("Request scope created");
             try 
             {
                 await next();    
@@ -526,7 +541,15 @@ export class WebApp
             }
             finally
             {
-                await (<Scope>ctx.state.scope).dispose();
+                // tslint:disable-next-line: no-floating-promises
+                (<Scope>ctx.state.scope).dispose();
+                (<Profiler>ctx.state.profiler)?.trace("Request ended");
+                if (this._enableProfiling)
+                {
+                    // console.table((<Profiler>ctx.state.profiler).traces);
+                    // tslint:disable-next-line: no-floating-promises
+                    this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
+                }
             }
         });
     }
@@ -538,6 +561,7 @@ export class WebApp
             let scope: Scope = ctx.state.scope;
             let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
             defaultCallContext.configure(ctx as any, this._authHeaders);
+            (<Profiler>ctx.state.profiler)?.trace("CallContext configured");
             await next();
         });
     }
@@ -663,6 +687,8 @@ export class WebApp
                     ctx.state.identity = identity;  
             }    
             
+            (<Profiler>ctx.state.profiler)?.trace("Authenticated");
+            
             await next();
         });
     }
@@ -670,7 +696,10 @@ export class WebApp
     private configureStaticFileServing(): void
     {
         for (let item of this._staticFilePaths)
-            this._koa.use(serve(item.path, item.cache ? {maxage: 1000 * 60 * 60 * 24 * 365} : null));
+            this._koa.use(serve(item.path, {
+                maxage: item.cache ? 1000 * 60 * 60 * 24 * 365 : undefined,
+                defer: item.defer ? true : undefined
+            }));
     }
     
     private configureBodyParser(): void

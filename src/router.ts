@@ -13,6 +13,7 @@ import { HttpRedirectException } from "./exceptions/http-redirect-exception";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
+import { Profiler } from "@nivinjoseph/n-util";
 
 export class Router
 {
@@ -135,8 +136,12 @@ export class Router
     private async handleRequest(ctx: KoaRouter.IRouterContext, registration: ControllerRegistration,
         processBody: boolean): Promise<void>
     {
+        (<Profiler>ctx.state.profiler)?.trace("Request handling started");
+        
         let scope = ctx.state.scope as Scope;
         let callContext = scope.resolve<CallContext>(this._callContextKey);
+        
+        (<Profiler>ctx.state.profiler)?.trace("Request callContext resolved");
         
         if (registration.authorizeClaims)
         {
@@ -145,6 +150,7 @@ export class Router
             
             let authorizationHandler = scope.resolve<AuthorizationHandler>(this._authorizationHandlerKey);
             let authorized = await authorizationHandler.authorize(callContext.identity, registration.authorizeClaims);
+            (<Profiler>ctx.state.profiler)?.trace("Request authorized");
             if (!authorized)
                 throw new HttpException(403);    
         }    
@@ -153,10 +159,13 @@ export class Router
         
         if (processBody)
             args.push(ctx.request.body);
-
+            
+        (<Profiler>ctx.state.profiler)?.trace("Request args created");
         
         let controllerInstance = scope.resolve<Controller>(registration.name);
         (<any>controllerInstance).__ctx = ctx;
+        
+        (<Profiler>ctx.state.profiler)?.trace("Request controller created");
         
         let result: any;
         
@@ -171,6 +180,10 @@ export class Router
             
             ctx.redirect((error as HttpRedirectException).url);
             return;
+        }
+        finally
+        {
+            (<Profiler>ctx.state.profiler)?.trace("Request controller executed");
         }
         
         if (registration.view !== null)
@@ -196,6 +209,8 @@ export class Router
                     </script>
                 `);
             result = html;
+            
+            (<Profiler>ctx.state.profiler)?.trace("Request view rendered");
         }
         
         ctx.body = result;

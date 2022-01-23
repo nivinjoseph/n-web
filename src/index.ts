@@ -1,3 +1,4 @@
+import "@nivinjoseph/n-ext";
 import { WebApp } from "./web-app";
 import { Controller } from "./controller";
 import { route } from "./route";

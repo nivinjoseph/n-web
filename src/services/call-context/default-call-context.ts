@@ -3,8 +3,8 @@ import { Scope } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import "@nivinjoseph/n-ext";
 import { URL } from "url";
+import { Profiler } from "@nivinjoseph/n-util";
 
 
 export class DefaultCallContext implements CallContext
@@ -28,6 +28,7 @@ export class DefaultCallContext implements CallContext
     public get authToken(): string { return this._authToken; }
     public get isAuthenticated(): boolean { return this.identity !== undefined && this.identity !== null; }
     public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
+    public get profiler(): Profiler | undefined { return this._ctx.state.profiler; }
     
     
     public configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void
