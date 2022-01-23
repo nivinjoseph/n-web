@@ -47,7 +47,7 @@
         "@types/mocha": "^8.2.2",
         "@types/node": "^14.14.43",
         "@types/redis": "^2.8.32",
-        "memfs": "^3.3.0",
+        "memfs": "^3.4.1",
         "mocha": "^8.3.2",
         "nodemon": "^2.0.15",
         "ts-node": "^10.4.0",

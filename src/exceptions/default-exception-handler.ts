@@ -1,6 +1,5 @@
 import { Exception, ApplicationException } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";
-import "@nivinjoseph/n-ext";
 import { ExceptionHandler } from "./exception-handler";
 import { HttpException } from "./http-exception";
 import { Logger } from "@nivinjoseph/n-log";

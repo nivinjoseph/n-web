@@ -7,7 +7,6 @@ import { Exception, ArgumentException, InvalidOperationException } from "@nivinj
 import * as serve from "koa-static";
 import * as fs from "fs";
 import * as path from "path";
-import "@nivinjoseph/n-ext";
 import * as cors from "kcors";
 import { DefaultCallContext } from "./services/call-context/default-call-context";
 import { AuthenticationHandler } from "./security/authentication-handler";
