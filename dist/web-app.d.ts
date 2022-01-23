@@ -1,5 +1,4 @@
 import { Container, ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
-import "@nivinjoseph/n-ext";
 import { AuthenticationHandler } from "./security/authentication-handler";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { Logger } from "@nivinjoseph/n-log";

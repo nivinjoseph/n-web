@@ -1,4 +1,3 @@
-import "@nivinjoseph/n-ext";
 export declare class RouteParam {
     private readonly _param;
     private readonly _paramKey;

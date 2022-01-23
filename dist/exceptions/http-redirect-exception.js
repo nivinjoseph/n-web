@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpRedirectException = void 0;
 const n_exception_1 = require("@nivinjoseph/n-exception");
-require("@nivinjoseph/n-ext");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
 class HttpRedirectException extends n_exception_1.Exception {
     constructor(url) {

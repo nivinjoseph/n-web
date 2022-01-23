@@ -19,7 +19,6 @@ const n_exception_1 = require("@nivinjoseph/n-exception");
 const serve = require("koa-static");
 const fs = require("fs");
 const path = require("path");
-require("@nivinjoseph/n-ext");
 const cors = require("kcors");
 const default_call_context_1 = require("./services/call-context/default-call-context");
 const default_authorization_handler_1 = require("./security/default-authorization-handler");

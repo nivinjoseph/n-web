@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultExceptionHandler = void 0;
 const n_exception_1 = require("@nivinjoseph/n-exception");
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
 const http_exception_1 = require("./http-exception");
 // public
 class DefaultExceptionHandler {
