@@ -97,22 +97,28 @@ class Router {
         }));
     }
     handleRequest(ctx, registration, processBody) {
+        var _a, _b, _c, _d, _e, _f, _g;
         return __awaiter(this, void 0, void 0, function* () {
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request handling started");
             let scope = ctx.state.scope;
             let callContext = scope.resolve(this._callContextKey);
+            (_b = ctx.state.profiler) === null || _b === void 0 ? void 0 : _b.trace("Request callContext resolved");
             if (registration.authorizeClaims) {
                 if (!callContext.isAuthenticated)
                     throw new http_exception_1.HttpException(401);
                 let authorizationHandler = scope.resolve(this._authorizationHandlerKey);
                 let authorized = yield authorizationHandler.authorize(callContext.identity, registration.authorizeClaims);
+                (_c = ctx.state.profiler) === null || _c === void 0 ? void 0 : _c.trace("Request authorized");
                 if (!authorized)
                     throw new http_exception_1.HttpException(403);
             }
             let args = this.createRouteArgs(registration.route, ctx);
             if (processBody)
                 args.push(ctx.request.body);
+            (_d = ctx.state.profiler) === null || _d === void 0 ? void 0 : _d.trace("Request args created");
             let controllerInstance = scope.resolve(registration.name);
             controllerInstance.__ctx = ctx;
+            (_e = ctx.state.profiler) === null || _e === void 0 ? void 0 : _e.trace("Request controller created");
             let result;
             try {
                 result = yield controllerInstance.execute(...args);
@@ -122,6 +128,9 @@ class Router {
                     throw error;
                 ctx.redirect(error.url);
                 return;
+            }
+            finally {
+                (_f = ctx.state.profiler) === null || _f === void 0 ? void 0 : _f.trace("Request controller executed");
             }
             if (registration.view !== null) {
                 let vm = result;
@@ -142,6 +151,7 @@ class Router {
                     </script>
                 `);
                 result = html;
+                (_g = ctx.state.profiler) === null || _g === void 0 ? void 0 : _g.trace("Request view rendered");
             }
             ctx.body = result;
         });

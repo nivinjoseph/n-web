@@ -55,6 +55,7 @@ class WebApp {
         this._staticFilePaths = new Array();
         this._enableCors = false;
         this._enableCompression = false;
+        this._enableProfiling = false;
         this._webPackDevMiddlewarePublicPath = null;
         // // @ts-ignore
         // private _webPackDevMiddlewareClientHost: string | null = null;
@@ -89,6 +90,12 @@ class WebApp {
         this._enableCompression = true;
         return this;
     }
+    enableProfiling() {
+        if (this._isBootstrapped)
+            throw new n_exception_1.InvalidOperationException("enableProfiling");
+        this._enableProfiling = true;
+        return this;
+    }
     // public enableEda(config: EdaConfig): this
     // {
     //     if (this._isBootstrapped)
@@ -97,11 +104,12 @@ class WebApp {
     //     this._edaConfig = config;
     //     return this;
     // }
-    registerStaticFilePath(filePath, cache = false) {
+    registerStaticFilePath(filePath, cache = false, defer = false) {
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("registerStaticFilePaths");
         (0, n_defensive_1.given)(filePath, "filePath").ensureHasValue().ensureIsString();
         (0, n_defensive_1.given)(cache, "cache").ensureHasValue().ensureIsBoolean();
+        (0, n_defensive_1.given)(defer, "defer").ensureHasValue().ensureIsBoolean();
         filePath = filePath.trim();
         if (filePath.startsWith("/")) {
             if (filePath.length === 1) {
@@ -117,7 +125,7 @@ class WebApp {
         }
         if (this._staticFilePaths.some(t => t.path === filePath))
             throw new n_exception_1.ArgumentException("filePath[{0}]".format(filePath), "is duplicate");
-        this._staticFilePaths.push({ path: filePath, cache: cache });
+        this._staticFilePaths.push({ path: filePath, cache, defer });
         return this;
     }
     registerControllers(...controllerClasses) {
@@ -366,12 +374,16 @@ class WebApp {
     // this is the first
     configureScoping() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             if (this._isShutDown) {
                 ctx.response.status = 503;
                 ctx.response.body = "Server shutdown.";
                 return;
             }
+            if (this._enableProfiling)
+                ctx.state.profiler = new n_util_1.Profiler(ctx.request.URL.toString());
             ctx.state.scope = this._container.createScope();
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Request scope created");
             try {
                 yield next();
             }
@@ -379,15 +391,24 @@ class WebApp {
                 throw error;
             }
             finally {
-                yield ctx.state.scope.dispose();
+                // tslint:disable-next-line: no-floating-promises
+                ctx.state.scope.dispose();
+                (_b = ctx.state.profiler) === null || _b === void 0 ? void 0 : _b.trace("Request ended");
+                if (this._enableProfiling) {
+                    // console.table((<Profiler>ctx.state.profiler).traces);
+                    // tslint:disable-next-line: no-floating-promises
+                    this._logger.logInfo(ctx.state.profiler.id + " ==> " + JSON.stringify(ctx.state.profiler.traces));
+                }
             }
         }));
     }
     configureCallContext() {
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             let scope = ctx.state.scope;
             let defaultCallContext = scope.resolve(this._callContextKey);
             defaultCallContext.configure(ctx, this._authHeaders);
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("CallContext configured");
             yield next();
         }));
     }
@@ -472,6 +493,7 @@ class WebApp {
         if (!this._hasAuthenticationHandler)
             return;
         this._koa.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             let scope = ctx.state.scope;
             let callContext = scope.resolve(this._callContextKey);
             if (callContext.hasAuth) {
@@ -480,12 +502,16 @@ class WebApp {
                 if (identity && identity instanceof n_sec_1.ClaimsIdentity)
                     ctx.state.identity = identity;
             }
+            (_a = ctx.state.profiler) === null || _a === void 0 ? void 0 : _a.trace("Authenticated");
             yield next();
         }));
     }
     configureStaticFileServing() {
         for (let item of this._staticFilePaths)
-            this._koa.use(serve(item.path, item.cache ? { maxage: 1000 * 60 * 60 * 24 * 365 } : null));
+            this._koa.use(serve(item.path, {
+                maxage: item.cache ? 1000 * 60 * 60 * 24 * 365 : undefined,
+                defer: item.defer ? true : undefined
+            }));
     }
     configureBodyParser() {
         this._koa.use(KoaBodyParser({

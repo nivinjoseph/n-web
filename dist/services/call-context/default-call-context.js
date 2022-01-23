@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultCallContext = void 0;
 const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
 class DefaultCallContext {
     constructor() {
         this._hasAuth = false;
@@ -19,6 +18,7 @@ class DefaultCallContext {
     get authToken() { return this._authToken; }
     get isAuthenticated() { return this.identity !== undefined && this.identity !== null; }
     get identity() { return this._ctx.state.identity; }
+    get profiler() { return this._ctx.state.profiler; }
     configure(ctx, authHeaders) {
         (0, n_defensive_1.given)(ctx, "ctx").ensureHasValue().ensureIsObject();
         (0, n_defensive_1.given)(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();

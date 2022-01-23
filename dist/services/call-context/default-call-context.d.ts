@@ -3,8 +3,8 @@ import { CallContext } from "./call-context";
 import { Scope } from "@nivinjoseph/n-ject";
 import * as Koa from "koa";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import "@nivinjoseph/n-ext";
 import { URL } from "url";
+import { Profiler } from "@nivinjoseph/n-util";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _authHeaders;
@@ -23,6 +23,7 @@ export declare class DefaultCallContext implements CallContext {
     get authToken(): string;
     get isAuthenticated(): boolean;
     get identity(): ClaimsIdentity;
+    get profiler(): Profiler | undefined;
     configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void;
     getRequestHeader(header: string): string;
     setResponseType(responseType: string): void;

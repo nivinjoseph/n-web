@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorize = exports.DefaultAuthorizationHandler = exports.DefaultExceptionHandler = exports.HttpException = exports.Utils = exports.viewLayout = exports.view = exports.command = exports.query = exports.httpDelete = exports.httpPut = exports.httpPost = exports.httpGet = exports.route = exports.Controller = exports.WebApp = void 0;
+require("@nivinjoseph/n-ext");
 const web_app_1 = require("./web-app");
 Object.defineProperty(exports, "WebApp", { enumerable: true, get: function () { return web_app_1.WebApp; } });
 const controller_1 = require("./controller");
