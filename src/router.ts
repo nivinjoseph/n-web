@@ -12,7 +12,7 @@ import { HttpRedirectException } from "./exceptions/http-redirect-exception";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import { CallContext } from "./services/call-context/call-context";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
-import { Profiler } from "@nivinjoseph/n-util";
+import { Profiler, Templator } from "@nivinjoseph/n-util";
 
 export class Router
 {
@@ -193,13 +193,25 @@ export class Router
             
             let view = registration.view;
             let viewLayout = registration.viewLayout;
-            if (viewLayout !== null)
-                // tslint:disable
-                view = eval("`" + viewLayout + "`");
             
-            let html = eval("`" + view + "`") as string;
-            // tslint:enable
-            let config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
+            
+            
+            // if (viewLayout !== null)
+            //     // tslint:disable
+            //     view = eval("`" + viewLayout + "`");
+            
+            // let html = eval("`" + view + "`") as string;
+            // // tslint:enable
+            
+            if (viewLayout !== null)
+                view = viewLayout.replaceAll("${view}", view);
+            
+            let html = (new Templator(view)).render(vm);
+            
+            
+            
+            
+            const config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
             html = html.replace("<body>",
                 `
                     <body>
