@@ -18,6 +18,7 @@ const http_method_1 = require("./http-method");
 const http_exception_1 = require("./exceptions/http-exception");
 const http_redirect_exception_1 = require("./exceptions/http-redirect-exception");
 const n_config_1 = require("@nivinjoseph/n-config");
+const n_util_1 = require("@nivinjoseph/n-util");
 class Router {
     constructor(koa, container, authorizationHandlerKey, callContextKey) {
         this._controllers = new Array();
@@ -137,12 +138,15 @@ class Router {
                     vm = { value: result };
                 let view = registration.view;
                 let viewLayout = registration.viewLayout;
+                // if (viewLayout !== null)
+                //     // tslint:disable
+                //     view = eval("`" + viewLayout + "`");
+                // let html = eval("`" + view + "`") as string;
+                // // tslint:enable
                 if (viewLayout !== null)
-                    // tslint:disable
-                    view = eval("`" + viewLayout + "`");
-                let html = eval("`" + view + "`");
-                // tslint:enable
-                let config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config || {});
+                    view = viewLayout.replaceAll("${view}", view);
+                let html = (new n_util_1.Templator(view)).render(vm);
+                const config = Object.assign({ env: n_config_1.ConfigurationManager.getConfig("env") }, vm.config || {});
                 html = html.replace("<body>", `
                     <body>
                     <script>
