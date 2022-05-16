@@ -34,6 +34,7 @@ export class WebApp
     private readonly _host: string | null;
     private readonly _koa: Koa;
     private readonly _container: Container;
+    private readonly _ownsContainer: boolean;
     private readonly _router: Router;
     
     private readonly _callContextKey = "CallContext";
@@ -47,16 +48,16 @@ export class WebApp
     // private readonly _jobInstances = new Array<Job>();
     
     private readonly _exceptionHandlerKey = "$exceptionHandler";
-    private _hasExceptionHandler = false;
+    // private _hasExceptionHandler = false;
     
     private readonly _authenticationHandlerKey = "$authenticationHandler";
     private _hasAuthenticationHandler = false;
     private _authHeaders = ["authorization"];
     
     private readonly _authorizationHandlerKey = "$authorizationHandler";
-    private _hasAuthorizationHandler = false;
+    // private _hasAuthorizationHandler = false;
     
-    private _logger: Logger;
+    private readonly _logger: Logger;
     
     private readonly _startupScriptKey = "$startupScript";
     private _hasStartupScript = false;
@@ -91,7 +92,7 @@ export class WebApp
     public get containerRegistry(): Registry { return this._container; }
     
     
-    public constructor(port: number, host: string | null, container?: Container)
+    public constructor(port: number, host: string | null, container?: Container | null, logger?: Logger | null)
     {
         given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
@@ -100,10 +101,27 @@ export class WebApp
         this._host = host ? host.trim() : null;
         
         given(container as Container, "container").ensureIsObject().ensureIsType(Container);
+        if (container == null)
+        {
+            this._container = new Container();
+            this._ownsContainer = true;
+        }
+        else
+        {
+            this._container = container;
+            this._ownsContainer = false;
+        }
+        
+        given(logger, "logger").ensureIsObject();
+        this._logger = logger ?? new ConsoleLogger();
         
         this._koa = new Koa();
-        this._container = container ?? new Container();
+        
         this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
+        
+        this._container.registerScoped(this._callContextKey, DefaultCallContext);
+        this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
+        this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));    
     }
     
     
@@ -207,16 +225,16 @@ export class WebApp
     //     return this;
     // }
     
-    public useLogger(logger: Logger): this
-    {
-        if (this._isBootstrapped)
-            throw new InvalidOperationException("useLogger");
+    // public useLogger(logger: Logger): this
+    // {
+    //     if (this._isBootstrapped)
+    //         throw new InvalidOperationException("useLogger");
 
-        given(logger, "logger").ensureHasValue().ensureIsObject();
+    //     given(logger, "logger").ensureHasValue().ensureIsObject();
         
-        this._logger = logger;
-        return this;
-    }
+    //     this._logger = logger;
+    //     return this;
+    // }
     
     public useInstaller(installer: ComponentInstaller): this
     {
@@ -258,8 +276,8 @@ export class WebApp
             throw new InvalidOperationException("registerExceptionHandler");
         
         given(exceptionHandlerClass, "exceptionHandlerClass").ensureHasValue().ensureIsFunction();
+        this._container.deregister(this._exceptionHandlerKey);
         this._container.registerScoped(this._exceptionHandlerKey, exceptionHandlerClass);
-        this._hasExceptionHandler = true;
         return this;
     }
     
@@ -284,8 +302,8 @@ export class WebApp
             throw new InvalidOperationException("registerAuthorizationHandler");
         
         given(authorizationHandler, "authorizationHandler").ensureHasValue();
+        this._container.deregister(this._authorizationHandlerKey);
         this._container.registerScoped(this._authorizationHandlerKey, authorizationHandler);
-        this._hasAuthorizationHandler = true;
         return this;
     }
     
@@ -401,8 +419,8 @@ export class WebApp
         if (this._isBootstrapped)
             throw new InvalidOperationException("bootstrap");
         
-        if (!this._logger)
-            this._logger = new ConsoleLogger();
+        // if (!this._logger)
+        //     this._logger = new ConsoleLogger();
         
         // this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
         // this.registerDisposeAction(() => this._backgroundProcessor.dispose());
@@ -466,32 +484,10 @@ export class WebApp
             this._koa.use(cors());    
     }
     
-    // private configureEda(): void
-    // {
-    //     if (this._edaConfig)
-    //     {
-    //         this._edaManager = new EdaManager(this._edaConfig);
-
-    //         this._container.registerInstance(this._edaManager.eventBusKey, this._edaManager.eventBus);
-    //         this._container.registerInstance(this._edaManager.eventSubMgrKey, this._edaManager.eventSubMgr);
-            
-    //         this.registerDisposeAction(() => this._edaManager.dispose());
-    //     }
-    // }
-    
     private configureContainer(): void
     { 
-        this._container.registerScoped(this._callContextKey, DefaultCallContext);
-
-        // this._jobRegistrations.forEach(jobClass => this._container.registerSingleton((<Object>jobClass).getTypeName(), jobClass));
-        
-        if (!this._hasAuthorizationHandler)
-            this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
-        
-        if (!this._hasExceptionHandler)
-            this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));    
-        
-        this._container.bootstrap();
+        if (this._ownsContainer)
+            this._container.bootstrap();
         
         this.registerDisposeAction(() => this._container.dispose());
     }

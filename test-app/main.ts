@@ -36,12 +36,12 @@ const controllers = [GetTodosController, GetTodoController, CreateTodoController
 
 // const eventHandlers = [TodoCreatedEventHandler];
 
-const app = new WebApp(ConfigurationManager.getConfig<number>("port"), null)
+const app = new WebApp(ConfigurationManager.getConfig<number>("port"), null, null, logger)
     .enableCors()
     .enableCompression()
     .useViewResolutionRoot("test-app/controllers/web")
     .useInstaller(new AppInstaller())
-    .useLogger(logger)
+    // .useLogger(logger)
     .registerControllers(...controllers)
     // .enableEda({
     //     eventBus: InMemoryEventBus,
