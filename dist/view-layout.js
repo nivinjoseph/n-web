@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.viewLayout = exports.viewLayoutSymbol = void 0;
+require("reflect-metadata");
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
+exports.viewLayoutSymbol = Symbol.for("@nivinjoseph/n-web/viewLayout");
+// public
+function viewLayout(file) {
+    (0, n_defensive_1.given)(file, "file").ensureHasValue().ensureIsString();
+    return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, file.trim(), target);
+}
+exports.viewLayout = viewLayout;
+//# sourceMappingURL=view-layout.js.map
