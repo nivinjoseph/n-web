@@ -11,8 +11,8 @@ export class HttpRedirectException extends Exception
     
     public constructor(url: string)
     {
-        given(url, "url").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        super(null);
+        given(url, "url").ensureHasValue().ensureIsString();
+        super("HTTP redirect");
         this._url = url;
     }
 }    

@@ -3,9 +3,9 @@ import { ConfigurationManager } from "@nivinjoseph/n-config";
 
 export class DefaultConfigService implements ConfigService
 {
-    getBaseUrl(): Promise<string>
+    public getBaseUrl(): Promise<string>
     {
-        let value = ConfigurationManager.getConfig<string>("baseUrl");
+        const value = ConfigurationManager.getConfig<string>("baseUrl");
         return Promise.resolve(value);
     }
 }

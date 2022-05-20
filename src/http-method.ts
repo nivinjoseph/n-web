@@ -14,7 +14,7 @@ export class HttpMethods
     public static get Delete(): string { return this._delete; }
 }
 
-export const httpMethodSymbol = Symbol("httpMethod");
+export const httpMethodSymbol = Symbol.for("@nivinjoseph/n-web/httpMethod");
 
 // public
 export function httpGet(target: Function): void

@@ -9,26 +9,26 @@ import { Profiler } from "@nivinjoseph/n-util";
 
 export class DefaultCallContext implements CallContext
 {
-    private _ctx: Koa.Context;
-    private _authHeaders: ReadonlyArray<string>;
-    private _hasAuth: boolean = false;
-    private _authScheme: string;
-    private _authToken: string;
+    private _ctx!: Koa.Context;
+    private _authHeaders!: ReadonlyArray<string>;
+    private _hasAuth = false;
+    private _authScheme: string | null = null;
+    private _authToken: string | null = null;
     
     
-    public get dependencyScope(): Scope { return this._ctx.state.scope; }
+    public get dependencyScope(): Scope { return this._ctx.state.scope as Scope; }
     public get protocol(): string { return this._ctx.request.protocol; }
     public get isSecure(): boolean { return this._ctx.request.secure; }
     public get href(): string { return this._ctx.request.href; }
     public get url(): URL { return this._ctx.request.URL; }
-    public get pathParams(): Object { return JSON.parse(JSON.stringify(this._ctx.params)); }
-    public get queryParams(): Object { return JSON.parse(JSON.stringify(this._ctx.query)); }
+    public get pathParams(): Object { return JSON.parse(JSON.stringify(this._ctx.params)) as Object; }
+    public get queryParams(): Object { return JSON.parse(JSON.stringify(this._ctx.query)) as Object; }
     public get hasAuth(): boolean { return this._hasAuth; }
-    public get authScheme(): string { return this._authScheme; }
-    public get authToken(): string { return this._authToken; }
-    public get isAuthenticated(): boolean { return this.identity !== undefined && this.identity !== null; }
-    public get identity(): ClaimsIdentity { return this._ctx.state.identity; }
-    public get profiler(): Profiler | undefined { return this._ctx.state.profiler; }
+    public get authScheme(): string | null { return this._authScheme; }
+    public get authToken(): string | null { return this._authToken; }
+    public get isAuthenticated(): boolean { return this.identity != null; }
+    public get identity(): ClaimsIdentity | null { return this._ctx.state.identity as ClaimsIdentity; }
+    public get profiler(): Profiler | undefined { return this._ctx.state.profiler as Profiler; }
     
     
     public configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void
@@ -38,7 +38,7 @@ export class DefaultCallContext implements CallContext
         
         this._ctx = ctx;
         this._authHeaders = authHeaders;
-        this.populateSchemeAndToken();
+        this._populateSchemeAndToken();
     }
     
     
@@ -80,8 +80,9 @@ export class DefaultCallContext implements CallContext
     }
     
     
-    private populateSchemeAndToken(): void
+    private _populateSchemeAndToken(): void
     {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (this._ctx.header)
         {
             for (let i = 0; i < this._authHeaders.length; i++)
@@ -102,8 +103,8 @@ export class DefaultCallContext implements CallContext
                 if (splitted.length !== 2)
                     continue;
                 
-                let scheme = splitted[0].trim().toLowerCase();
-                let token = splitted[1].trim();
+                const scheme = splitted[0].trim().toLowerCase();
+                const token = splitted[1].trim();
                 if (scheme.isEmptyOrWhiteSpace() || token.isEmptyOrWhiteSpace())
                     continue;
                 

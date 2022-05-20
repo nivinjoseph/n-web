@@ -1,7 +1,6 @@
-import { ExceptionHandler } from "./../../src/index";
+import { ExceptionHandler, HttpException } from "./../../src/index";
 import { Exception } from "@nivinjoseph/n-exception";
 import { TodoNotFoundException } from "./todo-not-found-exception";
-import { HttpException } from "./../../src/index";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Logger } from "@nivinjoseph/n-log";
@@ -24,7 +23,7 @@ export class AppExceptionHandler implements ExceptionHandler
     {        
         if (exp instanceof TodoNotFoundException)
         {
-            await this.handleTodoNotFoundException(exp as TodoNotFoundException);
+            await this._handleTodoNotFoundException(exp);
         }    
         else
         {
@@ -33,7 +32,7 @@ export class AppExceptionHandler implements ExceptionHandler
         }    
     }
         
-    private async handleTodoNotFoundException(exp: TodoNotFoundException): Promise<any>
+    private async _handleTodoNotFoundException(exp: TodoNotFoundException): Promise<any>
     {
         await this._logger.logError(exp);
         throw new HttpException(404, "todo not found");

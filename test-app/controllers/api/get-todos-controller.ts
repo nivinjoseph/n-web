@@ -28,8 +28,7 @@ export class GetTodosController extends Controller
         this._callContext = callContext;
     }
     
-    // @ts-ignore
-    public async execute($search?: string, $pageNumber?: number, $pageSize?: number): Promise<object>
+    public async execute($search?: string, _$pageNumber?: number, _$pageSize?: number): Promise<object>
     {       
         // if (!$search)
         //     throw new ApplicationException("this is a test1");
@@ -47,8 +46,8 @@ export class GetTodosController extends Controller
         }    
         
         
-        let todos = await this._todoManager.getTodos();
-        let baseUrl = await this._configService.getBaseUrl();
+        const todos = await this._todoManager.getTodos();
+        const baseUrl = await this._configService.getBaseUrl();
         
         // if (!$search)
         //     throw new HttpException(404, "this is a test");
@@ -65,7 +64,7 @@ export class GetTodosController extends Controller
                 };
             }),
             links: {
-                create: Utils.generateUrl(Routes.createTodo, null, baseUrl),
+                create: Utils.generateUrl(Routes.createTodo, undefined, baseUrl),
                 test: Utils.generateUrl(Routes.getTodos, {$search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd"}, baseUrl)
             }
         };

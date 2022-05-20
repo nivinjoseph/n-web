@@ -4,13 +4,11 @@ import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 export class AppAuthenticationHandler implements AuthenticationHandler
 {
-    public authenticate(scheme: string, token: string): Promise<ClaimsIdentity>
+    public async authenticate(scheme: string, token: string): Promise<ClaimsIdentity | null>
     {
-        let identity: ClaimsIdentity = null;
-        
         if (scheme === "bearer" && token === "dev")
-            identity = new ClaimsIdentity([new Claim("claim1", true)]);
-        
-        return Promise.resolve(identity);
+            return new ClaimsIdentity([new Claim("claim1", true)]);
+            
+        return null;
     }
 }

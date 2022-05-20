@@ -4,7 +4,7 @@ import { HttpRedirectException } from "./exceptions/http-redirect-exception";
 // public
 export abstract class Controller
 {
-    public abstract execute(...params: any[]): Promise<any>;
+    public abstract execute(...params: Array<any>): Promise<any>;
     
     
     // protected generateUrl(route: string, params?: object, baseUrl?: string): string

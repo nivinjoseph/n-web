@@ -17,7 +17,7 @@ export abstract class Utils // static class
 
         route = route.trim().replaceAll(" ", "");
 
-        if (baseUrl !== undefined && baseUrl != null && !baseUrl.isEmptyOrWhiteSpace())
+        if (baseUrl != null && baseUrl.isNotEmptyOrWhiteSpace())
         {
             baseUrl = baseUrl.trim().replaceAll(" ", "");
             if (baseUrl.endsWith("/"))
@@ -27,8 +27,9 @@ export abstract class Utils // static class
                 route = route.substr(1, route.length - 1);
 
             // special treatment for the sake of docker routing on ECS
-            let splittedBaseUrl = baseUrl.split("/");
-            if (route.toLowerCase().startsWith(splittedBaseUrl.pop().toLowerCase()))
+            const splittedBaseUrl = baseUrl.split("/");
+            const popped = splittedBaseUrl.pop()?.toLowerCase();
+            if (popped != null && route.toLowerCase().startsWith(popped))
                 baseUrl = splittedBaseUrl.join("/");
 
             route = baseUrl + "/" + route;

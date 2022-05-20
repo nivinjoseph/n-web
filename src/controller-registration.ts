@@ -18,39 +18,38 @@ export class ControllerRegistration
 {
     private readonly _name: string;
     private readonly _controller: Function;
-    private _method: string;
-    private _route: RouteInfo;
-    // @ts-ignore
-    private _viewFileName: string = null;
-    private _viewFilePath: string = null;
-    private _viewFileData: string = null;
-    // @ts-ignore
-    private _viewLayoutFileName: string = null;
-    private _viewLayoutFilePath: string = null;
-    private _viewLayoutFileData: string = null;
-    private _authorizeClaims: ReadonlyArray<Claim> = null;
+    private _method!: string;
+    private _route!: RouteInfo;
+    private _viewFileName: string | null = null;
+    private _viewFilePath: string | null = null;
+    private _viewFileData: string | null = null;
+    private _viewLayoutFileName: string | null = null;
+    private _viewLayoutFilePath: string | null = null;
+    private _viewLayoutFileData: string | null = null;
+    private _authorizeClaims: ReadonlyArray<Claim> | null = null;
 
 
     public get name(): string { return this._name; }
     public get controller(): Function { return this._controller; }
     public get method(): string { return this._method; }
     public get route(): RouteInfo { return this._route; }
-    public get view(): string { return this.retrieveView(); }
-    public get viewLayout(): string { return this.retrieveViewLayout(); }
-    public get authorizeClaims(): ReadonlyArray<Claim> { return this._authorizeClaims; }
+    public get view(): string | null { return this._retrieveView(); }
+    public get viewLayout(): string | null { return this._retrieveViewLayout(); }
+    public get authorizeClaims(): ReadonlyArray<Claim> | null { return this._authorizeClaims; }
 
 
     public constructor(controller: Function)
     {
-        given(controller, "controller").ensureHasValue();
+        given(controller, "controller").ensureHasValue().ensureIsFunction();
 
         this._name = (<Object>controller).getTypeName();
         this._controller = controller;
     }
     
     
-    public complete(viewResolutionRoot: string): void
+    public complete(viewResolutionRoot?: string): void
     {
+        given(viewResolutionRoot as string, "viewResolutionRoot").ensureIsString();
         viewResolutionRoot = viewResolutionRoot ? path.join(process.cwd(), viewResolutionRoot) : process.cwd();
         
         if (!Reflect.hasOwnMetadata(httpMethodSymbol, this._controller))
@@ -68,13 +67,13 @@ export class ControllerRegistration
             throw new ApplicationException("Controller '{0}' has a catch all route but is not using HTTP GET."
                 .format(this._name));
 
-        this.configureViews(viewResolutionRoot);
+        this._configureViews(viewResolutionRoot);
         
         if (Reflect.hasOwnMetadata(authorizeSymbol, this._controller))
             this._authorizeClaims = Reflect.getOwnMetadata(authorizeSymbol, this._controller);
     }
     
-    private configureViews(viewResolutionRoot: string): void
+    private _configureViews(viewResolutionRoot: string): void
     {
         if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
         {
@@ -89,7 +88,7 @@ export class ControllerRegistration
             }   
             else
             {
-                let viewFilePath = this.resolvePath(viewResolutionRoot, viewFileName);
+                const viewFilePath = this._resolvePath(viewResolutionRoot, viewFileName);
                 if (viewFilePath === null)
                     throw new ArgumentException("viewFile[{0}]".format(viewFileName), "was not found");
 
@@ -97,7 +96,7 @@ export class ControllerRegistration
                 this._viewFilePath = viewFilePath;
             }
             
-            if (!this.isDev())
+            if (!this._isDev())
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
 
             
@@ -114,7 +113,7 @@ export class ControllerRegistration
                 }   
                 else
                 {
-                    let viewLayoutFilePath = this.resolvePath(viewResolutionRoot, viewLayoutFileName);
+                    const viewLayoutFilePath = this._resolvePath(viewResolutionRoot, viewLayoutFileName);
                     if (viewLayoutFilePath === null)
                         throw new ArgumentException("viewLayoutFile[{0}]".format(viewLayoutFileName), "was not found");
 
@@ -122,26 +121,26 @@ export class ControllerRegistration
                     this._viewLayoutFilePath = viewLayoutFilePath;
                 }
                 
-                if (!this.isDev())
+                if (!this._isDev())
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
     }
     
-    private resolvePath(startPoint: string, fileName: string): string
+    private _resolvePath(startPoint: string, fileName: string): string | null
     {
         if (startPoint.endsWith(fileName))
             return startPoint;
         
         if (fs.statSync(startPoint).isDirectory())
         {
-            let files = fs.readdirSync(startPoint);
-            for (let file of files)
+            const files = fs.readdirSync(startPoint);
+            for (const file of files)
             {
                 if (file.startsWith(".") || file.startsWith("node_modules"))
                     continue;
                 
-                let resolvedPath = this.resolvePath(path.join(startPoint, file), fileName);
+                const resolvedPath = this._resolvePath(path.join(startPoint, file), fileName);
                 if (resolvedPath != null)
                     return resolvedPath;
             }
@@ -150,41 +149,45 @@ export class ControllerRegistration
         return null;
     }
        
-    private retrieveView(): string
+    private _retrieveView(): string | null
     {
-        if (this._viewFilePath === null)
+        if (this._viewFilePath == null)
             return null;
         
-        if (this.isDev())
+        if (this._isDev())
         {
             const HmrHelper = require("./hmr-helper").HmrHelper;
-            return HmrHelper.devFs
-                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName), "utf8")
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return HmrHelper.isConfigured
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8")
                 : fs.readFileSync(this._viewFilePath, "utf8");
         }
         
         return this._viewFileData;
     }
     
-    private retrieveViewLayout(): string
+    private _retrieveViewLayout(): string | null
     {
-        if (this._viewLayoutFilePath === null)
+        if (this._viewLayoutFilePath == null)
             return null;    
         
-        if (this.isDev())
+        if (this._isDev())
         {
             const HmrHelper = require("./hmr-helper").HmrHelper;
-            return HmrHelper.devFs
-                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName), "utf8")
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return HmrHelper.isConfigured
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")
                 : fs.readFileSync(this._viewLayoutFilePath, "utf8");
         }
 
         return this._viewLayoutFileData;
     }
     
-    private isDev(): boolean
+    private _isDev(): boolean
     {
-        let env = ConfigurationManager.getConfig<string>("env");
+        const env = ConfigurationManager.getConfig<string | null>("env");
         return env !== null && env.trim().toLowerCase() === "dev"; 
     }
 }

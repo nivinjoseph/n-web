@@ -5,32 +5,31 @@ suite("Random stuff", () =>
 {
     test("Dynamic template string interpolation", () =>
     {
-        // @ts-ignore
-        let vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
-        let view = "User ${vm.firstName} ${vm.lastName} is of age ${vm.age}";
-        /* tslint:disable */
-        let result = eval("`" + view + "`");
-        /* tslint:enable */
+        // @ts-expect-error: used in eval
+        const vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
+        const view = "User ${vm.firstName} ${vm.lastName} is of age ${vm.age}";
+        // eslint-disable-next-line no-eval
+        const result = eval("`" + view + "`");
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
     
     test("Advanced dynamic template string interpolation", () =>
     {
-        // @ts-ignore
-        let vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
+        // @ts-expect-error: used in eval
+        const vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
         let view = "is of age ${vm.age}";
-        let layout = "User ${vm.firstName} ${vm.lastName} ${view}";
-        /* tslint:disable */
+        const layout = "User ${vm.firstName} ${vm.lastName} ${view}";
+        // eslint-disable-next-line no-eval
         view = eval("`" + layout + "`");
-        let result = eval("`" + view + "`");
-        /* tslint:enable */
+        // eslint-disable-next-line no-eval
+        const result = eval("`" + view + "`");
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
     
     test("object keys", () =>
     {
-        let query: any = { foo: "bar" };
-        for (let key in query)
+        const query: any = { foo: "bar" };
+        for (const key in query)
         {
             console.log("key", key);
             console.log("value", query[key]);
@@ -39,10 +38,10 @@ suite("Random stuff", () =>
     
     test("Object keys", () =>
     {
-        let query = new Object();
+        const query = new Object();
         query.setValue("foo", "bar");
         
-        for (let key in query)
+        for (const key in query)
         {
             console.log("key", key);
             console.log("value", query.getValue(key));

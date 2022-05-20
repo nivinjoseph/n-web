@@ -15,10 +15,10 @@ export interface CallContext
     pathParams: Object;
     queryParams: Object;
     hasAuth: boolean;
-    authScheme: string;
-    authToken: string;
+    authScheme: string | null;
+    authToken: string | null;
     isAuthenticated: boolean;
-    identity: ClaimsIdentity;
+    identity: ClaimsIdentity | null;
     profiler?: Profiler;
     
     getRequestHeader(header: string): string;

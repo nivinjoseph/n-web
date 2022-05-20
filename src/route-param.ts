@@ -1,5 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { InvalidArgumentException, ApplicationException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { TypeHelper } from "@nivinjoseph/n-util";
 import { HttpException } from "./exceptions/http-exception";
 
 export class RouteParam
@@ -22,7 +23,7 @@ export class RouteParam
     
     public constructor(routeParam: string)
     {
-        given(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(routeParam, "routeParam").ensureHasValue().ensureIsString();
         
         let param = routeParam.trim();
         let paramKey: string;
@@ -38,7 +39,7 @@ export class RouteParam
         
         if (param.contains(":"))
         {
-            let splitted = param.split(":");
+            const splitted = param.split(":");
             if (splitted.length > 2 || splitted[0].isEmptyOrWhiteSpace() || splitted[1].isEmptyOrWhiteSpace())
                 throw new InvalidArgumentException("routeParam");
             
@@ -80,9 +81,9 @@ export class RouteParam
         this._order = order;
     }
     
-    public parseParam(value: string): any
+    public parseParam(value: string | null): any
     {
-        if (value === undefined || value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
+        if (value == null || typeof value !== "string" || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
         { 
             if (this._isOptional)
                 return null;
@@ -97,7 +98,7 @@ export class RouteParam
         
         try 
         {
-            return this._paramType === ParamTypes.number ? this.parseNumber(value) : this.parseBoolean(value);
+            return this._paramType === ParamTypes.number ? this._parseNumber(value) : this._parseBoolean(value);
         }
         catch (error)
         {
@@ -108,14 +109,20 @@ export class RouteParam
         }
     }
     
-    private parseNumber(value: string): number
+    private _parseNumber(value: string): number
     {
         try 
         {
-            let num = value.contains(".") ? Number.parseFloat(value) : Number.parseInt(value);
-            if (!Number.isNaN(num))
-                return num;    
-            throw "PARSE ERROR";
+            // const num = value.contains(".") ? Number.parseFloat(value) : Number.parseInt(value);
+            // if (!Number.isNaN(num))
+            //     return num;    
+            
+            const num = TypeHelper.parseNumber(value);
+            if (num != null)
+                return num;
+            
+            // throw "PARSE ERROR";
+            throw new HttpException(404);
         }
         catch (error)
         {
@@ -123,7 +130,7 @@ export class RouteParam
         }
     }
     
-    private parseBoolean(value: string): boolean
+    private _parseBoolean(value: string): boolean
     {
         value = value.toLowerCase();
         

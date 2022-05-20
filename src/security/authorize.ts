@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { Claim } from "@nivinjoseph/n-sec";
 
 
-export const authorizeSymbol = Symbol("authorize");
+export const authorizeSymbol = Symbol.for("@nivinjoseph/n-web/authorize");
 
 // public
 export function authorize(...claims: Array<Claim>): Function

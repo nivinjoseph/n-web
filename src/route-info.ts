@@ -8,10 +8,10 @@ export class RouteInfo
 {
     private readonly _routeTemplate: string;
     private readonly _routeParams = new Array<RouteParam>();
-    private readonly _routeParamsRegistry: { [index: string]: RouteParam } = {};
-    private readonly _koaRoute: string;
-    private readonly _isCatchAll: boolean = false;
-    private _hasQuery: boolean;
+    private readonly _routeParamsRegistry: Record<string, RouteParam> = {};
+    private readonly _koaRoute!: string;
+    private readonly _isCatchAll: boolean;
+    private _hasQuery = false;
 
 
     public get route(): string { return this._routeTemplate; }
@@ -46,17 +46,19 @@ export class RouteInfo
         }   
         else
         {
-            this.populateRouteParams();
+            this._isCatchAll = false;
+            
+            this._populateRouteParams();
 
             if (!isUrlGenerator)
-                this._koaRoute = this.generateKoaRoute(this._routeTemplate);
+                this._koaRoute = this._generateKoaRoute(this._routeTemplate);
         }
     }
 
 
-    public findRouteParam(key: string): RouteParam
+    public findRouteParam(key: string): RouteParam | null
     {
-        given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(key, "key").ensureHasValue().ensureIsString();
         return this._routeParamsRegistry[key.trim().toLowerCase()];
     }
 
@@ -65,13 +67,13 @@ export class RouteInfo
         let url = this._routeTemplate;
         let hasQuery = this._hasQuery;
 
-        for (let key in values)
+        for (const key in values)
         {
-            let routeParam = this.findRouteParam(key);
+            const routeParam = this.findRouteParam(key);
             if (routeParam)
             {
-                let param = "{" + routeParam.param + "}";
-                let replacement = routeParam.isQuery
+                const param = "{" + routeParam.param + "}";
+                const replacement = routeParam.isQuery
                     ? "{0}={1}".format(key, encodeURIComponent(values.getValue(key)))
                     : encodeURIComponent(values.getValue(key));
                 url = url.replace(param, replacement);
@@ -87,12 +89,13 @@ export class RouteInfo
     }
 
 
-    private populateRouteParams(): void
+    private _populateRouteParams(): void
     {
         let index = 1;
-        for (let routeParam of this.extractTemplateParams(this._routeTemplate).map(t => new RouteParam(t)))
+        for (const routeParam of this._extractTemplateParams(this._routeTemplate).map(t => new RouteParam(t)))
         {
-            let key = routeParam.paramKey.toLowerCase();
+            const key = routeParam.paramKey.toLowerCase();
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this._routeParamsRegistry[key])
                 throw new ApplicationException("Invalid route template. Duplicate route params (case insensitive) detected.");
 
@@ -102,9 +105,9 @@ export class RouteInfo
         }
     }
 
-    private extractTemplateParams(routeTemplate: string): Array<string>
+    private _extractTemplateParams(routeTemplate: string): Array<string>
     {
-        let templateParams = new Array<string>();
+        const templateParams = new Array<string>();
         let queryFound = false;
         let startFound = false;
         let startIndex = 0;
@@ -145,11 +148,11 @@ export class RouteInfo
         return templateParams;
     }
 
-    private generateKoaRoute(routeTemplate: string): string
+    private _generateKoaRoute(routeTemplate: string): string
     {
-        for (let routeParam of this._routeParams)
+        for (const routeParam of this._routeParams)
         {
-            let asItWas = "{" + routeParam.param + "}";
+            const asItWas = "{" + routeParam.param + "}";
             if (!routeTemplate.contains(asItWas))
                 throw new ApplicationException("Invalid route template.");
 
@@ -158,7 +161,7 @@ export class RouteInfo
 
         if (routeTemplate.contains("?"))
         {
-            let splitted = routeTemplate.split("?");
+            const splitted = routeTemplate.split("?");
             if (splitted.length > 2)
                 throw new ApplicationException("Invalid route template. Unresolvable '?' characters detected.");
 

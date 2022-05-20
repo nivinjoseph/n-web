@@ -33,12 +33,12 @@ export class CreateTodoController extends Controller
     
     public async execute(model: Model): Promise<any>
     {
-        this.validateModel(model);   
+        this._validateModel(model);   
         
-        let todo = await this._todoManager.addTodo(model.title, model.description);
+        const todo = await this._todoManager.addTodo(model.title, model.description);
         // await this._eventBus.publish(new TodoCreated(todo.id));
         
-        let baseUrl = await this._configService.getBaseUrl();
+        const baseUrl = await this._configService.getBaseUrl();
         return {
             id: todo.id,
             title: todo.title,
@@ -51,9 +51,9 @@ export class CreateTodoController extends Controller
         };
     }
     
-    private validateModel(model: Model): void
+    private _validateModel(model: Model): void
     {
-        let validator = new Validator<Model>();
+        const validator = new Validator<Model>();
         validator.prop("title").isRequired().useValidationRule(strval.hasMaxLength(10));
         validator.prop("description").isOptional().useValidationRule(strval.hasMaxLength(100));
         

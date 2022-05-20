@@ -10,14 +10,15 @@ export class DefaultExceptionHandler implements ExceptionHandler
 {
     private readonly _logger: Logger;
     private readonly _logEverything: boolean;
-    private readonly _handlers: { [index: string]: (exp: Exception) => Promise<any> };
+    private readonly _handlers: Record<string, ((exp: Exception) => Promise<any>) | null> = {};
 
 
     public constructor(logger: Logger, logEverything = true)
     {
+        given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
+        
         this._logEverything = !!logEverything;
-        this._handlers = {};
     }
 
 
@@ -29,7 +30,7 @@ export class DefaultExceptionHandler implements ExceptionHandler
         const name = (<Object>exp).getTypeName();
         const handler = this._handlers[name];
         if (handler)
-            return await handler(exp);
+            return handler(exp);
         else
             throw new HttpException(500, "There was an error processing your request.");
     }
@@ -44,7 +45,7 @@ export class DefaultExceptionHandler implements ExceptionHandler
         if (this._handlers[name])
             throw new ApplicationException(`Duplicate handler registration for Exception type '${name}'.`);
 
-        this._handlers[name] = handler;
+        this._handlers[name] = handler as (exp: Exception) => Promise<any>;
     }
 
     protected log(exp: Exception | Error | any): Promise<void>
@@ -55,9 +56,9 @@ export class DefaultExceptionHandler implements ExceptionHandler
             if (exp instanceof Exception)
                 logMessage = exp.toString();
             else if (exp instanceof Error)
-                logMessage = exp.stack;
+                logMessage = exp.stack!;
             else
-                logMessage = exp.toString();
+                logMessage = (<object>exp).toString();
 
             return this._logger.logError(logMessage);
         }

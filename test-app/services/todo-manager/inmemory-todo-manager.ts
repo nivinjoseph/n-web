@@ -19,11 +19,11 @@ export class InmemoryTodoManager implements TodoManager
         given(logger, "logger").ensureHasValue();
         this._logger = logger;
         
-        this.initializeTodos();
+        this._initializeTodos();
     }
     
     
-    public async getTodos(): Promise<Todo[]>
+    public async getTodos(): Promise<Array<Todo>>
     {
         await this._logger.logInfo(`Getting TODOs ${this._todos.length}`);
         return this._todos.map(t => t);
@@ -33,8 +33,8 @@ export class InmemoryTodoManager implements TodoManager
     {
         given(title, "title").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         
-        let lastId = this._todos.length === 0 ? 0 : this._todos.orderByDesc(t => t.id)[0].id;
-        let todo = new Todo(lastId + 1, title, description);
+        const lastId = this._todos.length === 0 ? 0 : this._todos.orderByDesc(t => t.id)[0].id;
+        const todo = new Todo(lastId + 1, title, description);
         this._todos.push(todo);
         await this._logger.logInfo(`Added TODO with id ${todo.id}`);
         return todo;
@@ -60,7 +60,7 @@ export class InmemoryTodoManager implements TodoManager
     {
         given(id, "id").ensureHasValue();
         
-        let todo = this._todos.find(t => t.id === id);
+        const todo = this._todos.find(t => t.id === id);
         if (todo == null)
         {
             await this._logger.logError(`Attempted to delete non existent TODO with id ${id}.`);
@@ -71,7 +71,7 @@ export class InmemoryTodoManager implements TodoManager
         await this._logger.logWarning(`TODO with id ${id} deleted.`);
     }
     
-    private initializeTodos(): void
+    private _initializeTodos(): void
     {
         for (let i = 0; i < 1000; i++)
         {

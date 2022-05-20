@@ -3,7 +3,7 @@ import * as KoaBodyParser from "koa-bodyparser";
 import { Container, ComponentInstaller, Scope, Registry } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Router } from "./router";
-import { Exception, ArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { ArgumentException, InvalidOperationException, ApplicationException } from "@nivinjoseph/n-exception";
 import * as serve from "koa-static";
 import * as fs from "fs";
 import * as path from "path";
@@ -66,11 +66,11 @@ export class WebApp
     private _hasShutdownScript = false;
     
     
-    private readonly _staticFilePaths = new Array<{ path: string; cache: boolean; defer: boolean }>();
+    private readonly _staticFilePaths = new Array<{ path: string; cache: boolean; defer: boolean; }>();
     private _enableCors = false;
     private _enableCompression = false;
     private _enableProfiling = false;
-    private _viewResolutionRoot: string;
+    private _viewResolutionRoot: string | null = null;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     // // @ts-ignore
     // private _webPackDevMiddlewareClientHost: string | null = null;
@@ -82,9 +82,9 @@ export class WebApp
     private _socketServerRedisClient: Redis.RedisClient | null = null;
     private _socketServer: SocketServer | null = null;
     
-    private _disposeActions = new Array<() => Promise<void>>();
-    private _server: Http.Server;
-    private _isBootstrapped: boolean = false;
+    private readonly _disposeActions = new Array<() => Promise<void>>();
+    private _server!: Http.Server;
+    private _isBootstrapped = false;
     
     private _isShutDown = false;
     
@@ -97,7 +97,7 @@ export class WebApp
         given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
         
-        given(host, "host").ensureIsString();
+        given(host as string, "host").ensureIsString();
         this._host = host ? host.trim() : null;
         
         given(container as Container, "container").ensureIsObject().ensureIsType(Container);
@@ -112,7 +112,7 @@ export class WebApp
             this._ownsContainer = false;
         }
         
-        given(logger, "logger").ensureIsObject();
+        given(logger as Logger, "logger").ensureIsObject();
         this._logger = logger ?? new ConsoleLogger();
         
         this._koa = new Koa();
@@ -338,7 +338,7 @@ export class WebApp
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    public enableWebPackDevMiddleware(publicPath: string = "/"): this
+    public enableWebPackDevMiddleware(publicPath = "/"): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
@@ -425,31 +425,31 @@ export class WebApp
         // this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
         // this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         
-        this.configureCors();
+        this._configureCors();
         // this.configureEda();
-        this.configureContainer();
+        this._configureContainer();
         // this.initializeJobs();
-        this.configureStartup()
+        this._configureStartup()
             .then(() =>
             {
                 this._server = Http.createServer();
                 // this.configureWebSockets();
-                this._server.listen(this._port, this._host);
+                this._server.listen(this._port, this._host ?? undefined);
                 
                 // this is the request response pipeline START
-                this.configureScoping(); // must be first
-                this.configureCallContext();
-                this.configureCompression();
-                this.configureExceptionHandling();
-                this.configureErrorTrapping();
-                this.configureAuthentication();
-                this.configureStaticFileServing();
-                return this.configureWebPackDevMiddleware();
+                this._configureScoping(); // must be first
+                this._configureCallContext();
+                this._configureCompression();
+                this._configureExceptionHandling();
+                this._configureErrorTrapping();
+                this._configureAuthentication();
+                this._configureStaticFileServing();
+                return this._configureWebPackDevMiddleware();
             })
             .then(() =>
             {
-                this.configureBodyParser();
-                this.configureRouting(); // must be last
+                this._configureBodyParser();
+                this._configureRouting(); // must be last
                 // this is the request response pipeline END
 
                 const appEnv = ConfigurationManager.getConfig<string>("env");
@@ -459,8 +459,8 @@ export class WebApp
 
                 console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
                 // this._server = Http.createServer(this._koa.callback());
-                this.configureWebSockets();
-                this.configureShutDown();
+                this._configureWebSockets();
+                this._configureShutDown();
                 
                 this._server.on("request", this._koa.callback());
                 // this._server.listen(this._port, this._host);
@@ -478,13 +478,13 @@ export class WebApp
     }
     
     
-    private configureCors(): void
+    private _configureCors(): void
     {
         if (this._enableCors)
             this._koa.use(cors());    
     }
     
-    private configureContainer(): void
+    private _configureContainer(): void
     { 
         if (this._ownsContainer)
             this._container.bootstrap();
@@ -492,7 +492,7 @@ export class WebApp
         this.registerDisposeAction(() => this._container.dispose());
     }
     
-    private configureStartup(): Promise<void>
+    private _configureStartup(): Promise<void>
     {
         console.log("SERVER STARTING.");
         
@@ -509,7 +509,7 @@ export class WebApp
     // }
     
     // this is the first
-    private configureScoping(): void
+    private _configureScoping(): void
     {
         this._koa.use(async (ctx, next) =>
         {
@@ -523,23 +523,19 @@ export class WebApp
             if (this._enableProfiling)
                 ctx.state.profiler = new Profiler(ctx.request.URL.toString());
                 
-            (<Profiler>ctx.state.profiler)?.trace("Request started");
+            (<Profiler | null>ctx.state.profiler)?.trace("Request started");
             
             ctx.state.scope = this._container.createScope();
-            (<Profiler>ctx.state.profiler)?.trace("Request scope created");
+            (<Profiler | null>ctx.state.profiler)?.trace("Request scope created");
             try 
             {
                 await next();    
             }
-            catch (error)
-            {
-                throw error;
-            }
             finally
             {
-                // tslint:disable-next-line: no-floating-promises
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 (<Scope>ctx.state.scope).dispose();
-                (<Profiler>ctx.state.profiler)?.trace("Request ended");
+                (<Profiler | null>ctx.state.profiler)?.trace("Request ended");
                 if (this._enableProfiling)
                 {
                     const profiler = <Profiler>ctx.state.profiler;
@@ -551,32 +547,31 @@ export class WebApp
                     })));
                     
                     // console.table((<Profiler>ctx.state.profiler).traces);
-                    // tslint:disable-next-line: no-floating-promises
                     // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
                 }
             }
         });
     }
     
-    private configureCallContext(): void
+    private _configureCallContext(): void
     {
         this._koa.use(async (ctx, next) =>
         {
-            let scope: Scope = ctx.state.scope;
-            let defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
+            const scope: Scope = ctx.state.scope;
+            const defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
             defaultCallContext.configure(ctx as any, this._authHeaders);
-            (<Profiler>ctx.state.profiler)?.trace("Request callContext configured");
+            (<Profiler | null>ctx.state.profiler)?.trace("Request callContext configured");
             await next();
         });
     }
     
-    private configureCompression(): void
+    private _configureCompression(): void
     {
         if (this._enableCompression)
             this._koa.use(Compress());
     }
     
-    private configureExceptionHandling(): void
+    private _configureExceptionHandling(): void
     {
         this._koa.use(async (ctx, next) =>
         {
@@ -586,6 +581,7 @@ export class WebApp
             }
             catch (error)
             { 
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 await this._logger.logWarning(`Error during request to URL '${ctx.url ?? "UNKNOWN"}'.`);
                 
                 if (error instanceof HttpException)
@@ -597,8 +593,8 @@ export class WebApp
                     return;
                 }
                     
-                let scope = ctx.state.scope as Scope;
-                let exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
+                const scope = ctx.state.scope as Scope;
+                const exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
                 
                 try 
                 {
@@ -609,7 +605,7 @@ export class WebApp
                 {
                     if (exp instanceof HttpException)
                     {
-                        const httpExp: HttpException = exp as HttpException;
+                        const httpExp: HttpException = exp;
                         ctx.status = httpExp.statusCode;
                         if (httpExp.body !== undefined && httpExp.body !== null)
                             ctx.body = httpExp.body;
@@ -636,10 +632,9 @@ export class WebApp
         });
     }
     
-    private configureErrorTrapping(): void
+    private _configureErrorTrapping(): void
     {
-        // @ts-ignore
-        this._koa.use(async (ctx, next) =>
+        this._koa.use(async (_ctx, next) =>
         {
             try 
             {
@@ -650,14 +645,14 @@ export class WebApp
                 if (error instanceof Error)
                     throw error;    
                 
-                let message = error.toString() as string;
+                let message = (<object>error).toString();
                 if (message === "[object Object]")
                 {
                     console.error(error);
                     message = JSON.stringify(error);
                 }
                 
-                throw new Exception("TRAPPED ERROR | " + message);
+                throw new ApplicationException("TRAPPED ERROR | " + message);
             }
         });
     }
@@ -674,23 +669,23 @@ export class WebApp
     //     });
     // }
     
-    private configureAuthentication(): void
+    private _configureAuthentication(): void
     {
         if (!this._hasAuthenticationHandler)
             return;
         
         this._koa.use(async (ctx, next) =>
         {
-            let scope = ctx.state.scope as Scope;
-            let callContext = scope.resolve<CallContext>(this._callContextKey);
+            const scope = ctx.state.scope as Scope;
+            const callContext = scope.resolve<CallContext>(this._callContextKey);
             if (callContext.hasAuth)
             {
-                let authenticationHandler = scope.resolve<AuthenticationHandler>(this._authenticationHandlerKey);
-                let identity = await authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
-                if (identity)
+                const authenticationHandler = scope.resolve<AuthenticationHandler>(this._authenticationHandlerKey);
+                const identity = await authenticationHandler.authenticate(callContext.authScheme!, callContext.authToken!);
+                if (identity != null)
                 {
                     ctx.state.identity = identity;
-                    (<Profiler>ctx.state.profiler)?.trace("Request authenticated");
+                    (<Profiler | null>ctx.state.profiler)?.trace("Request authenticated");
                 }
             }    
             
@@ -698,16 +693,16 @@ export class WebApp
         });
     }
     
-    private configureStaticFileServing(): void
+    private _configureStaticFileServing(): void
     {
-        for (let item of this._staticFilePaths)
+        for (const item of this._staticFilePaths)
             this._koa.use(serve(item.path, {
                 maxage: item.cache ? 1000 * 60 * 60 * 24 * 365 : undefined,
                 defer: item.defer ? true : undefined
             }));
     }
     
-    private configureBodyParser(): void
+    private _configureBodyParser(): void
     {
         this._koa.use(KoaBodyParser({
             strict: true,
@@ -716,18 +711,18 @@ export class WebApp
     }
     
     // this is the last
-    private configureRouting(): void
+    private _configureRouting(): void
     {
-        this._router.configureRouting(this._viewResolutionRoot);
+        this._router.configureRouting(this._viewResolutionRoot ?? undefined);
     }
     
-    private configureWebSockets(): void
+    private _configureWebSockets(): void
     {
         if (!this._enableWebSockets)
             return;
         
-        this._socketServer = new SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
-        this.registerDisposeAction(() => this._socketServer.dispose());
+        this._socketServer = new SocketServer(this._server, this._corsOrigin!, this._socketServerRedisClient!);
+        this.registerDisposeAction(() => this._socketServer!.dispose());
     }
     
     // private configureWebPackDevMiddleware(): Promise<void>
@@ -803,7 +798,7 @@ export class WebApp
     //     return Promise.resolve();
     // }
     
-    private configureWebPackDevMiddleware(): Promise<void>
+    private _configureWebPackDevMiddleware(): Promise<void>
     {
         if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
         {
@@ -812,16 +807,20 @@ export class WebApp
             const webpackHotMiddleware = require("webpack-hot-middleware");
 
             const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const compiler = webpack(config);
 
             const HmrHelper = require("./hmr-helper").HmrHelper;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             HmrHelper.configure();
             
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const devMiddleware = webpackDevMiddleware(compiler, {
                 publicPath: this._webPackDevMiddlewarePublicPath,
                 outputFileSystem: HmrHelper.devFs
             });
             
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const hotMiddleware = webpackHotMiddleware(compiler, {
                 hmr: true,
                 reload: true,
@@ -835,12 +834,14 @@ export class WebApp
                 {
                     for (const comp of [].concat(compiler.compilers || compiler))
                     {
-                        comp.hooks.failed.tap("n-web-webpack-dev-middleware", (error: any) =>
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                        (<any>comp).hooks?.failed.tap("n-web-webpack-dev-middleware", (error: any) =>
                         {
                             reject(error);
                         });
                     }
 
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     devMiddleware.waitUntilValid(() =>
                     {
                         resolve(true);
@@ -849,6 +850,7 @@ export class WebApp
                 // tell webpack-dev-middleware to handle the request
                 const init = new Promise<void>((resolve) =>
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     devMiddleware(
                         ctx.req,
                         {
@@ -873,6 +875,7 @@ export class WebApp
             {
                 const init = new Promise<void>((resolve) =>
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     hotMiddleware(
                         ctx.req,
                         ctx.res,
@@ -885,11 +888,13 @@ export class WebApp
             
             
             
-            const disposeAction = () =>
+            const disposeAction = (): Promise<void> =>
             {
                 return new Promise<void>((resolve, reject) =>
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     hotMiddleware.close();
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     devMiddleware.close((err: any) =>
                     {
                         if (err)
@@ -906,7 +911,7 @@ export class WebApp
         return Promise.resolve();
     }
     
-    private configureShutDown(): void
+    private _configureShutDown(): void
     {
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     return;
@@ -917,13 +922,14 @@ export class WebApp
             return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
         });
         
-        const shutDown = (signal: string) =>
+        const shutDown = (signal: string): void =>
         {
             if (this._isShutDown)
                 return;
             
             this._isShutDown = true;
                        
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             this._server.close(async () =>
             {
                 console.warn(`SERVER STOPPING (${signal}).`);

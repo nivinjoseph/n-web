@@ -27,12 +27,12 @@ export class GetTodoController extends Controller
     
     public async execute(id: number): Promise<any>
     {
-        let todos = await this._todoManager.getTodos();
-        let todo = todos.find(t => t.id === id);
+        const todos = await this._todoManager.getTodos();
+        const todo = todos.find(t => t.id === id);
         if (todo == null)
             throw new TodoNotFoundException(id);
         
-        let baseUrl = await this._configService.getBaseUrl();
+        const baseUrl = await this._configService.getBaseUrl();
         return {
             id: todo.id,
             title: todo.title,
