@@ -133,7 +133,7 @@ class ControllerRegistration {
     }
     _isDev() {
         const env = n_config_1.ConfigurationManager.getConfig("env");
-        return env !== null && env.trim().toLowerCase() === "dev";
+        return env === "dev";
     }
 }
 exports.ControllerRegistration = ControllerRegistration;
