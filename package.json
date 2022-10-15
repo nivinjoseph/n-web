@@ -62,11 +62,11 @@
     },
     "dependencies": {
         "@nivinjoseph/n-config": "^1.0.35",
-        "@nivinjoseph/n-defensive": "^1.0.39",
+        "@nivinjoseph/n-defensive": "^1.0.41",
         "@nivinjoseph/n-exception": "^1.0.26",
         "@nivinjoseph/n-ext": "^1.1.35",
         "@nivinjoseph/n-ject": "^2.0.3",
-        "@nivinjoseph/n-log": "^1.0.18",
+        "@nivinjoseph/n-log": "^2.1.1",
         "@nivinjoseph/n-sec": "^5.0.2",
         "@nivinjoseph/n-sock": "^1.0.37",
         "@nivinjoseph/n-util": "^1.0.79",

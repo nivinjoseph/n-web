@@ -188,6 +188,6 @@ export class ControllerRegistration
     private _isDev(): boolean
     {
         const env = ConfigurationManager.getConfig<string | null>("env");
-        return env !== null && env.trim().toLowerCase() === "dev"; 
+        return env === "dev"; 
     }
 }

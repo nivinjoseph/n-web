@@ -18,7 +18,7 @@ import { ConsoleLogger, LogDateTimeZone } from "@nivinjoseph/n-log";
 // import { InMemoryEventBus, InMemoryEventSubMgr } from "@nivinjoseph/n-eda";
 
 
-const logger = new ConsoleLogger(LogDateTimeZone.est);
+const logger = new ConsoleLogger({logDateTimeZone: LogDateTimeZone.est});
 
 class AppInstaller implements ComponentInstaller
 {
