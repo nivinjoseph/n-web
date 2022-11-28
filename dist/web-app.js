@@ -332,7 +332,7 @@ class WebApp {
             // this._server.listen(this._port, this._host);
             // this.configureWebPackDevMiddleware();
             this._isBootstrapped = true;
-            console.log("SERVER STARTED.");
+            console.log("SERVER STARTED!");
         })
             .catch(e => {
             console.error("STARTUP FAILED!!!");
@@ -350,7 +350,7 @@ class WebApp {
         this.registerDisposeAction(() => this._container.dispose());
     }
     _configureStartup() {
-        console.log("SERVER STARTING.");
+        console.log("SERVER STARTING...");
         if (!this._hasStartupScript)
             return Promise.resolve();
         return this._container.resolve(this._startupScriptKey).run();
@@ -366,7 +366,7 @@ class WebApp {
             var _a, _b, _c;
             if (this._isShutDown) {
                 ctx.response.status = 503;
-                ctx.response.body = "Server shutdown.";
+                ctx.response.body = "SERVER UNAVAILABLE";
                 return;
             }
             if (this._enableProfiling)
