@@ -467,7 +467,7 @@ export class WebApp
                 // this.configureWebPackDevMiddleware();
 
                 this._isBootstrapped = true;
-                console.log("SERVER STARTED.");
+                console.log("SERVER STARTED!");
             })
             .catch(e =>
             {
@@ -494,7 +494,7 @@ export class WebApp
     
     private _configureStartup(): Promise<void>
     {
-        console.log("SERVER STARTING.");
+        console.log("SERVER STARTING...");
         
         if (!this._hasStartupScript)
             return Promise.resolve();
@@ -516,7 +516,7 @@ export class WebApp
             if (this._isShutDown)
             {    
                 ctx.response.status = 503;
-                ctx.response.body = "Server shutdown.";
+                ctx.response.body = "SERVER UNAVAILABLE";
                 return;
             }
             
