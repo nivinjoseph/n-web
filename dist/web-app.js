@@ -675,7 +675,8 @@ class WebApp {
         //     return;
         this.registerDisposeAction(() => {
             console.log("CLEANING UP. PLEASE WAIT...");
-            return n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 20);
+            // return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
+            return Promise.resolve();
         });
         const shutDown = (signal) => {
             var _a, _b;
@@ -685,32 +686,35 @@ class WebApp {
             ((_b = (_a = this._socketServer) === null || _a === void 0 ? void 0 : _a.dispose()) !== null && _b !== void 0 ? _b : Promise.resolve())
                 .catch((e) => console.error(e))
                 .finally(() => {
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                this._server.close(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    console.warn(`SERVER STOPPING (${signal}).`);
-                    if (this._hasShutdownScript) {
-                        console.log("Shutdown script executing.");
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                n_util_1.Delay.seconds(n_config_1.ConfigurationManager.getConfig("env") === "dev" ? 2 : 15).then(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    this._server.close(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        console.warn(`SERVER STOPPING (${signal}).`);
+                        if (this._hasShutdownScript) {
+                            console.log("Shutdown script executing.");
+                            try {
+                                yield this._container.resolve(this._shutdownScriptKey).run();
+                                console.log("Shutdown script complete.");
+                            }
+                            catch (error) {
+                                console.warn("Shutdown script error.");
+                                console.error(error);
+                            }
+                        }
+                        console.log("Dispose actions executing.");
                         try {
-                            yield this._container.resolve(this._shutdownScriptKey).run();
-                            console.log("Shutdown script complete.");
+                            yield Promise.all(this._disposeActions.map(t => t()));
+                            console.log("Dispose actions complete.");
                         }
                         catch (error) {
-                            console.warn("Shutdown script error.");
+                            console.warn("Dispose actions error.");
                             console.error(error);
                         }
-                    }
-                    console.log("Dispose actions executing.");
-                    try {
-                        yield Promise.all(this._disposeActions.map(t => t()));
-                        console.log("Dispose actions complete.");
-                    }
-                    catch (error) {
-                        console.warn("Dispose actions error.");
-                        console.error(error);
-                    }
-                    console.warn(`SERVER STOPPED (${signal}).`);
-                    process.exit(0);
-                }));
+                        console.warn(`SERVER STOPPED (${signal}).`);
+                        process.exit(0);
+                    }));
+                });
             });
         };
         process.on("SIGTERM", () => shutDown("SIGTERM"));
