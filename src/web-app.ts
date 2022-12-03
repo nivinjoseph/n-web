@@ -17,7 +17,7 @@ import { HttpException } from "./exceptions/http-exception";
 import { ExceptionHandler } from "./exceptions/exception-handler";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
-import { ClassHierarchy, Delay, Profiler } from "@nivinjoseph/n-util";
+import { ClassHierarchy, Delay } from "@nivinjoseph/n-util";
 import * as Http from "http";
 import { ApplicationScript } from "./application-script";
 import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
@@ -25,6 +25,7 @@ import * as Compress from "koa-compress";
 import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import * as Redis from "redis";
+import { ShutdownManager } from "@nivinjoseph/n-svc";
 
 
 // public
@@ -69,7 +70,7 @@ export class WebApp
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean; defer: boolean; }>();
     private _enableCors = false;
     private _enableCompression = false;
-    private _enableProfiling = false;
+    // private _enableProfiling = false;
     private _viewResolutionRoot: string | null = null;
     private _webPackDevMiddlewarePublicPath: string | null = null;
     // // @ts-ignore
@@ -86,7 +87,7 @@ export class WebApp
     private _server!: Http.Server;
     private _isBootstrapped = false;
     
-    private _isShutDown = false;
+    private _shutdownManager: ShutdownManager | null = null;
     
     
     public get containerRegistry(): Registry { return this._container; }
@@ -143,14 +144,14 @@ export class WebApp
         return this;
     }
     
-    public enableProfiling(): this
-    {
-        if (this._isBootstrapped)
-            throw new InvalidOperationException("enableProfiling");
+    // public enableProfiling(): this
+    // {
+    //     if (this._isBootstrapped)
+    //         throw new InvalidOperationException("enableProfiling");
 
-        this._enableProfiling = true;
-        return this;
-    }
+    //     this._enableProfiling = true;
+    //     return this;
+    // }
     
     // public enableEda(config: EdaConfig): this
     // {
@@ -513,20 +514,20 @@ export class WebApp
     {
         this._koa.use(async (ctx, next) =>
         {
-            if (this._isShutDown)
+            if (this._shutdownManager == null || this._shutdownManager.isShutdown)
             {    
                 ctx.response.status = 503;
                 ctx.response.body = "SERVER UNAVAILABLE";
                 return;
             }
             
-            if (this._enableProfiling)
-                ctx.state.profiler = new Profiler(ctx.request.URL.toString());
+            // if (this._enableProfiling)
+            //     ctx.state.profiler = new Profiler(ctx.request.URL.toString());
                 
-            (<Profiler | null>ctx.state.profiler)?.trace("Request started");
+            // (<Profiler | null>ctx.state.profiler)?.trace("Request started");
             
             ctx.state.scope = this._container.createScope();
-            (<Profiler | null>ctx.state.profiler)?.trace("Request scope created");
+            // (<Profiler | null>ctx.state.profiler)?.trace("Request scope created");
             try 
             {
                 await next();    
@@ -535,20 +536,20 @@ export class WebApp
             {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 (<Scope>ctx.state.scope).dispose();
-                (<Profiler | null>ctx.state.profiler)?.trace("Request ended");
-                if (this._enableProfiling)
-                {
-                    const profiler = <Profiler>ctx.state.profiler;
-                    const totalTime = profiler.traces.reduce((acc, t) => acc + t.diffMs, 0);
-                    console.log(profiler.id, `Total time: ${totalTime}`);
-                    console.table(profiler.traces.map(t => ({
-                        operation: t.message,
-                        time: t.diffMs
-                    })));
+                // (<Profiler | null>ctx.state.profiler)?.trace("Request ended");
+                // if (this._enableProfiling)
+                // {
+                //     const profiler = <Profiler>ctx.state.profiler;
+                //     const totalTime = profiler.traces.reduce((acc, t) => acc + t.diffMs, 0);
+                //     console.log(profiler.id, `Total time: ${totalTime}`);
+                //     console.table(profiler.traces.map(t => ({
+                //         operation: t.message,
+                //         time: t.diffMs
+                //     })));
                     
-                    // console.table((<Profiler>ctx.state.profiler).traces);
-                    // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
-                }
+                //     // console.table((<Profiler>ctx.state.profiler).traces);
+                //     // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
+                // }
             }
         });
     }
@@ -560,7 +561,7 @@ export class WebApp
             const scope: Scope = ctx.state.scope;
             const defaultCallContext = scope.resolve<DefaultCallContext>(this._callContextKey);
             defaultCallContext.configure(ctx as any, this._authHeaders);
-            (<Profiler | null>ctx.state.profiler)?.trace("Request callContext configured");
+            // (<Profiler | null>ctx.state.profiler)?.trace("Request callContext configured");
             await next();
         });
     }
@@ -685,7 +686,7 @@ export class WebApp
                 if (identity != null)
                 {
                     ctx.state.identity = identity;
-                    (<Profiler | null>ctx.state.profiler)?.trace("Request authenticated");
+                    // (<Profiler | null>ctx.state.profiler)?.trace("Request authenticated");
                 }
             }    
             
@@ -923,60 +924,111 @@ export class WebApp
             return Promise.resolve();
         });
         
-        const shutDown = (signal: string): void =>
-        {
-            if (this._isShutDown)
-                return;
-            
-            this._isShutDown = true;
-            
-            (this._socketServer?.dispose() ?? Promise.resolve())
-                .catch((e) => console.error(e))
-                .finally(() =>
+        this._shutdownManager = new ShutdownManager([
+            (): Promise<void> => Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15),
+            (): Promise<void> => this._socketServer?.dispose() ?? Promise.resolve(),
+            (): Promise<void> =>
+            {
+                return new Promise((resolve, reject) =>
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15).then(() =>
+                    this._server.close((err) =>
                     {
-                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                        this._server.close(async () =>
+                        if (err)
                         {
-                            console.warn(`SERVER STOPPING (${signal}).`);
-
-                            if (this._hasShutdownScript)
-                            {
-                                console.log("Shutdown script executing.");
-                                try
-                                {
-                                    await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
-                                    console.log("Shutdown script complete.");
-                                }
-                                catch (error)
-                                {
-                                    console.warn("Shutdown script error.");
-                                    console.error(error);
-                                }
-                            }
-
-                            console.log("Dispose actions executing.");
-                            try
-                            {
-                                await Promise.all(this._disposeActions.map(t => t()));
-                                console.log("Dispose actions complete.");
-                            }
-                            catch (error)
-                            {
-                                console.warn("Dispose actions error.");
-                                console.error(error);
-                            }
-
-                            console.warn(`SERVER STOPPED (${signal}).`);
-                            process.exit(0);
-                        }); 
+                            reject(err);
+                            return;
+                        }
+                        resolve();
                     });
                 });
-        };
+            },
+            async (): Promise<void> =>
+            {
+                if (this._hasShutdownScript)
+                {
+                    console.log("Shutdown script executing.");
+                    try
+                    {
+                        await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
+                        console.log("Shutdown script complete.");
+                    }
+                    catch (error)
+                    {
+                        console.warn("Shutdown script error.");
+                        console.error(error);
+                    }
+                }
+            },
+            async (): Promise<void> =>
+            {
+                console.log("Dispose actions executing.");
+                try
+                {
+                    await Promise.all(this._disposeActions.map(t => t()));
+                    console.log("Dispose actions complete.");
+                }
+                catch (error)
+                {
+                    console.warn("Dispose actions error.");
+                    console.error(error);
+                }
+            }
+        ]);
         
-        process.on("SIGTERM", () => shutDown("SIGTERM"));
-        process.on("SIGINT", () => shutDown("SIGINT"));
+        // const shutDown = (signal: string): void =>
+        // {
+        //     if (this._isShutDown)
+        //         return;
+            
+        //     this._isShutDown = true;
+            
+        //     (this._socketServer?.dispose() ?? Promise.resolve())
+        //         .catch((e) => console.error(e))
+        //         .finally(() =>
+        //         {
+        //             // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        //             Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15).then(() =>
+        //             {
+        //                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        //                 this._server.close(async () =>
+        //                 {
+        //                     console.warn(`SERVER STOPPING (${signal}).`);
+
+        //                     if (this._hasShutdownScript)
+        //                     {
+        //                         console.log("Shutdown script executing.");
+        //                         try
+        //                         {
+        //                             await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
+        //                             console.log("Shutdown script complete.");
+        //                         }
+        //                         catch (error)
+        //                         {
+        //                             console.warn("Shutdown script error.");
+        //                             console.error(error);
+        //                         }
+        //                     }
+
+        //                     console.log("Dispose actions executing.");
+        //                     try
+        //                     {
+        //                         await Promise.all(this._disposeActions.map(t => t()));
+        //                         console.log("Dispose actions complete.");
+        //                     }
+        //                     catch (error)
+        //                     {
+        //                         console.warn("Dispose actions error.");
+        //                         console.error(error);
+        //                     }
+
+        //                     console.warn(`SERVER STOPPED (${signal}).`);
+        //                     process.exit(0);
+        //                 }); 
+        //             });
+        //         });
+        // };
+        
+        // process.on("SIGTERM", () => shutDown("SIGTERM"));
+        // process.on("SIGINT", () => shutDown("SIGINT"));
     }
 }
