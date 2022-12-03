@@ -28,7 +28,6 @@ export declare class WebApp {
     private readonly _staticFilePaths;
     private _enableCors;
     private _enableCompression;
-    private _enableProfiling;
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
     private _enableWebSockets;
@@ -38,12 +37,11 @@ export declare class WebApp {
     private readonly _disposeActions;
     private _server;
     private _isBootstrapped;
-    private _isShutDown;
+    private _shutdownManager;
     get containerRegistry(): Registry;
     constructor(port: number, host: string | null, container?: Container | null, logger?: Logger | null);
     enableCors(): this;
     enableCompression(): this;
-    enableProfiling(): this;
     registerStaticFilePath(filePath: string, cache?: boolean, defer?: boolean): this;
     registerControllers(...controllerClasses: ReadonlyArray<ClassHierarchy<Controller>>): this;
     useInstaller(installer: ComponentInstaller): this;
