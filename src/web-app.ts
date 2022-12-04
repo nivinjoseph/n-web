@@ -88,6 +88,7 @@ export class WebApp
     private _isBootstrapped = false;
     
     private _shutdownManager: ShutdownManager | null = null;
+    private _serverClosed = false;
     
     
     public get containerRegistry(): Registry { return this._container; }
@@ -438,6 +439,10 @@ export class WebApp
                 this._server = Http.createServer();
                 // this.configureWebSockets();
                 this._server.listen(this._port, this._host ?? undefined);
+                this._server.on("close", () =>
+                {
+                    this._serverClosed = true;
+                });
                 
                 // this is the request response pipeline START
                 this._configureScoping(); // must be first
@@ -952,21 +957,30 @@ export class WebApp
             {
                 return new Promise((resolve, reject) =>
                 {
-                    this._logger.logInfo("CLOSING WEB SERVER...").finally(() =>
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    this._logger.logInfo("CLOSING WEB SERVER...").finally(async () =>
                     {
-                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                        this._server.close(async (err) =>
+                        if (!this._serverClosed)
                         {
-                            if (err)
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            this._server.close(async (err) =>
                             {
-                                await this._logger.logWarning("WEB SERVER CLOSED WITH ERROR");
-                                await this._logger.logError(err as any);
-                                reject(err);
-                                return;
-                            }
+                                if (err)
+                                {
+                                    await this._logger.logWarning("WEB SERVER CLOSED WITH ERROR");
+                                    await this._logger.logError(err as any);
+                                    reject(err);
+                                    return;
+                                }
+                                await this._logger.logInfo("WEB SERVER CLOSED");
+                                resolve();
+                            });    
+                        }
+                        else
+                        {
                             await this._logger.logInfo("WEB SERVER CLOSED");
                             resolve();
-                        });
+                        }
                     });
                     
                 });
