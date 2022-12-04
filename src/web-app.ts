@@ -114,7 +114,9 @@ export class WebApp
         }
         
         given(logger as Logger, "logger").ensureIsObject();
-        this._logger = logger ?? new ConsoleLogger();
+        this._logger = logger ?? new ConsoleLogger({
+            useJsonFormat: ConfigurationManager.getConfig<string>("env") !== "dev"
+        });
         
         this._koa = new Koa();
         
@@ -397,16 +399,16 @@ export class WebApp
                         .then(() => resolve())
                         .catch((e) =>
                         {
-                            console.error(e);
-                            resolve();
+                            this._logger.logError(e).finally(() => resolve());
+                            // resolve();
                             // // tslint:disable-next-line
                             // this._logger.logError(e).then(() => resolve());
                         });
                 }
                 catch (error)
                 {
-                    console.error(error);
-                    resolve();
+                    this._logger.logError(error as any).finally(() => resolve());
+                    // resolve();
                     // // tslint:disable-next-line
                     // this._logger.logError(error).then(() => resolve());
                 }
@@ -447,7 +449,7 @@ export class WebApp
                 this._configureStaticFileServing();
                 return this._configureWebPackDevMiddleware();
             })
-            .then(() =>
+            .then(async () =>
             {
                 this._configureBodyParser();
                 this._configureRouting(); // must be last
@@ -458,7 +460,7 @@ export class WebApp
                 const appVersion = ConfigurationManager.getConfig<string>("package.version");
                 const appDescription = ConfigurationManager.getConfig<string>("package.description");
 
-                console.log(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
+                await this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
                 // this._server = Http.createServer(this._koa.callback());
                 this._configureWebSockets();
                 this._configureShutDown();
@@ -468,12 +470,12 @@ export class WebApp
                 // this.configureWebPackDevMiddleware();
 
                 this._isBootstrapped = true;
-                console.log("SERVER STARTED!");
+                await this._logger.logInfo("WEB SERVER STARTED");
             })
-            .catch(e =>
+            .catch(async e =>
             {
-                console.error("STARTUP FAILED!!!");
-                console.error(e);
+                await this._logger.logWarning("WEB SERVER STARTUP FAILED");
+                await this._logger.logError(e);
                 throw e;
             });
     }
@@ -493,14 +495,12 @@ export class WebApp
         this.registerDisposeAction(() => this._container.dispose());
     }
     
-    private _configureStartup(): Promise<void>
+    private async _configureStartup(): Promise<void>
     {
-        console.log("SERVER STARTING...");
+        await this._logger.logInfo("WEB SERVER STARTING...");
         
-        if (!this._hasStartupScript)
-            return Promise.resolve();
-        
-        return this._container.resolve<ApplicationScript>(this._startupScriptKey).run();
+        if (this._hasStartupScript)
+            await this._container.resolve<ApplicationScript>(this._startupScriptKey).run();
     }
     
     // private initializeJobs(): void
@@ -917,60 +917,89 @@ export class WebApp
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
         //     return;
         
-        this.registerDisposeAction(() =>
+        this.registerDisposeAction(async () =>
         {
-            console.log("CLEANING UP. PLEASE WAIT...");
+            await this._logger.logInfo("CLEANING UP. PLEASE WAIT...");
             // return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
-            return Promise.resolve();
         });
         
-        this._shutdownManager = new ShutdownManager([
-            (): Promise<void> => Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15),
-            (): Promise<void> => this._socketServer?.dispose() ?? Promise.resolve(),
+        this._shutdownManager = new ShutdownManager(this._logger, [
+            async (): Promise<void> =>
+            {
+                const seconds = ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15;
+                await this._logger.logInfo(`BEGINNING WAIT (${seconds}S) FOR CONNECTION DRAIN...`);
+                await Delay.seconds(seconds);
+                await this._logger.logInfo("CONNECTION DRAIN COMPLETE");
+            },
+            async (): Promise<void> =>
+            {
+                if (this._socketServer)
+                {
+                    await this._logger.logInfo("CLOSING SOCKET SERVER...");
+                    try 
+                    {
+                        await this._socketServer.dispose();    
+                        await this._logger.logInfo("SOCKET SERVER CLOSED");
+                    }
+                    catch (error)
+                    {
+                        await this._logger.logWarning("SOCKET SERVER CLOSED WITH ERROR");
+                        await this._logger.logError(error as any);
+                    }
+                }
+            },
             (): Promise<void> =>
             {
                 return new Promise((resolve, reject) =>
                 {
-                    this._server.close((err) =>
+                    this._logger.logInfo("CLOSING WEB SERVER...").finally(() =>
                     {
-                        if (err)
+                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                        this._server.close(async (err) =>
                         {
-                            reject(err);
-                            return;
-                        }
-                        resolve();
+                            if (err)
+                            {
+                                await this._logger.logWarning("WEB SERVER CLOSED WITH ERROR");
+                                await this._logger.logError(err as any);
+                                reject(err);
+                                return;
+                            }
+                            await this._logger.logInfo("WEB SERVER CLOSED");
+                            resolve();
+                        });
                     });
+                    
                 });
             },
             async (): Promise<void> =>
             {
                 if (this._hasShutdownScript)
                 {
-                    console.log("Shutdown script executing.");
+                    await this._logger.logInfo("SHUTDOWN SCRIPT EXECUTING...");
                     try
                     {
                         await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
-                        console.log("Shutdown script complete.");
+                        await this._logger.logInfo("SHUTDOWN SCRIPT COMPLETE");
                     }
                     catch (error)
                     {
-                        console.warn("Shutdown script error.");
-                        console.error(error);
+                        await this._logger.logWarning("SHUTDOWN SCRIPT ERROR");
+                        await this._logger.logError(error as any);
                     }
                 }
             },
             async (): Promise<void> =>
             {
-                console.log("Dispose actions executing.");
+                await this._logger.logInfo("DISPOSE ACTIONS EXECUTING...");
                 try
                 {
-                    await Promise.all(this._disposeActions.map(t => t()));
-                    console.log("Dispose actions complete.");
+                    await Promise.allSettled(this._disposeActions.map(t => t()));
+                    await this._logger.logInfo("DISPOSE ACTIONS COMPLETE");
                 }
                 catch (error)
                 {
-                    console.warn("Dispose actions error.");
-                    console.error(error);
+                    await this._logger.logWarning("DISPOSE ACTIONS ERROR");
+                    await this._logger.logError(error as any);
                 }
             }
         ]);
