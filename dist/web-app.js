@@ -59,6 +59,7 @@ class WebApp {
         this._disposeActions = new Array();
         this._isBootstrapped = false;
         this._shutdownManager = null;
+        this._serverClosed = false;
         (0, n_defensive_1.given)(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
         (0, n_defensive_1.given)(host, "host").ensureIsString();
@@ -310,6 +311,9 @@ class WebApp {
             this._server = Http.createServer();
             // this.configureWebSockets();
             this._server.listen(this._port, (_a = this._host) !== null && _a !== void 0 ? _a : undefined);
+            this._server.on("close", () => {
+                this._serverClosed = true;
+            });
             // this is the request response pipeline START
             this._configureScoping(); // must be first
             this._configureCallContext();
@@ -702,19 +706,26 @@ class WebApp {
             }),
             () => {
                 return new Promise((resolve, reject) => {
-                    this._logger.logInfo("CLOSING WEB SERVER...").finally(() => {
-                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                        this._server.close((err) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                yield this._logger.logWarning("WEB SERVER CLOSED WITH ERROR");
-                                yield this._logger.logError(err);
-                                reject(err);
-                                return;
-                            }
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    this._logger.logInfo("CLOSING WEB SERVER...").finally(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        if (!this._serverClosed) {
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            this._server.close((err) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                                if (err) {
+                                    yield this._logger.logWarning("WEB SERVER CLOSED WITH ERROR");
+                                    yield this._logger.logError(err);
+                                    reject(err);
+                                    return;
+                                }
+                                yield this._logger.logInfo("WEB SERVER CLOSED");
+                                resolve();
+                            }));
+                        }
+                        else {
                             yield this._logger.logInfo("WEB SERVER CLOSED");
                             resolve();
-                        }));
-                    });
+                        }
+                    }));
                 });
             },
             () => tslib_1.__awaiter(this, void 0, void 0, function* () {

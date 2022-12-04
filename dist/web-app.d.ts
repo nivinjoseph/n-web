@@ -38,6 +38,7 @@ export declare class WebApp {
     private _server;
     private _isBootstrapped;
     private _shutdownManager;
+    private _serverClosed;
     get containerRegistry(): Registry;
     constructor(port: number, host: string | null, container?: Container | null, logger?: Logger | null);
     enableCors(): this;
