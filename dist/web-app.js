@@ -616,7 +616,7 @@ class WebApp {
             const compiler = webpack(config);
             const HmrHelper = require("./hmr-helper").HmrHelper;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            HmrHelper.configure();
+            HmrHelper.configure(config);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const devMiddleware = webpackDevMiddleware(compiler, {
                 publicPath: this._webPackDevMiddlewarePublicPath,

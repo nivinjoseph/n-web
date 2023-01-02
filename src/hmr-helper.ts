@@ -30,15 +30,17 @@ export class HmrHelper
     private constructor() { }
     
     
-    public static configure(): void
+    public static configure(webpackConfig: { output: { path: string; }; }): void
     {
+        given(webpackConfig, "webpackConfig").ensureHasValue().ensureIsObject();
+        
         const devFs: any = createFsFromVolume(new Volume());
         devFs.join = path.join.bind(path);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         devFs.mkdirp = mkdirp.bind(mkdirp);
         this._devFs = devFs;
         
-        const config = require(path.join(process.cwd(), "webpack.config.js"));
-        this._outputPath = config.output.path;
+        // const config = require(path.join(process.cwd(), "webpack.config.js"));
+        this._outputPath = webpackConfig.output.path;
     }
 }
