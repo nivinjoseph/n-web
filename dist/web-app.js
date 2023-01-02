@@ -48,6 +48,7 @@ class WebApp {
         // private _enableProfiling = false;
         this._viewResolutionRoot = null;
         this._webPackDevMiddlewarePublicPath = null;
+        this._webpackConfigPath = null;
         // // @ts-ignore
         // private _webPackDevMiddlewareClientHost: string | null = null;
         // // @ts-ignore
@@ -235,13 +236,16 @@ class WebApp {
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    enableWebPackDevMiddleware(publicPath = "/") {
+    enableWebPackDevMiddleware(publicPath = "/", webpackConfigPath) {
+        var _a;
         (0, n_defensive_1.given)(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(webpackConfigPath, "webpackConfigPath").ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
         // given(serverHost, "serverHost").ensureIsString();
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
         this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webpackConfigPath = (_a = webpackConfigPath === null || webpackConfigPath === void 0 ? void 0 : webpackConfigPath.trim()) !== null && _a !== void 0 ? _a : null;
         // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
@@ -605,12 +609,14 @@ class WebApp {
             const webpack = require("webpack");
             const webpackDevMiddleware = require("webpack-dev-middleware");
             const webpackHotMiddleware = require("webpack-hot-middleware");
-            const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            const config = this._webpackConfigPath == null
+                ? require(path.resolve(process.cwd(), "webpack.config.js"))
+                : require(path.resolve(process.cwd(), this._webpackConfigPath));
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const compiler = webpack(config);
             const HmrHelper = require("./hmr-helper").HmrHelper;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            HmrHelper.configure();
+            HmrHelper.configure(config);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const devMiddleware = webpackDevMiddleware(compiler, {
                 publicPath: this._webPackDevMiddlewarePublicPath,

@@ -9,5 +9,9 @@ export declare class HmrHelper {
      * @static
      */
     private constructor();
-    static configure(): void;
+    static configure(webpackConfig: {
+        output: {
+            path: string;
+        };
+    }): void;
 }
