@@ -73,6 +73,7 @@ export class WebApp
     // private _enableProfiling = false;
     private _viewResolutionRoot: string | null = null;
     private _webPackDevMiddlewarePublicPath: string | null = null;
+    private _webpackConfigPath: string | null = null;
     // // @ts-ignore
     // private _webPackDevMiddlewareClientHost: string | null = null;
     // // @ts-ignore
@@ -342,9 +343,10 @@ export class WebApp
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    public enableWebPackDevMiddleware(publicPath = "/"): this
+    public enableWebPackDevMiddleware(publicPath = "/", webpackConfigPath?: string): this
     {
         given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        given(webpackConfigPath, "webpackConfigPath").ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
         // given(serverHost, "serverHost").ensureIsString();
         
@@ -352,6 +354,7 @@ export class WebApp
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
         this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webpackConfigPath = webpackConfigPath?.trim() ?? null;
         // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         
@@ -812,7 +815,9 @@ export class WebApp
             const webpackDevMiddleware = require("webpack-dev-middleware");
             const webpackHotMiddleware = require("webpack-hot-middleware");
 
-            const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            const config = this._webpackConfigPath == null
+                ? require(path.resolve(process.cwd(), "webpack.config.js"))
+                : require(path.resolve(process.cwd(), this._webpackConfigPath));
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const compiler = webpack(config);
 

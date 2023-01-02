@@ -30,6 +30,7 @@ export declare class WebApp {
     private _enableCompression;
     private _viewResolutionRoot;
     private _webPackDevMiddlewarePublicPath;
+    private _webpackConfigPath;
     private _enableWebSockets;
     private _corsOrigin;
     private _socketServerRedisClient;
@@ -58,7 +59,7 @@ export declare class WebApp {
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    enableWebPackDevMiddleware(publicPath?: string): this;
+    enableWebPackDevMiddleware(publicPath?: string, webpackConfigPath?: string): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private _configureCors;
