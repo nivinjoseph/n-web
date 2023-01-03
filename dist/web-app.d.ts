@@ -7,6 +7,7 @@ import { ApplicationScript } from "./application-script";
 import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import * as Redis from "redis";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -29,7 +30,7 @@ export declare class WebApp {
     private _enableCors;
     private _enableCompression;
     private _viewResolutionRoot;
-    private _webPackDevMiddlewarePublicPath;
+    private _webpackDevMiddlewareConfig;
     private _enableWebSockets;
     private _corsOrigin;
     private _socketServerRedisClient;
@@ -58,7 +59,7 @@ export declare class WebApp {
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    enableWebPackDevMiddleware(publicPath?: string): this;
+    enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private _configureCors;

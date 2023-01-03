@@ -19,14 +19,15 @@ class HmrHelper {
         return this._outputPath;
     }
     static get isConfigured() { return this._devFs != null && this._outputPath != null; }
-    static configure() {
+    static configure(config) {
+        (0, n_defensive_1.given)(config, "config").ensureHasValue().ensureIsObject();
         const devFs = (0, memfs_1.createFsFromVolume)(new memfs_1.Volume());
         devFs.join = path.join.bind(path);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         devFs.mkdirp = mkdirp.bind(mkdirp);
         this._devFs = devFs;
-        const config = require(path.join(process.cwd(), "webpack.config.js"));
-        this._outputPath = config.output.path;
+        const webpackConfig = require(config.webpackConfigPath);
+        this._outputPath = webpackConfig.output.path;
     }
 }
 exports.HmrHelper = HmrHelper;

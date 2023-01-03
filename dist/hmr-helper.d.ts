@@ -1,4 +1,5 @@
 import { IFs } from "memfs";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
 export declare class HmrHelper {
     private static _devFs;
     private static _outputPath;
@@ -9,5 +10,5 @@ export declare class HmrHelper {
      * @static
      */
     private constructor();
-    static configure(): void;
+    static configure(config: WebpackDevMiddlewareConfig): void;
 }

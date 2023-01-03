@@ -47,7 +47,8 @@ class WebApp {
         this._enableCompression = false;
         // private _enableProfiling = false;
         this._viewResolutionRoot = null;
-        this._webPackDevMiddlewarePublicPath = null;
+        // private _webPackDevMiddlewarePublicPath: string | null = null;
+        this._webpackDevMiddlewareConfig = null;
         // // @ts-ignore
         // private _webPackDevMiddlewareClientHost: string | null = null;
         // // @ts-ignore
@@ -235,13 +236,25 @@ class WebApp {
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    enableWebPackDevMiddleware(publicPath = "/") {
-        (0, n_defensive_1.given)(publicPath, "publicPath").ensureHasValue().ensureIsString();
+    // public enableWebPackDevMiddleware(publicPath = "/"): this
+    enableWebPackDevMiddleware(config) {
+        const defaultConfig = {
+            publicPath: "/",
+            webpackConfigPath: path.resolve(process.cwd(), "webpack.config.js")
+        };
+        config = Object.assign(defaultConfig, config !== null && config !== void 0 ? config : {});
+        (0, n_defensive_1.given)(config, "config").ensureHasValue()
+            .ensureHasStructure({
+            publicPath: "string",
+            webpackConfigPath: "string"
+        });
+        // given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
         // given(serverHost, "serverHost").ensureIsString();
         if (this._isBootstrapped)
             throw new n_exception_1.InvalidOperationException("enableWebPackDevMiddleware");
-        this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webpackDevMiddlewareConfig = config;
+        // this._webPackDevMiddlewarePublicPath = publicPath.trim();
         // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         // if (ConfigurationManager.getConfig<string>("env") === "dev")
@@ -601,19 +614,19 @@ class WebApp {
     //     return Promise.resolve();
     // }
     _configureWebPackDevMiddleware() {
-        if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webPackDevMiddlewarePublicPath != null) {
+        if (n_config_1.ConfigurationManager.getConfig("env") === "dev" && this._webpackDevMiddlewareConfig != null) {
             const webpack = require("webpack");
             const webpackDevMiddleware = require("webpack-dev-middleware");
             const webpackHotMiddleware = require("webpack-hot-middleware");
-            const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            const config = require(this._webpackDevMiddlewareConfig.webpackConfigPath);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const compiler = webpack(config);
             const HmrHelper = require("./hmr-helper").HmrHelper;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            HmrHelper.configure();
+            HmrHelper.configure(this._webpackDevMiddlewareConfig);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const devMiddleware = webpackDevMiddleware(compiler, {
-                publicPath: this._webPackDevMiddlewarePublicPath,
+                publicPath: this._webpackDevMiddlewareConfig.publicPath,
                 outputFileSystem: HmrHelper.devFs
             });
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
