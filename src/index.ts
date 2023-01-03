@@ -1,5 +1,7 @@
 import "@nivinjoseph/n-ext";
 import { WebApp } from "./web-app";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
+
 import { Controller } from "./controller";
 import { route } from "./route";
 import { httpGet, httpPost, httpPut, httpDelete } from "./http-method";
@@ -26,6 +28,7 @@ import { authorize } from "./security/authorize";
 export
 {
     WebApp, 
+    WebpackDevMiddlewareConfig,
     Controller,
     route,
     httpGet, httpPost, httpPut, httpDelete,

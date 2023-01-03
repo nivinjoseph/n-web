@@ -1,7 +1,7 @@
 import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
 import { InmemoryTodoManager } from "./services/todo-manager/inmemory-todo-manager";
 import { DefaultConfigService } from "./services/config-service/default-config-service";
-import { WebApp } from "./../src/index";
+import { WebApp } from "../src/index";
 import { GetTodosController } from "./controllers/api/get-todos-controller";
 import { GetTodoController } from "./controllers/api/get-todo-controller";
 import { CreateTodoController } from "./controllers/api/create-todo-controller";
