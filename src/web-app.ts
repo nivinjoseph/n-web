@@ -26,6 +26,7 @@ import { Controller } from "./controller";
 import { AuthorizationHandler } from "./security/authorization-handler";
 import * as Redis from "redis";
 import { ShutdownManager } from "@nivinjoseph/n-svc";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
 
 
 // public
@@ -72,7 +73,8 @@ export class WebApp
     private _enableCompression = false;
     // private _enableProfiling = false;
     private _viewResolutionRoot: string | null = null;
-    private _webPackDevMiddlewarePublicPath: string | null = null;
+    // private _webPackDevMiddlewarePublicPath: string | null = null;
+    private _webpackDevMiddlewareConfig: WebpackDevMiddlewareConfig | null = null;
     // // @ts-ignore
     // private _webPackDevMiddlewareClientHost: string | null = null;
     // // @ts-ignore
@@ -342,16 +344,31 @@ export class WebApp
      * @param publicPath Webpack publicPath value
      * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
      */
-    public enableWebPackDevMiddleware(publicPath = "/"): this
+    // public enableWebPackDevMiddleware(publicPath = "/"): this
+    public enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this
     {
-        given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+        const defaultConfig: WebpackDevMiddlewareConfig = {
+            publicPath: "/",
+            webpackConfigPath: path.resolve(process.cwd(), "webpack.config.js")
+        };
+        
+        config = Object.assign(defaultConfig, config ?? {});
+        given(config, "config").ensureHasValue()
+            .ensureHasStructure({
+                publicPath: "string",
+                webpackConfigPath: "string"
+            });
+        
+        // given(publicPath, "publicPath").ensureHasValue().ensureIsString();
         // given(clientHost, "clientHost").ensureIsString();
         // given(serverHost, "serverHost").ensureIsString();
         
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebPackDevMiddleware");
         
-        this._webPackDevMiddlewarePublicPath = publicPath.trim();
+        this._webpackDevMiddlewareConfig = config;
+        
+        // this._webPackDevMiddlewarePublicPath = publicPath.trim();
         // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
         // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         
@@ -806,23 +823,23 @@ export class WebApp
     
     private _configureWebPackDevMiddleware(): Promise<void>
     {
-        if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
+        if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webpackDevMiddlewareConfig != null)
         {
             const webpack = require("webpack");
             const webpackDevMiddleware = require("webpack-dev-middleware");
             const webpackHotMiddleware = require("webpack-hot-middleware");
 
-            const config = require(path.resolve(process.cwd(), "webpack.config.js"));
+            const config = require(this._webpackDevMiddlewareConfig.webpackConfigPath!);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const compiler = webpack(config);
 
             const HmrHelper = require("./hmr-helper").HmrHelper;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            HmrHelper.configure();
+            HmrHelper.configure(this._webpackDevMiddlewareConfig);
             
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const devMiddleware = webpackDevMiddleware(compiler, {
-                publicPath: this._webPackDevMiddlewarePublicPath,
+                publicPath: this._webpackDevMiddlewareConfig.publicPath!,
                 outputFileSystem: HmrHelper.devFs
             });
             

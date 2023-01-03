@@ -1,6 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { IFs, createFsFromVolume, Volume } from "memfs";
 import * as path from "path";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
 const mkdirp = require("mkdirp");
 
 
@@ -30,15 +31,17 @@ export class HmrHelper
     private constructor() { }
     
     
-    public static configure(): void
+    public static configure(config: WebpackDevMiddlewareConfig): void
     {
+        given(config, "config").ensureHasValue().ensureIsObject();
+        
         const devFs: any = createFsFromVolume(new Volume());
         devFs.join = path.join.bind(path);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         devFs.mkdirp = mkdirp.bind(mkdirp);
         this._devFs = devFs;
         
-        const config = require(path.join(process.cwd(), "webpack.config.js"));
-        this._outputPath = config.output.path;
+        const webpackConfig = require(config.webpackConfigPath!);
+        this._outputPath = webpackConfig.output.path;
     }
 }
