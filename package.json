@@ -66,7 +66,7 @@
         "@nivinjoseph/n-exception": "^1.0.26",
         "@nivinjoseph/n-ext": "^1.1.36",
         "@nivinjoseph/n-ject": "^2.0.5",
-        "@nivinjoseph/n-log": "^2.1.11",
+        "@nivinjoseph/n-log": "^2.1.12",
         "@nivinjoseph/n-sec": "^5.0.3",
         "@nivinjoseph/n-sock": "^1.0.38",
         "@nivinjoseph/n-svc": "^2.0.19",
