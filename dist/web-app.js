@@ -439,6 +439,7 @@ class WebApp {
             catch (error) {
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 yield this._logger.logWarning(`Error during request to URL '${(_a = ctx.url) !== null && _a !== void 0 ? _a : "UNKNOWN"}'.`);
+                yield this._logger.logWarning(error);
                 if (error instanceof http_exception_1.HttpException) {
                     ctx.status = error.statusCode;
                     if (error.body !== undefined && error.body !== null)

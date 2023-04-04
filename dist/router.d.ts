@@ -18,3 +18,4 @@ export declare class Router {
     private _handleRequest;
     private _createRouteArgs;
 }
+//# sourceMappingURL=router.d.ts.map

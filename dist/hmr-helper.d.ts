@@ -12,3 +12,4 @@ export declare class HmrHelper {
     private constructor();
     static configure(config: WebpackDevMiddlewareConfig): void;
 }
+//# sourceMappingURL=hmr-helper.d.ts.map

@@ -31,3 +31,4 @@ export declare class DefaultCallContext implements CallContext {
     setResponseHeader(header: string, value: string): void;
     private _populateSchemeAndToken;
 }
+//# sourceMappingURL=default-call-context.d.ts.map

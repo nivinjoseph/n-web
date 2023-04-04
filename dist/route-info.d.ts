@@ -17,3 +17,4 @@ export declare class RouteInfo {
     private _extractTemplateParams;
     private _generateKoaRoute;
 }
+//# sourceMappingURL=route-info.d.ts.map
