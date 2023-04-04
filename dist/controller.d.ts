@@ -3,3 +3,4 @@ export declare abstract class Controller {
     protected redirect(url: string): void;
     protected disableCompression(): void;
 }
+//# sourceMappingURL=controller.d.ts.map

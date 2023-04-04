@@ -77,3 +77,4 @@ export declare class WebApp {
     private _configureWebPackDevMiddleware;
     private _configureShutDown;
 }
+//# sourceMappingURL=web-app.d.ts.map

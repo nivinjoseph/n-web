@@ -589,6 +589,7 @@ export class WebApp
             { 
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 await this._logger.logWarning(`Error during request to URL '${ctx.url ?? "UNKNOWN"}'.`);
+                await this._logger.logWarning(error as any);
                 
                 if (error instanceof HttpException)
                 {  

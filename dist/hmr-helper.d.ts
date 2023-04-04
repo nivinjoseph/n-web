@@ -11,3 +11,4 @@ export declare class HmrHelper {
     private constructor();
     static configure(): void;
 }
+//# sourceMappingURL=hmr-helper.d.ts.map

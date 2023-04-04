@@ -1,0 +1,1 @@
+{"version":3,"file":"http-redirect-exception.d.ts","sourceRoot":"","sources":["../../src/exceptions/http-redirect-exception.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,0BAA0B,CAAC;AAGrD,qBAAa,qBAAsB,SAAQ,SAAS;IAEhD,OAAO,CAAC,QAAQ,CAAC,IAAI,CAAS;IAG9B,IAAW,GAAG,IAAI,MAAM,CAAsB;gBAG3B,GAAG,EAAE,MAAM;CAMjC"}
