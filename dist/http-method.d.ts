@@ -14,3 +14,4 @@ export declare function httpGet(target: Function): void;
 export declare function httpPost(target: Function): void;
 export declare function httpPut(target: Function): void;
 export declare function httpDelete(target: Function): void;
+//# sourceMappingURL=http-method.d.ts.map
