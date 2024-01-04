@@ -20,7 +20,7 @@ import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { ClassHierarchy, Delay } from "@nivinjoseph/n-util";
 import Http from "node:http";
 import { ApplicationScript } from "./application-script.js";
-import { SocketServer } from "@nivinjoseph/n-sock/dist/backend/index.js";
+import { SocketServer } from "@nivinjoseph/n-sock/backend";
 import Compress from "koa-compress";
 import { Controller } from "./controller.js";
 import { AuthorizationHandler } from "./security/authorization-handler.js";

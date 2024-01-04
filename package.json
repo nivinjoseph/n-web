@@ -65,7 +65,7 @@
         "@nivinjoseph/n-ject": "^3.0.1",
         "@nivinjoseph/n-log": "https://github.com/shreymahendru/n-log#ts-5-test",
         "@nivinjoseph/n-sec": "^5.0.5",
-        "@nivinjoseph/n-sock": "^1.0.38",
+        "@nivinjoseph/n-sock": "https://github.com/shreymahendru/n-sock#ts-5-test",
         "@nivinjoseph/n-svc": "^2.0.19",
         "@nivinjoseph/n-util": "^2.0.1",
         "kcors": "^2.2.2",
