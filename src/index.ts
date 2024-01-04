@@ -25,6 +25,9 @@ import { DefaultAuthorizationHandler } from "./security/default-authorization-ha
 import { authorize, ControllerAuthorizeDecorator } from "./security/authorize.js";
 
 
+//@ts-expect-error polyfill to use metadata object
+Symbol.metadata ??= Symbol("Symbol.metadata");
+
 export
 {
     WebApp, 
@@ -45,3 +48,4 @@ export
     
     AuthenticationHandler, AuthorizationHandler, DefaultAuthorizationHandler, authorize, ControllerAuthorizeDecorator
 };
+
