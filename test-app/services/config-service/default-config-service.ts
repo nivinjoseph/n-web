@@ -1,4 +1,4 @@
-import { ConfigService } from "./config-service";
+import { ConfigService } from "./config-service.js";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 
 export class DefaultConfigService implements ConfigService

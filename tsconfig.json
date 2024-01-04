@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2015",
-        "lib": ["ES2021"],
+        "module": "NodeNext",
+        "target": "ES2022",
+        "lib": [
+            "ES2023",
+            "esnext.decorators"
+        ],
         "strict": true,
         "strictNullChecks": true,
         "strictFunctionTypes": true,
@@ -13,8 +16,6 @@
         "noFallthroughCasesInSwitch": true,
         "noEmitOnError": true,
         "sourceMap": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
         "removeComments": false,
         "forceConsistentCasingInFileNames": true,
         "incremental": false,
@@ -22,6 +23,8 @@
         "importHelpers": true,
         "noEmitHelpers": true,
         "noImplicitOverride": true,
-        "pretty": true
+        "pretty": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
     }
 }

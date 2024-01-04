@@ -1,4 +1,4 @@
-import { AuthorizationHandler } from "./authorization-handler";
+import { AuthorizationHandler } from "./authorization-handler.js";
 import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 

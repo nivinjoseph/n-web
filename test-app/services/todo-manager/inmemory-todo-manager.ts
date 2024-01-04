@@ -1,5 +1,5 @@
-import { TodoManager } from "./todo-manager";
-import { Todo } from "./../../models/todo";
+import { TodoManager } from "./todo-manager.js";
+import { Todo } from "./../../models/todo.js";
 import "@nivinjoseph/n-ext";
 import { ApplicationException } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";

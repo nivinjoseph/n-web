@@ -1,16 +1,16 @@
-import * as Koa from "koa";
-import * as KoaRouter from "koa-router";
+import Koa from "koa";
+import KoaRouter from "koa-router";
 import { Container, Scope } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
-import { ControllerRegistration } from "./controller-registration";
-import { Controller } from "./controller";
+import { ControllerRegistration } from "./controller-registration.js";
+import { Controller } from "./controller.js";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { RouteInfo } from "./route-info";
-import { HttpMethods } from "./http-method";
-import { HttpException } from "./exceptions/http-exception";
-import { HttpRedirectException } from "./exceptions/http-redirect-exception";
-import { AuthorizationHandler } from "./security/authorization-handler";
-import { CallContext } from "./services/call-context/call-context";
+import { RouteInfo } from "./route-info.js";
+import { HttpMethods } from "./http-method.js";
+import { HttpException } from "./exceptions/http-exception.js";
+import { HttpRedirectException } from "./exceptions/http-redirect-exception.js";
+import { AuthorizationHandler } from "./security/authorization-handler.js";
+import { CallContext } from "./services/call-context/call-context.js";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { Profiler, Templator } from "@nivinjoseph/n-util";
 

@@ -1,6 +1,6 @@
-import { ExceptionHandler, HttpException } from "./../../src/index";
+import { ExceptionHandler, HttpException } from "./../../src/index.js";
 import { Exception } from "@nivinjoseph/n-exception";
-import { TodoNotFoundException } from "./todo-not-found-exception";
+import { TodoNotFoundException } from "./todo-not-found-exception.js";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Logger } from "@nivinjoseph/n-log";
@@ -27,14 +27,14 @@ export class AppExceptionHandler implements ExceptionHandler
         }    
         else
         {
-            await this._logger.logError(exp);
+            await this._logger.logError(exp as any);
             throw new HttpException(500, "We encountered a problem while processing your request");
         }    
     }
         
     private async _handleTodoNotFoundException(exp: TodoNotFoundException): Promise<any>
     {
-        await this._logger.logError(exp);
+        await this._logger.logError(exp as any);
         throw new HttpException(404, "todo not found");
     }
 }

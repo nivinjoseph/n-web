@@ -1,7 +1,7 @@
 import { Exception, ApplicationException } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";
-import { ExceptionHandler } from "./exception-handler";
-import { HttpException } from "./http-exception";
+import { ExceptionHandler } from "./exception-handler.js";
+import { HttpException } from "./http-exception.js";
 import { Logger } from "@nivinjoseph/n-log";
 import { ClassDefinition } from "@nivinjoseph/n-util";
 

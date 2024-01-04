@@ -1,32 +1,33 @@
-import * as Koa from "koa";
-import * as KoaBodyParser from "koa-bodyparser";
+import Koa from "koa";
+import KoaBodyParser from "koa-bodyparser";
 import { Container, ComponentInstaller, Scope, Registry } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
-import { Router } from "./router";
+import { Router } from "./router.js";
 import { ArgumentException, InvalidOperationException, ApplicationException } from "@nivinjoseph/n-exception";
-import * as serve from "koa-static";
-import * as fs from "fs";
-import * as path from "path";
-import * as cors from "kcors";
-import { DefaultCallContext } from "./services/call-context/default-call-context";
-import { AuthenticationHandler } from "./security/authentication-handler";
-import { CallContext } from "./services/call-context/call-context";
-import { DefaultAuthorizationHandler } from "./security/default-authorization-handler";
-import { DefaultExceptionHandler } from "./exceptions/default-exception-handler";
-import { HttpException } from "./exceptions/http-exception";
-import { ExceptionHandler } from "./exceptions/exception-handler";
+import serve from "koa-static";
+import fs from "node:fs";
+import path from "node:path";
+import cors from "kcors";
+import { DefaultCallContext } from "./services/call-context/default-call-context.js";
+import { AuthenticationHandler } from "./security/authentication-handler.js";
+import { CallContext } from "./services/call-context/call-context.js";
+import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
+import { DefaultExceptionHandler } from "./exceptions/default-exception-handler.js";
+import { HttpException } from "./exceptions/http-exception.js";
+import { ExceptionHandler } from "./exceptions/exception-handler.js";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { ConsoleLogger, Logger } from "@nivinjoseph/n-log";
 import { ClassHierarchy, Delay } from "@nivinjoseph/n-util";
-import * as Http from "http";
-import { ApplicationScript } from "./application-script";
-import { SocketServer } from "@nivinjoseph/n-sock/dist/backend";
-import * as Compress from "koa-compress";
-import { Controller } from "./controller";
-import { AuthorizationHandler } from "./security/authorization-handler";
+import Http from "node:http";
+import { ApplicationScript } from "./application-script.js";
+import { SocketServer } from "@nivinjoseph/n-sock/dist/backend/index.js";
+import Compress from "koa-compress";
+import { Controller } from "./controller.js";
+import { AuthorizationHandler } from "./security/authorization-handler.js";
 import * as Redis from "redis";
 import { ShutdownManager } from "@nivinjoseph/n-svc";
-import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
+
 
 
 // public
@@ -417,6 +418,7 @@ export class WebApp
                         .then(() => resolve())
                         .catch((e) =>
                         {
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             this._logger.logError(e).finally(() => resolve());
                             // resolve();
                             // // tslint:disable-next-line
@@ -425,6 +427,7 @@ export class WebApp
                 }
                 catch (error)
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     this._logger.logError(error as any).finally(() => resolve());
                     // resolve();
                     // // tslint:disable-next-line
@@ -487,6 +490,7 @@ export class WebApp
                 this._configureWebSockets();
                 this._configureShutDown();
                 
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 this._server.on("request", this._koa.callback());
                 // this._server.listen(this._port, this._host);
                 // this.configureWebPackDevMiddleware();
@@ -974,7 +978,7 @@ export class WebApp
             {
                 return new Promise((resolve, reject) =>
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/no-floating-promises
                     this._logger.logInfo("CLOSING WEB SERVER...").finally(async () =>
                     {
                         if (!this._serverClosed)

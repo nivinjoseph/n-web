@@ -1,4 +1,5 @@
-import "reflect-metadata";
+import { Controller, ControllerClass } from "./controller.js";
+import { given } from "@nivinjoseph/n-defensive";
 
 export class HttpMethods
 {
@@ -17,25 +18,64 @@ export class HttpMethods
 export const httpMethodSymbol = Symbol.for("@nivinjoseph/n-web/httpMethod");
 
 // public
-export function httpGet(target: Function): void
+export function httpGet<This extends Controller>(target: ControllerClass<This>,
+    context: ClassDecoratorContext<ControllerClass<This>>): void
 {
-    Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Get, target);
+    given(context, "context")
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        .ensure(t => t.kind === "class", "httpGet decorator should only be used on a class");
+
+    const className = context.name!;
+    given(className, className).ensureHasValue().ensureIsString()
+        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with httpGet must extend Controller class`);
+
+    context.metadata[httpMethodSymbol] = HttpMethods.Get;
 }
 
-// public
-export function httpPost(target: Function): void
-{
-    Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Post, target);
-}
 
 // public
-export function httpPut(target: Function): void
+export function httpPost<This extends Controller>(target: ControllerClass<This>,
+    context: ClassDecoratorContext<ControllerClass<This>>): void
 {
-    Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Put, target);
+    given(context, "context")
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        .ensure(t => t.kind === "class", "httpPost decorator should only be used on a class");
+
+    const className = context.name!;
+    given(className, className).ensureHasValue().ensureIsString()
+        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with httpPost must extend Controller class`);
+
+    context.metadata[httpMethodSymbol] = HttpMethods.Post;
 }
 
+
 // public
-export function httpDelete(target: Function): void
+export function httpPut<This extends Controller>(target: ControllerClass<This>,
+    context: ClassDecoratorContext<ControllerClass<This>>): void
 {
-    Reflect.defineMetadata(httpMethodSymbol, HttpMethods.Delete, target);
+    given(context, "context")
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        .ensure(t => t.kind === "class", "httpPut decorator should only be used on a class");
+
+    const className = context.name!;
+    given(className, className).ensureHasValue().ensureIsString()
+        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with httpPut must extend Controller class`);
+
+    context.metadata[httpMethodSymbol] = HttpMethods.Put;
+}
+
+
+// public
+export function httpDelete<This extends Controller>(target: ControllerClass<This>,
+    context: ClassDecoratorContext<ControllerClass<This>>): void
+{
+    given(context, "context")
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        .ensure(t => t.kind === "class", "httpDelete decorator should only be used on a class");
+
+    const className = context.name!;
+    given(className, className).ensureHasValue().ensureIsString()
+        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with httpDelete must extend Controller class`);
+
+    context.metadata[httpMethodSymbol] = HttpMethods.Delete;
 }

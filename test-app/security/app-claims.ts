@@ -1,5 +1,11 @@
 import { Claim } from "@nivinjoseph/n-sec";
 
 
-export const claim1 = new Claim("claim1", true);
-export const claim2 = new Claim("claim2", "f00");
+export class AppClaims
+{
+    public static readonly claim1 = new Claim("claim1", true);
+
+    public static readonly claim2 = new Claim("claim2", "f00");
+
+    private constructor() { }
+}

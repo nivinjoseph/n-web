@@ -1,18 +1,16 @@
-import "reflect-metadata";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { given } from "@nivinjoseph/n-defensive";
 import { ApplicationException, ArgumentException } from "@nivinjoseph/n-exception";
-import { httpMethodSymbol, HttpMethods } from "./http-method";
-import { httpRouteSymbol } from "./route";
-import { RouteInfo } from "./route-info";
-import { viewSymbol } from "./view";
-import { viewLayoutSymbol } from "./view-layout";
-import { authorizeSymbol } from "./security/authorize";
 import "@nivinjoseph/n-ext";
-import * as fs from "fs";
-import * as path from "path";
-import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { Claim } from "@nivinjoseph/n-sec";
-
+import fs from "node:fs";
+import path from "node:path";
+import { HttpMethods, httpMethodSymbol } from "./http-method.js";
+import { RouteInfo } from "./route-info.js";
+import { httpRouteSymbol } from "./route.js";
+import { authorizeSymbol } from "./security/authorize.js";
+import { viewLayoutSymbol } from "./view-layout.js";
+import { viewSymbol } from "./view.js";
 
 export class ControllerRegistration
 {
@@ -45,47 +43,54 @@ export class ControllerRegistration
         this._name = (<Object>controller).getTypeName();
         this._controller = controller;
     }
-    
-    
+
+
     public complete(viewResolutionRoot?: string): void
     {
-        given(viewResolutionRoot as string, "viewResolutionRoot").ensureIsString();
+        given(viewResolutionRoot, "viewResolutionRoot").ensureIsString();
         viewResolutionRoot = viewResolutionRoot ? path.join(process.cwd(), viewResolutionRoot) : process.cwd();
-        
-        if (!Reflect.hasOwnMetadata(httpMethodSymbol, this._controller))
-            throw new ApplicationException("Controller '{0}' does not have http method applied."
-                .format(this._name));
 
-        if (!Reflect.hasOwnMetadata(httpRouteSymbol, this._controller))
-            throw new ApplicationException("Controller '{0}' does not have http route applied."
-                .format(this._name));
+        const metadata = this._controller[Symbol.metadata];
 
-        this._method = Reflect.getOwnMetadata(httpMethodSymbol, this._controller);
-        this._route = new RouteInfo(Reflect.getOwnMetadata(httpRouteSymbol, this._controller));
-        
+        if (metadata == null) // if metadata object is null/undefined that means there were no decorators applied
+            throw new ApplicationException(`Controller '${this._name}' does not have http method applied.`);
+
+        const httpMethod = metadata[httpMethodSymbol];
+        if (httpMethod == null)
+            throw new ApplicationException(`Controller '${this._name}' does not have http method applied.`);
+
+        const httpRoute = metadata[httpRouteSymbol];
+        if (httpRoute == null)
+            throw new ApplicationException(`Controller '${this._name}' does not have http route applied.`);
+
+        this._method = httpMethod as string;
+        this._route = new RouteInfo(httpRoute as string);
+
         if (this._route.isCatchAll && this._method !== HttpMethods.Get)
-            throw new ApplicationException("Controller '{0}' has a catch all route but is not using HTTP GET."
-                .format(this._name));
+            throw new ApplicationException(`Controller '${this._name}' has a catch all route but is not using HTTP GET.`);
 
         this._configureViews(viewResolutionRoot);
-        
-        if (Reflect.hasOwnMetadata(authorizeSymbol, this._controller))
-            this._authorizeClaims = Reflect.getOwnMetadata(authorizeSymbol, this._controller);
+
+        const claims = metadata[authorizeSymbol];
+        if (claims != null)
+            this._authorizeClaims = claims as ReadonlyArray<Claim>;
     }
-    
+
     private _configureViews(viewResolutionRoot: string): void
     {
-        if (Reflect.hasOwnMetadata(viewSymbol, this._controller))
+        const view = this._controller[Symbol.metadata]![viewSymbol];
+
+        if (view != null)
         {
-            let viewFileName: string = Reflect.getOwnMetadata(viewSymbol, this._controller);
+            let viewFileName: string = view as string;
             if (!viewFileName.endsWith(".html"))
                 viewFileName += ".html";
-            
+
             if (viewFileName.startsWith("~/"))
             {
                 this._viewFilePath = path.join(process.cwd(), viewFileName.replace("~/", ""));
                 this._viewFileName = path.basename(this._viewFilePath);
-            }   
+            }
             else
             {
                 const viewFilePath = this._resolvePath(viewResolutionRoot, viewFileName);
@@ -95,22 +100,24 @@ export class ControllerRegistration
                 this._viewFileName = viewFileName;
                 this._viewFilePath = viewFilePath;
             }
-            
+
             if (!this._isDev())
                 this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
 
-            
-            if (Reflect.hasOwnMetadata(viewLayoutSymbol, this._controller))
+
+            const viewLayout = this._controller[Symbol.metadata]![viewLayoutSymbol];
+
+            if (viewLayout != null)
             {
-                let viewLayoutFileName: string = Reflect.getOwnMetadata(viewLayoutSymbol, this._controller);
+                let viewLayoutFileName = viewLayout as string;
                 if (!viewLayoutFileName.endsWith(".html"))
                     viewLayoutFileName += ".html";
-                
+
                 if (viewLayoutFileName.startsWith("~/"))
                 {
                     this._viewLayoutFilePath = path.join(process.cwd(), viewLayoutFileName.replace("~/", ""));
                     this._viewLayoutFileName = path.basename(this._viewLayoutFilePath);
-                }   
+                }
                 else
                 {
                     const viewLayoutFilePath = this._resolvePath(viewResolutionRoot, viewLayoutFileName);
@@ -120,18 +127,18 @@ export class ControllerRegistration
                     this._viewLayoutFileName = viewLayoutFileName;
                     this._viewLayoutFilePath = viewLayoutFilePath;
                 }
-                
+
                 if (!this._isDev())
                     this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
     }
-    
+
     private _resolvePath(startPoint: string, fileName: string): string | null
     {
         if (startPoint.endsWith(fileName))
             return startPoint;
-        
+
         if (fs.statSync(startPoint).isDirectory())
         {
             const files = fs.readdirSync(startPoint);
@@ -139,21 +146,20 @@ export class ControllerRegistration
             {
                 if (file.startsWith(".") || file.startsWith("node_modules"))
                     continue;
-                
+
                 const resolvedPath = this._resolvePath(path.join(startPoint, file), fileName);
                 if (resolvedPath != null)
                     return resolvedPath;
             }
-        }    
-        
+        }
         return null;
     }
-       
+
     private _retrieveView(): string | null
     {
         if (this._viewFilePath == null)
             return null;
-        
+
         if (this._isDev())
         {
             const HmrHelper = require("./hmr-helper").HmrHelper;
@@ -163,15 +169,15 @@ export class ControllerRegistration
                 ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8")
                 : fs.readFileSync(this._viewFilePath, "utf8");
         }
-        
+
         return this._viewFileData;
     }
-    
+
     private _retrieveViewLayout(): string | null
     {
         if (this._viewLayoutFilePath == null)
-            return null;    
-        
+            return null;
+
         if (this._isDev())
         {
             const HmrHelper = require("./hmr-helper").HmrHelper;
@@ -184,10 +190,10 @@ export class ControllerRegistration
 
         return this._viewLayoutFileData;
     }
-    
+
     private _isDev(): boolean
     {
         const env = ConfigurationManager.getConfig<string | null>("env");
-        return env === "dev"; 
+        return env === "dev";
     }
 }

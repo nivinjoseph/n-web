@@ -1,6 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { RouteParam } from "./route-param";
+import { RouteParam } from "./route-param.js";
 
 // route format: /api/Product/{id:number}?{name?:string}&{all:boolean}
 

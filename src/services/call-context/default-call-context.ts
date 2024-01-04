@@ -1,15 +1,15 @@
-import { CallContext } from "./call-context";
+import { CallContext } from "./call-context.js";
 import { Scope } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
-import * as Koa from "koa";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import { URL } from "url";
+import { URL } from "node:url";
 import { Profiler } from "@nivinjoseph/n-util";
+import { Context } from "koa";
 
 
 export class DefaultCallContext implements CallContext
 {
-    private _ctx!: Koa.Context;
+    private _ctx!: Context;
     private _authHeaders!: ReadonlyArray<string>;
     private _hasAuth = false;
     private _authScheme: string | null = null;
@@ -31,7 +31,7 @@ export class DefaultCallContext implements CallContext
     public get profiler(): Profiler | undefined { return this._ctx.state.profiler as Profiler; }
     
     
-    public configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void
+    public configure(ctx: Context, authHeaders: ReadonlyArray<string>): void
     {
         given(ctx, "ctx").ensureHasValue().ensureIsObject();
         given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();

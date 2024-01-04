@@ -1,5 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { HttpRedirectException } from "./exceptions/http-redirect-exception";
+import { HttpRedirectException } from "./exceptions/http-redirect-exception.js";
+import { ClassDefinition } from "@nivinjoseph/n-util";
 
 // public
 export abstract class Controller
@@ -25,3 +26,6 @@ export abstract class Controller
         (<any>this).__ctx.compress = false;
     }
 }
+
+
+export type ControllerClass<This extends Controller> = ClassDefinition<This>;

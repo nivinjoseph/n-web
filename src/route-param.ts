@@ -1,7 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { InvalidArgumentException, ApplicationException, InvalidOperationException } from "@nivinjoseph/n-exception";
 import { TypeHelper } from "@nivinjoseph/n-util";
-import { HttpException } from "./exceptions/http-exception";
+import { HttpException } from "./exceptions/http-exception.js";
 
 export class RouteParam
 {
