@@ -27,14 +27,14 @@ export class AppExceptionHandler implements ExceptionHandler
         }    
         else
         {
-            await this._logger.logError(exp as any);
+            await this._logger.logError(exp);
             throw new HttpException(500, "We encountered a problem while processing your request");
         }    
     }
         
     private async _handleTodoNotFoundException(exp: TodoNotFoundException): Promise<any>
     {
-        await this._logger.logError(exp as any);
+        await this._logger.logError(exp);
         throw new HttpException(404, "todo not found");
     }
 }
