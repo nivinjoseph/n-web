@@ -1,6 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { IFs, createFsFromVolume, Volume } from "memfs";
-import * as path from "path";
+import path from "node:path";
 import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
 const mkdirp = require("mkdirp");
 
