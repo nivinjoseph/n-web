@@ -6,6 +6,7 @@ import { ConfigService } from "./../../services/config-service/config-service.js
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
 import { AppClaims } from "../../security/app-claims.js";
+import { SocketService } from "@nivinjoseph/n-sock/server";
 // import { TodoCreated } from "../../events/todo-created";
 // import { EventBus } from "@nivinjoseph/n-eda";
 
@@ -13,22 +14,25 @@ import { AppClaims } from "../../security/app-claims.js";
 @command
 @route(Routes.createTodo)
 @authorize(AppClaims.claim1)
-@inject("TodoManager", "ConfigService")
+@inject("TodoManager", "ConfigService", "SocketService")
 export class CreateTodoController extends Controller
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
+    private readonly _socketService: SocketService;
     // private readonly _eventBus: EventBus;
 
 
-    public constructor(todoManager: TodoManager, configService: ConfigService)
+    public constructor(todoManager: TodoManager, configService: ConfigService, socketService: SocketService)
     {
         given(todoManager, "todoManager").ensureHasValue();
         given(configService, "configService").ensureHasValue();
+        given(socketService, "socketService").ensureHasValue().ensureIsObject();
         // given(eventBus, "eventBus").ensureHasValue().ensureIsObject();
         super();
         this._todoManager = todoManager;
         this._configService = configService;
+        this._socketService = socketService;
         // this._eventBus = eventBus;
     }
 
@@ -39,6 +43,8 @@ export class CreateTodoController extends Controller
 
         const todo = await this._todoManager.addTodo(model.title, model.description);
         // await this._eventBus.publish(new TodoCreated(todo.id));
+
+        this._socketService.publish("todo", "TodoCreated", { id: todo.id });
 
         const baseUrl = await this._configService.getBaseUrl();
         return {

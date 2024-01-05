@@ -23,10 +23,10 @@ import { ApplicationScript } from "./application-script.js";
 import Compress from "koa-compress";
 import { Controller } from "./controller.js";
 import { AuthorizationHandler } from "./security/authorization-handler.js";
-import Redis from "redis";
 import { ShutdownManager } from "@nivinjoseph/n-svc";
 import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
 import { SocketServer } from "@nivinjoseph/n-sock/server";
+import { RedisClientType } from "redis";
 
 
 // public
@@ -82,7 +82,7 @@ export class WebApp
     
     private _enableWebSockets = false;
     private _corsOrigin: string | null = null;
-    private _socketServerRedisClient: Redis.RedisClient | null = null;
+    private _socketServerRedisClient: RedisClientType<any, any, any> | null = null;
     private _socketServer: SocketServer | null = null;
     
     private readonly _disposeActions = new Array<() => Promise<void>>();
@@ -323,7 +323,7 @@ export class WebApp
         return this;
     }
     
-    public enableWebSockets(corsOrigin: string, socketServerRedisClient: Redis.RedisClient): this
+    public enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebSockets");
