@@ -188,14 +188,14 @@ export class Router
             profiler?.trace("Request controller executed");
         }
         
-        if (registration.view !== null)
+        if (registration.hasView)
         {
             let vm = result;
             if (typeof vm !== "object")
                 vm = { value: result };
             
-            let view = registration.view;
-            const viewLayout = registration.viewLayout;
+            let view = (await registration.retrieveView())!;
+            const viewLayout = await registration.retrieveViewLayout();
             
             
             // if (viewLayout !== null)
