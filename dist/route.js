@@ -1,14 +1,19 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.route = exports.httpRouteSymbol = void 0;
-require("reflect-metadata");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-exports.httpRouteSymbol = Symbol.for("@nivinjoseph/n-web/httpRoute");
+import { given } from "@nivinjoseph/n-defensive";
+import { Controller } from "./controller.js";
+export const httpRouteSymbol = Symbol.for("@nivinjoseph/n-web/httpRoute");
 // public
-function route(route) {
-    (0, n_defensive_1.given)(route, "route").ensureHasValue().ensureIsString()
+export function route(route) {
+    given(route, "route").ensureHasValue().ensureIsString()
         .ensure(t => t.trim().startsWith("/"), "has to begin with '/'");
-    return (target) => Reflect.defineMetadata(exports.httpRouteSymbol, route.trim(), target);
+    const decorator = function (target, context) {
+        given(context, "context")
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            .ensure(t => t.kind === "class", "route decorator should only be used on a class");
+        const className = context.name;
+        given(className, className).ensureHasValue().ensureIsString()
+            .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with route must extend Controller class`);
+        context.metadata[httpRouteSymbol] = route;
+    };
+    return decorator;
 }
-exports.route = route;
 //# sourceMappingURL=route.js.map

@@ -1,7 +1,6 @@
-import "reflect-metadata";
-import { RouteInfo } from "./route-info";
 import "@nivinjoseph/n-ext";
 import { Claim } from "@nivinjoseph/n-sec";
+import { RouteInfo } from "./route-info.js";
 export declare class ControllerRegistration {
     private readonly _name;
     private readonly _controller;
@@ -18,14 +17,15 @@ export declare class ControllerRegistration {
     get controller(): Function;
     get method(): string;
     get route(): RouteInfo;
-    get view(): string | null;
-    get viewLayout(): string | null;
+    get hasView(): boolean;
+    get hasViewLayout(): boolean;
     get authorizeClaims(): ReadonlyArray<Claim> | null;
     constructor(controller: Function);
     complete(viewResolutionRoot?: string): void;
+    retrieveView(): Promise<string | null>;
+    retrieveViewLayout(): Promise<string | null>;
     private _configureViews;
     private _resolvePath;
-    private _retrieveView;
-    private _retrieveViewLayout;
     private _isDev;
 }
+//# sourceMappingURL=controller-registration.d.ts.map

@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultCallContext = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-class DefaultCallContext {
-    constructor() {
-        this._hasAuth = false;
-        this._authScheme = null;
-        this._authToken = null;
-    }
+import { given } from "@nivinjoseph/n-defensive";
+export class DefaultCallContext {
+    _ctx;
+    _authHeaders;
+    _hasAuth = false;
+    _authScheme = null;
+    _authToken = null;
     get dependencyScope() { return this._ctx.state.scope; }
     get protocol() { return this._ctx.request.protocol; }
     get isSecure() { return this._ctx.request.secure; }
@@ -22,25 +19,25 @@ class DefaultCallContext {
     get identity() { return this._ctx.state.identity; }
     get profiler() { return this._ctx.state.profiler; }
     configure(ctx, authHeaders) {
-        (0, n_defensive_1.given)(ctx, "ctx").ensureHasValue().ensureIsObject();
-        (0, n_defensive_1.given)(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
+        given(ctx, "ctx").ensureHasValue().ensureIsObject();
+        given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._ctx = ctx;
         this._authHeaders = authHeaders;
         this._populateSchemeAndToken();
     }
     getRequestHeader(header) {
-        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         return this._ctx.get(header);
     }
     setResponseType(responseType) {
-        (0, n_defensive_1.given)(responseType, "responseType")
+        given(responseType, "responseType")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx.response.type = responseType.trim();
     }
     setResponseContentDisposition(contentDisposition) {
-        (0, n_defensive_1.given)(contentDisposition, "contentDisposition")
+        given(contentDisposition, "contentDisposition")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
@@ -49,8 +46,8 @@ class DefaultCallContext {
         });
     }
     setResponseHeader(header, value) {
-        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
-        (0, n_defensive_1.given)(value, "value").ensureHasValue().ensureIsString();
+        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(value, "value").ensureHasValue().ensureIsString();
         this._ctx.set(header, value);
     }
     _populateSchemeAndToken() {
@@ -81,5 +78,4 @@ class DefaultCallContext {
         }
     }
 }
-exports.DefaultCallContext = DefaultCallContext;
 //# sourceMappingURL=default-call-context.js.map

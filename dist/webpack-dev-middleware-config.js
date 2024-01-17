@@ -1,3 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+export {};
+// export type WebpackDevMiddlewareConfig = { publicPath?: string; webpackConfigPath?: string; };
 //# sourceMappingURL=webpack-dev-middleware-config.js.map

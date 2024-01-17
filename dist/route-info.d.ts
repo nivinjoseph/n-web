@@ -1,4 +1,4 @@
-import { RouteParam } from "./route-param";
+import { RouteParam } from "./route-param.js";
 export declare class RouteInfo {
     private readonly _routeTemplate;
     private readonly _routeParams;
@@ -17,3 +17,4 @@ export declare class RouteInfo {
     private _extractTemplateParams;
     private _generateKoaRoute;
 }
+//# sourceMappingURL=route-info.d.ts.map

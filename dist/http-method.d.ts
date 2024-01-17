@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import { Controller, ControllerClass } from "./controller.js";
 export declare class HttpMethods {
     private static readonly _get;
     private static readonly _post;
@@ -10,7 +10,8 @@ export declare class HttpMethods {
     static get Delete(): string;
 }
 export declare const httpMethodSymbol: unique symbol;
-export declare function httpGet(target: Function): void;
-export declare function httpPost(target: Function): void;
-export declare function httpPut(target: Function): void;
-export declare function httpDelete(target: Function): void;
+export declare function httpGet<This extends Controller>(target: ControllerClass<This>, context: ClassDecoratorContext<ControllerClass<This>>): void;
+export declare function httpPost<This extends Controller>(target: ControllerClass<This>, context: ClassDecoratorContext<ControllerClass<This>>): void;
+export declare function httpPut<This extends Controller>(target: ControllerClass<This>, context: ClassDecoratorContext<ControllerClass<This>>): void;
+export declare function httpDelete<This extends Controller>(target: ControllerClass<This>, context: ClassDecoratorContext<ControllerClass<This>>): void;
+//# sourceMappingURL=http-method.d.ts.map
