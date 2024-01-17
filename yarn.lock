@@ -145,16 +145,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nivinjoseph/n-ject@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@nivinjoseph/n-ject@npm:3.0.1"
+"@nivinjoseph/n-ject@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@nivinjoseph/n-ject@npm:3.0.2"
   dependencies:
     "@nivinjoseph/n-defensive": "npm:^2.0.1"
     "@nivinjoseph/n-exception": "npm:^2.0.1"
     "@nivinjoseph/n-ext": "npm:^2.0.1"
     "@nivinjoseph/n-util": "npm:^2.0.1"
     tslib: "npm:^2.6.2"
-  checksum: 1a637d1aa9bf2ee94300f909910628b45683b700692d159f5391c07f72a7ac12902b695bfee84d6dc92d757f9b1b996a2a29a001e2e44f995c65e2bcbf9ff25b
+  checksum: 308dab5fbe44badc65985e7e0f4bf7e45e6e302c89a5b9405795c98b91f88335794633b4a8ac171e44c4453117bdb8dd17b709c54b598fdb65a8b04e8d1cb858
   languageName: node
   linkType: hard
 
@@ -189,9 +189,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nivinjoseph/n-sock@https://github.com/shreymahendru/n-sock#ts-5-test-2":
-  version: 2.0.1
-  resolution: "@nivinjoseph/n-sock@https://github.com/shreymahendru/n-sock.git#commit=65c17adb79879b719165e5d16e05c9e0dddf0035"
+"@nivinjoseph/n-sock@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@nivinjoseph/n-sock@npm:2.0.2"
   dependencies:
     "@nivinjoseph/n-defensive": "npm:^2.0.1"
     "@nivinjoseph/n-exception": "npm:^2.0.1"
@@ -204,22 +204,22 @@ __metadata:
     socket.io: "npm:^4.7.3"
     socket.io-client: "npm:^4.7.3"
     utf-8-validate: "npm:^6.0.3"
-  checksum: 32f03dbd7270a983eb84e8836379e5d55baf7d0f8c0570439a4d37d2c03b0b31c206a26e7f65a7133aad23b558f445a51a53f1727c6129940864e75c006fe543
+  checksum: f3f6e9a1a6684594ef393c4766160fc77fa2a3ea971486ce4049bd675073075a4120598d4b3f4d5971edfd7253dc4727ee460d790e4657aaf7fc79cb71c55b68
   languageName: node
   linkType: hard
 
-"@nivinjoseph/n-svc@npm:3.0.1":
-  version: 3.0.1
-  resolution: "@nivinjoseph/n-svc@npm:3.0.1"
+"@nivinjoseph/n-svc@npm:3.0.2":
+  version: 3.0.2
+  resolution: "@nivinjoseph/n-svc@npm:3.0.2"
   dependencies:
     "@nivinjoseph/n-config": "npm:^2.0.1"
     "@nivinjoseph/n-defensive": "npm:^2.0.1"
     "@nivinjoseph/n-exception": "npm:^2.0.1"
     "@nivinjoseph/n-ext": "npm:^2.0.1"
-    "@nivinjoseph/n-ject": "npm:^3.0.1"
+    "@nivinjoseph/n-ject": "npm:^3.0.2"
     "@nivinjoseph/n-log": "npm:^3.0.1"
     "@nivinjoseph/n-util": "npm:2.0.1"
-  checksum: d1ca9750023eb92dd88faa12fce0d2df7534585fac77f0ca50563a31c17ec850680a22fe17b4f831a095d7f8c00e29739e8e6542cfb35c655300d0ce2958b6ec
+  checksum: d9b947edf7d621b83e11769dbb4b2bedc536d0702fb4d6be0eab47ac9015f2f30b41f384f32e211d30cceee734400b1e3c59b750c7b8e495a4fce66afb60113b
   languageName: node
   linkType: hard
 
@@ -259,11 +259,11 @@ __metadata:
     "@nivinjoseph/n-defensive": "npm:^2.0.1"
     "@nivinjoseph/n-exception": "npm:^2.0.1"
     "@nivinjoseph/n-ext": "npm:^2.0.1"
-    "@nivinjoseph/n-ject": "npm:^3.0.1"
+    "@nivinjoseph/n-ject": "npm:^3.0.2"
     "@nivinjoseph/n-log": "npm:3.0.1"
     "@nivinjoseph/n-sec": "npm:^6.0.1"
-    "@nivinjoseph/n-sock": "https://github.com/shreymahendru/n-sock#ts-5-test-2"
-    "@nivinjoseph/n-svc": "npm:3.0.1"
+    "@nivinjoseph/n-sock": "npm:2.0.2"
+    "@nivinjoseph/n-svc": "npm:3.0.2"
     "@nivinjoseph/n-util": "npm:^2.0.1"
     "@nivinjoseph/n-validate": "npm:^2.0.1"
     "@types/kcors": "npm:^2.2.6"
