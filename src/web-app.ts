@@ -24,7 +24,7 @@ import Compress from "koa-compress";
 import { Controller } from "./controller.js";
 import { AuthorizationHandler } from "./security/authorization-handler.js";
 import { ShutdownManager } from "@nivinjoseph/n-svc";
-import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
+// import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
 import { SocketServer } from "@nivinjoseph/n-sock/server";
 import { RedisClientType } from "redis";
 
@@ -74,7 +74,7 @@ export class WebApp
     // private _enableProfiling = false;
     private _viewResolutionRoot: string | null = null;
     // private _webPackDevMiddlewarePublicPath: string | null = null;
-    private _webpackDevMiddlewareConfig: WebpackDevMiddlewareConfig | null = null;
+    // private _webpackDevMiddlewareConfig: WebpackDevMiddlewareConfig | null = null;
     // // @ts-ignore
     // private _webPackDevMiddlewareClientHost: string | null = null;
     // // @ts-ignore
@@ -339,66 +339,66 @@ export class WebApp
         return this;
     }
     
-    /**
-     * 
-     * @param publicPath Webpack publicPath value
-     * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
-     */
-    // public enableWebPackDevMiddleware(publicPath = "/"): this
-    public enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this
-    {
-        const defaultConfig: WebpackDevMiddlewareConfig = {
-            publicPath: "/",
-            webpackConfigPath: path.resolve(process.cwd(), "webpack.config.js")
-        };
+    // /**
+    //  * 
+    //  * @param publicPath Webpack publicPath value
+    //  * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
+    //  */
+    // // public enableWebPackDevMiddleware(publicPath = "/"): this
+    // public enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this
+    // {
+    //     const defaultConfig: WebpackDevMiddlewareConfig = {
+    //         publicPath: "/",
+    //         webpackConfigPath: path.resolve(process.cwd(), "webpack.config.js")
+    //     };
         
-        config = Object.assign(defaultConfig, config ?? {});
-        given(config, "config").ensureHasValue()
-            .ensureHasStructure({
-                publicPath: "string",
-                webpackConfigPath: "string"
-            });
+    //     config = Object.assign(defaultConfig, config ?? {});
+    //     given(config, "config").ensureHasValue()
+    //         .ensureHasStructure({
+    //             publicPath: "string",
+    //             webpackConfigPath: "string"
+    //         });
         
-        // given(publicPath, "publicPath").ensureHasValue().ensureIsString();
-        // given(clientHost, "clientHost").ensureIsString();
-        // given(serverHost, "serverHost").ensureIsString();
+    //     // given(publicPath, "publicPath").ensureHasValue().ensureIsString();
+    //     // given(clientHost, "clientHost").ensureIsString();
+    //     // given(serverHost, "serverHost").ensureIsString();
         
-        if (this._isBootstrapped)
-            throw new InvalidOperationException("enableWebPackDevMiddleware");
+    //     if (this._isBootstrapped)
+    //         throw new InvalidOperationException("enableWebPackDevMiddleware");
         
-        this._webpackDevMiddlewareConfig = config;
+    //     this._webpackDevMiddlewareConfig = config;
         
-        // this._webPackDevMiddlewarePublicPath = publicPath.trim();
-        // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
-        // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
+    //     // this._webPackDevMiddlewarePublicPath = publicPath.trim();
+    //     // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
+    //     // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
         
-        // if (ConfigurationManager.getConfig<string>("env") === "dev")
-        //     this._koa.use(webPackMiddleware(
-        //         {
-        //             dev: { publicPath, writeToDisk: true },
-        //             hot: <any>{ reload: true, hot: true }
-        //         } as any
-        //     ));
+    //     // if (ConfigurationManager.getConfig<string>("env") === "dev")
+    //     //     this._koa.use(webPackMiddleware(
+    //     //         {
+    //     //             dev: { publicPath, writeToDisk: true },
+    //     //             hot: <any>{ reload: true, hot: true }
+    //     //         } as any
+    //     //     ));
         
         
-        // if (ConfigurationManager.getConfig<string>("env") === "dev")
-        // {
-        //     // tslint:disable-next-line
-        //     koaWebpack({
-        //         devMiddleware: {
-        //             publicPath: publicPath,
-        //             writeToDisk: true,
-        //         },
-        //         hotClient: {
-        //             hmr: true,
-        //             reload: true,
-        //             server: this._server
-        //         }
-        //     }).then((middleware) => this._koa.use(middleware));
-        // }
+    //     // if (ConfigurationManager.getConfig<string>("env") === "dev")
+    //     // {
+    //     //     // tslint:disable-next-line
+    //     //     koaWebpack({
+    //     //         devMiddleware: {
+    //     //             publicPath: publicPath,
+    //     //             writeToDisk: true,
+    //     //         },
+    //     //         hotClient: {
+    //     //             hmr: true,
+    //     //             reload: true,
+    //     //             server: this._server
+    //     //         }
+    //     //     }).then((middleware) => this._koa.use(middleware));
+    //     // }
             
-        return this;
-    }
+    //     return this;
+    // }
     
     public registerDisposeAction(disposeAction: () => Promise<void>): this
     {
@@ -826,113 +826,113 @@ export class WebApp
     
     private _configureWebPackDevMiddleware(): Promise<void>
     {
-        if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webpackDevMiddlewareConfig != null)
-        {
-            const webpack = require("webpack");
-            const webpackDevMiddleware = require("webpack-dev-middleware");
-            const webpackHotMiddleware = require("webpack-hot-middleware");
+        // if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webpackDevMiddlewareConfig != null)
+        // {
+        //     const webpack = require("webpack");
+        //     const webpackDevMiddleware = require("webpack-dev-middleware");
+        //     const webpackHotMiddleware = require("webpack-hot-middleware");
 
-            const config = require(this._webpackDevMiddlewareConfig.webpackConfigPath!);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const compiler = webpack(config);
+        //     const config = require(this._webpackDevMiddlewareConfig.webpackConfigPath!);
+        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //     const compiler = webpack(config);
 
-            const HmrHelper = require("./hmr-helper").HmrHelper;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            HmrHelper.configure(this._webpackDevMiddlewareConfig);
+        //     const HmrHelper = require("./hmr-helper").HmrHelper;
+        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //     HmrHelper.configure(this._webpackDevMiddlewareConfig);
             
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const devMiddleware = webpackDevMiddleware(compiler, {
-                publicPath: this._webpackDevMiddlewareConfig.publicPath!,
-                outputFileSystem: HmrHelper.devFs
-            });
+        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //     const devMiddleware = webpackDevMiddleware(compiler, {
+        //         publicPath: this._webpackDevMiddlewareConfig.publicPath!,
+        //         outputFileSystem: HmrHelper.devFs
+        //     });
             
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const hotMiddleware = webpackHotMiddleware(compiler, {
-                hmr: true,
-                reload: true,
-                server: this._server
-            });
+        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //     const hotMiddleware = webpackHotMiddleware(compiler, {
+        //         hmr: true,
+        //         reload: true,
+        //         server: this._server
+        //     });
             
-            this._koa.use(async (ctx, next) =>
-            {
-                // wait for webpack-dev-middleware to signal that the build is ready
-                const ready = new Promise((resolve, reject) =>
-                {
-                    for (const comp of [].concat(compiler.compilers || compiler))
-                    {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        (<any>comp).hooks?.failed.tap("n-web-webpack-dev-middleware", (error: any) =>
-                        {
-                            reject(error);
-                        });
-                    }
+        //     this._koa.use(async (ctx, next) =>
+        //     {
+        //         // wait for webpack-dev-middleware to signal that the build is ready
+        //         const ready = new Promise((resolve, reject) =>
+        //         {
+        //             for (const comp of [].concat(compiler.compilers || compiler))
+        //             {
+        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //                 (<any>comp).hooks?.failed.tap("n-web-webpack-dev-middleware", (error: any) =>
+        //                 {
+        //                     reject(error);
+        //                 });
+        //             }
 
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    devMiddleware.waitUntilValid(() =>
-                    {
-                        resolve(true);
-                    });
-                });
-                // tell webpack-dev-middleware to handle the request
-                const init = new Promise<void>((resolve) =>
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    devMiddleware(
-                        ctx.req,
-                        {
-                            end: (content: any) =>
-                            {
-                                // eslint-disable-next-line no-param-reassign
-                                ctx.body = content;
-                                resolve();
-                            },
-                            getHeader: ctx.get.bind(ctx),
-                            setHeader: ctx.set.bind(ctx),
-                            locals: ctx.state
-                        },
-                        () => resolve(next())
-                    );
-                });
+        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //             devMiddleware.waitUntilValid(() =>
+        //             {
+        //                 resolve(true);
+        //             });
+        //         });
+        //         // tell webpack-dev-middleware to handle the request
+        //         const init = new Promise<void>((resolve) =>
+        //         {
+        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //             devMiddleware(
+        //                 ctx.req,
+        //                 {
+        //                     end: (content: any) =>
+        //                     {
+        //                         // eslint-disable-next-line no-param-reassign
+        //                         ctx.body = content;
+        //                         resolve();
+        //                     },
+        //                     getHeader: ctx.get.bind(ctx),
+        //                     setHeader: ctx.set.bind(ctx),
+        //                     locals: ctx.state
+        //                 },
+        //                 () => resolve(next())
+        //             );
+        //         });
 
-                return Promise.all([ready, init]);
-            });
+        //         return Promise.all([ready, init]);
+        //     });
             
-            this._koa.use(async (ctx, next) =>
-            {
-                const init = new Promise<void>((resolve) =>
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    hotMiddleware(
-                        ctx.req,
-                        ctx.res,
-                        () => resolve(next())
-                    );
-                });
+        //     this._koa.use(async (ctx, next) =>
+        //     {
+        //         const init = new Promise<void>((resolve) =>
+        //         {
+        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //             hotMiddleware(
+        //                 ctx.req,
+        //                 ctx.res,
+        //                 () => resolve(next())
+        //             );
+        //         });
 
-                return init;
-            });
+        //         return init;
+        //     });
             
             
             
-            const disposeAction = (): Promise<void> =>
-            {
-                return new Promise<void>((resolve, reject) =>
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    hotMiddleware.close();
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    devMiddleware.close((err: any) =>
-                    {
-                        if (err)
-                            reject(err);
-                        else
-                            resolve();
-                    });
-                });
-            };
+        //     const disposeAction = (): Promise<void> =>
+        //     {
+        //         return new Promise<void>((resolve, reject) =>
+        //         {
+        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //             hotMiddleware.close();
+        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //             devMiddleware.close((err: any) =>
+        //             {
+        //                 if (err)
+        //                     reject(err);
+        //                 else
+        //                     resolve();
+        //             });
+        //         });
+        //     };
             
-            this._disposeActions.push(disposeAction);
-        }
+        //     this._disposeActions.push(disposeAction);
+        // }
         
         return Promise.resolve();
     }

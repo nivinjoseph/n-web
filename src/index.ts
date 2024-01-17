@@ -1,6 +1,6 @@
 import "@nivinjoseph/n-ext";
 import { WebApp } from "./web-app.js";
-import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
+// import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
 
 import { Controller, ControllerClass } from "./controller.js";
 import { route, ControllerRouteDecorator } from "./route.js";
@@ -31,7 +31,7 @@ Symbol.metadata ??= Symbol("Symbol.metadata");
 export
 {
     WebApp, 
-    WebpackDevMiddlewareConfig,
+    // WebpackDevMiddlewareConfig,
     Controller, ControllerClass,
     route, ControllerRouteDecorator,
     httpGet, httpPost, httpPut, httpDelete,

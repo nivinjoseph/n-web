@@ -18,9 +18,11 @@ export class ControllerRegistration
     private readonly _controller: Function;
     private _method!: string;
     private _route!: RouteInfo;
+    // @ts-expect-error not used atm
     private _viewFileName: string | null = null;
     private _viewFilePath: string | null = null;
     private _viewFileData: string | null = null;
+    // @ts-expect-error not used atm
     private _viewLayoutFileName: string | null = null;
     private _viewLayoutFilePath: string | null = null;
     private _viewLayoutFileData: string | null = null;
@@ -77,7 +79,7 @@ export class ControllerRegistration
         if (claims != null)
             this._authorizeClaims = claims as ReadonlyArray<Claim>;
     }
-    
+
     public async retrieveView(): Promise<string | null>
     {
         if (!this.hasView)
@@ -85,11 +87,11 @@ export class ControllerRegistration
 
         if (this._isDev())
         {
-            const HmrHelper = (await import("./hmr-helper.js")).HmrHelper;// require("./hmr-helper").HmrHelper;
+            // const HmrHelper = (await import("./hmr-helper.js")).HmrHelper;// require("./hmr-helper").HmrHelper;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return HmrHelper.isConfigured
-                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8").toString()
-                : fs.readFileSync(this._viewFilePath!, "utf8");
+            // return HmrHelper.isConfigured
+            //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8").toString()
+            return fs.readFileSync(this._viewFilePath!, "utf8");
         }
 
         return this._viewFileData;
@@ -102,12 +104,14 @@ export class ControllerRegistration
 
         if (this._isDev())
         {
-            const HmrHelper = require("./hmr-helper.js").HmrHelper;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return HmrHelper.isConfigured
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")
-                : fs.readFileSync(this._viewLayoutFilePath!, "utf8");
+            // const HmrHelper = require("./hmr-helper.js").HmrHelper;
+            // // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            // return HmrHelper.isConfigured
+            //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")
+            //     : fs.readFileSync(this._viewLayoutFilePath!, "utf8");
+
+            return fs.readFileSync(this._viewLayoutFilePath!, "utf8");
         }
 
         return this._viewLayoutFileData;
