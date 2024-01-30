@@ -1,8 +1,8 @@
-/// <reference types="node" resolution-mode="require"/>
-import type { Scope } from "@nivinjoseph/n-ject";
+/// <reference types="node" />
+import { Scope } from "@nivinjoseph/n-ject";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import { Profiler } from "@nivinjoseph/n-util";
-import { URL } from "node:url";
+import { URL } from "url";
 export interface CallContext {
     dependencyScope: Scope;
     protocol: string;
@@ -22,4 +22,3 @@ export interface CallContext {
     setResponseContentDisposition(contentDisposition: string): void;
     setResponseHeader(header: string, value: string): void;
 }
-//# sourceMappingURL=call-context.d.ts.map

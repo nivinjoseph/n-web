@@ -1,14 +1,10 @@
-import { Controller } from "./controller.js";
-import { httpMethodSymbol, HttpMethods } from "./http-method.js";
-import { given } from "@nivinjoseph/n-defensive";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.command = void 0;
+const http_method_1 = require("./http-method");
 // public
-export function command(target, context) {
-    given(context, "context")
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        .ensure(t => t.kind === "class", "command decorator should only be used on a class");
-    const className = context.name;
-    given(className, className).ensureHasValue().ensureIsString()
-        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with command must extend Controller class`);
-    context.metadata[httpMethodSymbol] = HttpMethods.Post;
+function command(target) {
+    Reflect.defineMetadata(http_method_1.httpMethodSymbol, http_method_1.HttpMethods.Post, target);
 }
+exports.command = command;
 //# sourceMappingURL=command.js.map

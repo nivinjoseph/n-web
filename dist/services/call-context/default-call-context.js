@@ -1,13 +1,13 @@
-import { given } from "@nivinjoseph/n-defensive";
-import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import { Profiler } from "@nivinjoseph/n-util";
-import { URL } from "node:url";
-export class DefaultCallContext {
-    _ctx;
-    _authHeaders;
-    _hasAuth = false;
-    _authScheme = null;
-    _authToken = null;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DefaultCallContext = void 0;
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
+class DefaultCallContext {
+    constructor() {
+        this._hasAuth = false;
+        this._authScheme = null;
+        this._authToken = null;
+    }
     get dependencyScope() { return this._ctx.state.scope; }
     get protocol() { return this._ctx.request.protocol; }
     get isSecure() { return this._ctx.request.secure; }
@@ -22,25 +22,25 @@ export class DefaultCallContext {
     get identity() { return this._ctx.state.identity; }
     get profiler() { return this._ctx.state.profiler; }
     configure(ctx, authHeaders) {
-        given(ctx, "ctx").ensureHasValue().ensureIsObject();
-        given(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
+        (0, n_defensive_1.given)(ctx, "ctx").ensureHasValue().ensureIsObject();
+        (0, n_defensive_1.given)(authHeaders, "authHeaders").ensureHasValue().ensureIsArray();
         this._ctx = ctx;
         this._authHeaders = authHeaders;
         this._populateSchemeAndToken();
     }
     getRequestHeader(header) {
-        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
         return this._ctx.get(header);
     }
     setResponseType(responseType) {
-        given(responseType, "responseType")
+        (0, n_defensive_1.given)(responseType, "responseType")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
         this._ctx.response.type = responseType.trim();
     }
     setResponseContentDisposition(contentDisposition) {
-        given(contentDisposition, "contentDisposition")
+        (0, n_defensive_1.given)(contentDisposition, "contentDisposition")
             .ensureHasValue()
             .ensureIsString()
             .ensure(t => !t.isEmptyOrWhiteSpace());
@@ -49,8 +49,8 @@ export class DefaultCallContext {
         });
     }
     setResponseHeader(header, value) {
-        given(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
-        given(value, "value").ensureHasValue().ensureIsString();
+        (0, n_defensive_1.given)(header, "header").ensureHasValue().ensureIsString().ensure(t => !t.isEmptyOrWhiteSpace());
+        (0, n_defensive_1.given)(value, "value").ensureHasValue().ensureIsString();
         this._ctx.set(header, value);
     }
     _populateSchemeAndToken() {
@@ -81,4 +81,5 @@ export class DefaultCallContext {
         }
     }
 }
+exports.DefaultCallContext = DefaultCallContext;
 //# sourceMappingURL=default-call-context.js.map

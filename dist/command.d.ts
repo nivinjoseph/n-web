@@ -1,3 +1,1 @@
-import { Controller, type ControllerClass } from "./controller.js";
-export declare function command<This extends Controller>(target: ControllerClass<This>, context: ClassDecoratorContext<ControllerClass<This>>): void;
-//# sourceMappingURL=command.d.ts.map
+export declare function command(target: Function): void;

@@ -1,38 +1,36 @@
-// import { given } from "@nivinjoseph/n-defensive";
-// import { IFs, createFsFromVolume, Volume } from "memfs";
-// import path from "node:path";
-// import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
-// // const mkdirp = require("mkdirp");
-// import { mkdirp } from "mkdirp";
-export {};
-// export class HmrHelper
-// {
-//     private static _devFs: IFs | null = null;
-//     private static _outputPath: string | null = null;
-//     public static get devFs(): IFs
-//     {
-//         given(this, "this").ensure(_ => HmrHelper._devFs != null, "not configured");
-//         return this._devFs!;
-//     }
-//     public static get outputPath(): string
-//     {
-//         given(this, "this").ensure(_ => HmrHelper._outputPath != null, "not configured");
-//         return this._outputPath!;
-//     }
-//     public static get isConfigured(): boolean { return this._devFs != null && this._outputPath != null; }
-//     /**
-//      * @static
-//      */
-//     private constructor() { }
-//     public static configure(config: WebpackDevMiddlewareConfig): void
-//     {
-//         given(config, "config").ensureHasValue().ensureIsObject();
-//         const devFs: any = createFsFromVolume(new Volume());
-//         devFs.join = path.join.bind(path);
-//         devFs.mkdirp = mkdirp.bind(mkdirp);
-//         this._devFs = devFs;
-//         const webpackConfig = require(config.webpackConfigPath!);
-//         this._outputPath = webpackConfig.output.path;
-//     }
-// }
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HmrHelper = void 0;
+const n_defensive_1 = require("@nivinjoseph/n-defensive");
+const memfs_1 = require("memfs");
+const path = require("path");
+const mkdirp = require("mkdirp");
+class HmrHelper {
+    /**
+     * @static
+     */
+    constructor() { }
+    static get devFs() {
+        (0, n_defensive_1.given)(this, "this").ensure(_ => HmrHelper._devFs != null, "not configured");
+        return this._devFs;
+    }
+    static get outputPath() {
+        (0, n_defensive_1.given)(this, "this").ensure(_ => HmrHelper._outputPath != null, "not configured");
+        return this._outputPath;
+    }
+    static get isConfigured() { return this._devFs != null && this._outputPath != null; }
+    static configure(config) {
+        (0, n_defensive_1.given)(config, "config").ensureHasValue().ensureIsObject();
+        const devFs = (0, memfs_1.createFsFromVolume)(new memfs_1.Volume());
+        devFs.join = path.join.bind(path);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        devFs.mkdirp = mkdirp.bind(mkdirp);
+        this._devFs = devFs;
+        const webpackConfig = require(config.webpackConfigPath);
+        this._outputPath = webpackConfig.output.path;
+    }
+}
+exports.HmrHelper = HmrHelper;
+HmrHelper._devFs = null;
+HmrHelper._outputPath = null;
 //# sourceMappingURL=hmr-helper.js.map
