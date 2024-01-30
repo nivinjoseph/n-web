@@ -1,10 +1,10 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { query, route, Controller, Utils } from "./../../../src/index";
-import * as Routes from "./../routes";
-import { TodoNotFoundException } from "./../../exceptions/todo-not-found-exception";
-import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
+import { Controller, Utils, query, route } from "./../../../src/index.js";
+import { TodoNotFoundException } from "./../../exceptions/todo-not-found-exception.js";
+import { type ConfigService } from "./../../services/config-service/config-service.js";
+import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
+import * as Routes from "./../routes.js";
 
 @query
 @route(Routes.getTodo)  

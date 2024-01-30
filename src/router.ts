@@ -1,18 +1,18 @@
-import * as Koa from "koa";
-import * as KoaRouter from "koa-router";
-import { Container, Scope } from "@nivinjoseph/n-ject";
-import { given } from "@nivinjoseph/n-defensive";
-import { ControllerRegistration } from "./controller-registration";
-import { Controller } from "./controller";
-import { ApplicationException } from "@nivinjoseph/n-exception";
-import { RouteInfo } from "./route-info";
-import { HttpMethods } from "./http-method";
-import { HttpException } from "./exceptions/http-exception";
-import { HttpRedirectException } from "./exceptions/http-redirect-exception";
-import { AuthorizationHandler } from "./security/authorization-handler";
-import { CallContext } from "./services/call-context/call-context";
 import { ConfigurationManager } from "@nivinjoseph/n-config";
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { Container, type Scope } from "@nivinjoseph/n-ject";
 import { Profiler, Templator } from "@nivinjoseph/n-util";
+import Koa from "koa";
+import KoaRouter from "koa-router";
+import { ControllerRegistration } from "./controller-registration.js";
+import { Controller } from "./controller.js";
+import { HttpException } from "./exceptions/http-exception.js";
+import { HttpRedirectException } from "./exceptions/http-redirect-exception.js";
+import { HttpMethods } from "./http-method.js";
+import { RouteInfo } from "./route-info.js";
+import type { AuthorizationHandler } from "./security/authorization-handler.js";
+import type { CallContext } from "./services/call-context/call-context.js";
 
 export class Router
 {
@@ -188,23 +188,14 @@ export class Router
             profiler?.trace("Request controller executed");
         }
         
-        if (registration.view !== null)
+        if (registration.hasView)
         {
             let vm = result;
             if (typeof vm !== "object")
                 vm = { value: result };
             
-            let view = registration.view;
-            const viewLayout = registration.viewLayout;
-            
-            
-            // if (viewLayout !== null)
-            //     // tslint:disable
-            //     view = eval("`" + viewLayout + "`");
-            
-            // let html = eval("`" + view + "`") as string;
-            // // tslint:enable
-            
+            let view = (await registration.retrieveView())!;
+            const viewLayout = await registration.retrieveViewLayout();
             if (viewLayout !== null)
                 view = viewLayout.replaceAll("${view}", view);
             

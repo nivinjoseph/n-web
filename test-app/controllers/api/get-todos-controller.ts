@@ -1,22 +1,22 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { TodoManager } from "./../../services/todo-manager/todo-manager";
-import { httpGet, route, Controller, CallContext, Utils } from "./../../../src/index";
-import * as Routes from "./../routes";
-import { ConfigService } from "./../../services/config-service/config-service";
 import { inject } from "@nivinjoseph/n-ject";
+import { Controller, Utils, httpGet, route, type CallContext } from "./../../../src/index.js";
+import { type ConfigService } from "./../../services/config-service/config-service.js";
+import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
+import * as Routes from "./../routes.js";
 
 @httpGet
 @route(Routes.getTodos)
 // @route("/*")    
-// @authorize(AppClaims.claim1)    
-@inject("TodoManager", "ConfigService", "CallContext")    
+// @authorize(AppClaims.claim1)
+@inject("TodoManager", "ConfigService", "CallContext")
 export class GetTodosController extends Controller
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
     private readonly _callContext: CallContext;
-    
-    
+
+
     public constructor(todoManager: TodoManager, configService: ConfigService, callContext: CallContext)
     {
         given(todoManager, "todoManager").ensureHasValue();
@@ -27,31 +27,31 @@ export class GetTodosController extends Controller
         this._configService = configService;
         this._callContext = callContext;
     }
-    
+
     public async execute($search?: string, _$pageNumber?: number, _$pageSize?: number): Promise<object>
-    {       
+    {
         // if (!$search)
         //     throw new ApplicationException("this is a test1");
-        
+
         // this.disableCompression();
-        
-        
+
+
         console.log("query", this._callContext.queryParams);
         console.log("$search", $search);
-        
-        
+
+
         if ($search)
         {
             console.log("do this");
-        }    
-        
-        
+        }
+
+
         const todos = await this._todoManager.getTodos();
         const baseUrl = await this._configService.getBaseUrl();
-        
+
         // if (!$search)
         //     throw new HttpException(404, "this is a test");
-        
+
         return {
             items: todos.map(t =>
             {
@@ -65,7 +65,7 @@ export class GetTodosController extends Controller
             }),
             links: {
                 create: Utils.generateUrl(Routes.createTodo, undefined, baseUrl),
-                test: Utils.generateUrl(Routes.getTodos, {$search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd"}, baseUrl)
+                test: Utils.generateUrl(Routes.getTodos, { $search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd" }, baseUrl)
             }
         };
     }

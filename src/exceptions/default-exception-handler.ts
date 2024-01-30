@@ -1,9 +1,9 @@
-import { Exception, ApplicationException } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";
-import { ExceptionHandler } from "./exception-handler";
-import { HttpException } from "./http-exception";
-import { Logger } from "@nivinjoseph/n-log";
-import { ClassDefinition } from "@nivinjoseph/n-util";
+import { ApplicationException, Exception } from "@nivinjoseph/n-exception";
+import type { Logger } from "@nivinjoseph/n-log";
+import type { ClassDefinition } from "@nivinjoseph/n-util";
+import type { ExceptionHandler } from "./exception-handler.js";
+import { HttpException } from "./http-exception.js";
 
 // public
 export class DefaultExceptionHandler implements ExceptionHandler
@@ -17,7 +17,7 @@ export class DefaultExceptionHandler implements ExceptionHandler
     {
         given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
-        
+
         this._logEverything = !!logEverything;
     }
 

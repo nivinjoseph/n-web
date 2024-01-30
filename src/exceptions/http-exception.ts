@@ -1,5 +1,5 @@
-import { Exception } from "@nivinjoseph/n-exception";
 import { given } from "@nivinjoseph/n-defensive";
+import { Exception } from "@nivinjoseph/n-exception";
 
 export class HttpException extends Exception
 {

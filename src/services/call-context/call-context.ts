@@ -1,7 +1,7 @@
-import { Scope } from "@nivinjoseph/n-ject";
+import type { Scope } from "@nivinjoseph/n-ject";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
 import { Profiler } from "@nivinjoseph/n-util";
-import { URL } from "url";
+import { URL } from "node:url";
 
 
 // public

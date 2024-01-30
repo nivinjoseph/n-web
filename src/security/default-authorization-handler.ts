@@ -1,5 +1,5 @@
-import { AuthorizationHandler } from "./authorization-handler";
-import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
+import { Claim, ClaimsIdentity } from "@nivinjoseph/n-sec";
+import { type AuthorizationHandler } from "./authorization-handler.js";
 
 
 // public
