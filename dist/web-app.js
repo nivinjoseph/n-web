@@ -1,25 +1,25 @@
+import { ConfigurationManager } from "@nivinjoseph/n-config";
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException, ArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { Container } from "@nivinjoseph/n-ject";
+import { ConsoleLogger } from "@nivinjoseph/n-log";
+import { SocketServer } from "@nivinjoseph/n-sock/server";
+import { ShutdownManager } from "@nivinjoseph/n-svc";
+import { Delay } from "@nivinjoseph/n-util";
+import cors from "kcors";
 import Koa from "koa";
 import KoaBodyParser from "koa-bodyparser";
-import { Container } from "@nivinjoseph/n-ject";
-import { given } from "@nivinjoseph/n-defensive";
-import { Router } from "./router.js";
-import { ArgumentException, InvalidOperationException, ApplicationException } from "@nivinjoseph/n-exception";
+import Compress from "koa-compress";
 import serve from "koa-static";
 import fs from "node:fs";
+import Http from "node:http";
 import path from "node:path";
-import cors from "kcors";
-import { DefaultCallContext } from "./services/call-context/default-call-context.js";
-import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
+import { Controller } from "./controller.js";
 import { DefaultExceptionHandler } from "./exceptions/default-exception-handler.js";
 import { HttpException } from "./exceptions/http-exception.js";
-import { ConfigurationManager } from "@nivinjoseph/n-config";
-import { ConsoleLogger } from "@nivinjoseph/n-log";
-import { Delay } from "@nivinjoseph/n-util";
-import Http from "node:http";
-import Compress from "koa-compress";
-import { ShutdownManager } from "@nivinjoseph/n-svc";
-// import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config.js";
-import { SocketServer } from "@nivinjoseph/n-sock/server";
+import { Router } from "./router.js";
+import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
+import { DefaultCallContext } from "./services/call-context/default-call-context.js";
 // public
 export class WebApp {
     _port;
@@ -49,14 +49,7 @@ export class WebApp {
     _staticFilePaths = new Array();
     _enableCors = false;
     _enableCompression = false;
-    // private _enableProfiling = false;
     _viewResolutionRoot = null;
-    // private _webPackDevMiddlewarePublicPath: string | null = null;
-    // private _webpackDevMiddlewareConfig: WebpackDevMiddlewareConfig | null = null;
-    // // @ts-ignore
-    // private _webPackDevMiddlewareClientHost: string | null = null;
-    // // @ts-ignore
-    // private _webPackDevMiddlewareServerHost: string | null = null;    
     _enableWebSockets = false;
     _corsOrigin = null;
     _socketServerRedisClient = null;
@@ -103,21 +96,6 @@ export class WebApp {
         this._enableCompression = true;
         return this;
     }
-    // public enableProfiling(): this
-    // {
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("enableProfiling");
-    //     this._enableProfiling = true;
-    //     return this;
-    // }
-    // public enableEda(config: EdaConfig): this
-    // {
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("enableEda"); 
-    //     given(config, "config").ensureHasValue().ensureIsObject();
-    //     this._edaConfig = config;
-    //     return this;
-    // }
     registerStaticFilePath(filePath, cache = false, defer = false) {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStaticFilePaths");
@@ -148,28 +126,6 @@ export class WebApp {
         this._router.registerControllers(...controllerClasses);
         return this;
     }
-    // public registerEventHandlers(...eventHandlerClasses: Function[]): this
-    // {
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("registerEventHandlers");
-    //     this._eventRegistrations.push(...eventHandlerClasses.map(t => new EventHandlerRegistration(t)));
-    //     return this;
-    // }
-    // public registerJobs(...jobClasses: Function[]): this
-    // {
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("registerJobs");
-    //     this._jobRegistrations.push(...jobClasses);
-    //     return this;
-    // }
-    // public useLogger(logger: Logger): this
-    // {
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("useLogger");
-    //     given(logger, "logger").ensureHasValue().ensureIsObject();
-    //     this._logger = logger;
-    //     return this;
-    // }
     useInstaller(installer) {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerInstaller");
@@ -237,57 +193,6 @@ export class WebApp {
         this._enableWebSockets = true;
         return this;
     }
-    // /**
-    //  * 
-    //  * @param publicPath Webpack publicPath value
-    //  * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
-    //  */
-    // // public enableWebPackDevMiddleware(publicPath = "/"): this
-    // public enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this
-    // {
-    //     const defaultConfig: WebpackDevMiddlewareConfig = {
-    //         publicPath: "/",
-    //         webpackConfigPath: path.resolve(process.cwd(), "webpack.config.js")
-    //     };
-    //     config = Object.assign(defaultConfig, config ?? {});
-    //     given(config, "config").ensureHasValue()
-    //         .ensureHasStructure({
-    //             publicPath: "string",
-    //             webpackConfigPath: "string"
-    //         });
-    //     // given(publicPath, "publicPath").ensureHasValue().ensureIsString();
-    //     // given(clientHost, "clientHost").ensureIsString();
-    //     // given(serverHost, "serverHost").ensureIsString();
-    //     if (this._isBootstrapped)
-    //         throw new InvalidOperationException("enableWebPackDevMiddleware");
-    //     this._webpackDevMiddlewareConfig = config;
-    //     // this._webPackDevMiddlewarePublicPath = publicPath.trim();
-    //     // this._webPackDevMiddlewareClientHost = clientHost ? clientHost.trim() : null;
-    //     // this._webPackDevMiddlewareServerHost = serverHost ? serverHost.trim() : null;
-    //     // if (ConfigurationManager.getConfig<string>("env") === "dev")
-    //     //     this._koa.use(webPackMiddleware(
-    //     //         {
-    //     //             dev: { publicPath, writeToDisk: true },
-    //     //             hot: <any>{ reload: true, hot: true }
-    //     //         } as any
-    //     //     ));
-    //     // if (ConfigurationManager.getConfig<string>("env") === "dev")
-    //     // {
-    //     //     // tslint:disable-next-line
-    //     //     koaWebpack({
-    //     //         devMiddleware: {
-    //     //             publicPath: publicPath,
-    //     //             writeToDisk: true,
-    //     //         },
-    //     //         hotClient: {
-    //     //             hmr: true,
-    //     //             reload: true,
-    //     //             server: this._server
-    //     //         }
-    //     //     }).then((middleware) => this._koa.use(middleware));
-    //     // }
-    //     return this;
-    // }
     registerDisposeAction(disposeAction) {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerForDispose");
@@ -300,17 +205,11 @@ export class WebApp {
                         .catch((e) => {
                         // eslint-disable-next-line @typescript-eslint/no-floating-promises
                         this._logger.logError(e).finally(() => resolve());
-                        // resolve();
-                        // // tslint:disable-next-line
-                        // this._logger.logError(e).then(() => resolve());
                     });
                 }
                 catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     this._logger.logError(error).finally(() => resolve());
-                    // resolve();
-                    // // tslint:disable-next-line
-                    // this._logger.logError(error).then(() => resolve());
                 }
             });
         });
@@ -319,18 +218,11 @@ export class WebApp {
     bootstrap() {
         if (this._isBootstrapped)
             throw new InvalidOperationException("bootstrap");
-        // if (!this._logger)
-        //     this._logger = new ConsoleLogger();
-        // this._backgroundProcessor = new BackgroundProcessor((e) => this._logger.logError(e as any));
-        // this.registerDisposeAction(() => this._backgroundProcessor.dispose());
         this._configureCors();
-        // this.configureEda();
         this._configureContainer();
-        // this.initializeJobs();
         this._configureStartup()
             .then(() => {
             this._server = Http.createServer();
-            // this.configureWebSockets();
             this._server.listen(this._port, this._host ?? undefined);
             this._server.on("close", () => {
                 this._serverClosed = true;
@@ -343,7 +235,6 @@ export class WebApp {
             this._configureErrorTrapping();
             this._configureAuthentication();
             this._configureStaticFileServing();
-            return this._configureWebPackDevMiddleware();
         })
             .then(async () => {
             this._configureBodyParser();
@@ -359,8 +250,6 @@ export class WebApp {
             this._configureShutDown();
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             this._server.on("request", this._koa.callback());
-            // this._server.listen(this._port, this._host);
-            // this.configureWebPackDevMiddleware();
             this._isBootstrapped = true;
             await this._logger.logInfo("WEB SERVER STARTED");
         })
@@ -384,11 +273,6 @@ export class WebApp {
         if (this._hasStartupScript)
             await this._container.resolve(this._startupScriptKey).run();
     }
-    // private initializeJobs(): void
-    // {
-    //     this._jobRegistrations.forEach(jobClass =>
-    //         this._jobInstances.push(this._container.resolve((<Object>jobClass).getTypeName())));
-    // }
     // this is the first
     _configureScoping() {
         this._koa.use(async (ctx, next) => {
@@ -397,30 +281,13 @@ export class WebApp {
                 ctx.response.body = "SERVER UNAVAILABLE";
                 return;
             }
-            // if (this._enableProfiling)
-            //     ctx.state.profiler = new Profiler(ctx.request.URL.toString());
-            // (<Profiler | null>ctx.state.profiler)?.trace("Request started");
             ctx.state.scope = this._container.createScope();
-            // (<Profiler | null>ctx.state.profiler)?.trace("Request scope created");
             try {
                 await next();
             }
             finally {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 ctx.state.scope.dispose();
-                // (<Profiler | null>ctx.state.profiler)?.trace("Request ended");
-                // if (this._enableProfiling)
-                // {
-                //     const profiler = <Profiler>ctx.state.profiler;
-                //     const totalTime = profiler.traces.reduce((acc, t) => acc + t.diffMs, 0);
-                //     console.log(profiler.id, `Total time: ${totalTime}`);
-                //     console.table(profiler.traces.map(t => ({
-                //         operation: t.message,
-                //         time: t.diffMs
-                //     })));
-                //     // console.table((<Profiler>ctx.state.profiler).traces);
-                //     // this._logger.logInfo((<Profiler>ctx.state.profiler).id + " ==> " + JSON.stringify((<Profiler>ctx.state.profiler).traces));
-                // }
             }
         });
     }
@@ -429,7 +296,6 @@ export class WebApp {
             const scope = ctx.state.scope;
             const defaultCallContext = scope.resolve(this._callContextKey);
             defaultCallContext.configure(ctx, this._authHeaders);
-            // (<Profiler | null>ctx.state.profiler)?.trace("Request callContext configured");
             await next();
         });
     }
@@ -465,14 +331,6 @@ export class WebApp {
                             ctx.body = httpExp.body;
                     }
                     else {
-                        // let logMessage = "";
-                        // if (exp instanceof Exception)
-                        //     logMessage = exp.toString();
-                        // else if (exp instanceof Error)
-                        //     logMessage = exp.stack;
-                        // else
-                        //     logMessage = exp.toString();
-                        // console.log(Date.now(), logMessage);
                         await this._logger.logError(exp);
                         ctx.status = 500;
                         ctx.body = "There was an error processing your request.";
@@ -498,17 +356,6 @@ export class WebApp {
             }
         });
     }
-    // private configureEventHandling(): void
-    // {
-    //     this._koa.use(async (ctx, next) =>
-    //     {
-    //         let scope: Scope = ctx.state.scope;
-    //         let eventAggregator = scope.resolve<DefaultEventAggregator>(this._eventAggregatorKey);
-    //         eventAggregator.useProcessor(this._backgroundProcessor);
-    //         this._eventRegistrations.forEach(t => eventAggregator.subscribe(t.eventName, scope.resolve(t.eventHandlerName)));
-    //         await next();
-    //     });
-    // }
     _configureAuthentication() {
         if (!this._hasAuthenticationHandler)
             return;
@@ -520,7 +367,6 @@ export class WebApp {
                 const identity = await authenticationHandler.authenticate(callContext.authScheme, callContext.authToken);
                 if (identity != null) {
                     ctx.state.identity = identity;
-                    // (<Profiler | null>ctx.state.profiler)?.trace("Request authenticated");
                 }
             }
             await next();
@@ -547,177 +393,8 @@ export class WebApp {
         if (!this._enableWebSockets)
             return;
         this._socketServer = new SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
-        // this.registerDisposeAction(() => this._socketServer!.dispose());
-    }
-    // private configureWebPackDevMiddleware(): Promise<void>
-    // {
-    //     if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webPackDevMiddlewarePublicPath != null)
-    //     {
-    //         // // tslint:disable-next-line
-    //         // koaWebpack({
-    //         //     devMiddleware: {
-    //         //         publicPath: this._webPackDevMiddlewarePublicPath,
-    //         //         writeToDisk: true,
-    //         //     },
-    //         //     hotClient: false
-    //         // }).then((middleware) => this._koa.use(middleware));
-    //         // const koaWebpack = require("@nivinjoseph/koa-webpack");
-    //         const koaWebpack = require("koa-webpack");
-    //         // tslint:disable-next-line
-    //         return koaWebpack({
-    //             devMiddleware: {
-    //                 publicPath: this._webPackDevMiddlewarePublicPath,
-    //                 writeToDisk: false,
-    //             },
-    //             hotClient: {
-    //                 hmr: true,
-    //                 reload: true,
-    //                 server: this._server
-    //             }
-    //         }).then((middleware: any) =>
-    //         {
-    //             this._koa.use(middleware);
-    //             const HmrHelper = require("./hmr-helper").HmrHelper;
-    //             HmrHelper.configure(middleware.devMiddleware.fileSystem);
-    //         });
-    //         // if (this._webPackDevMiddlewareClientHost)
-    //         // {
-    //         //     // tslint:disable-next-line
-    //         //     koaWebpack({
-    //         //         devMiddleware: {
-    //         //             publicPath: this._webPackDevMiddlewarePublicPath,
-    //         //             writeToDisk: true,
-    //         //         },
-    //         //         hotClient: false
-    //         //         // hotClient: {
-    //         //         //     hmr: false,
-    //         //         //     // reload: true,
-    //         //         //     // host: {
-    //         //         //     //     client: this._webPackDevMiddlewareClientHost,
-    //         //         //     //     server: this._webPackDevMiddlewareServerHost || this._host
-    //         //         //     // },
-    //         //         //     // port: this._port
-    //         //         // }
-    //         //     }).then((middleware) => this._koa.use(middleware));
-    //         // }
-    //         // else
-    //         // {
-    //         //     // tslint:disable-next-line
-    //         //     koaWebpack({
-    //         //         devMiddleware: {
-    //         //             publicPath: this._webPackDevMiddlewarePublicPath,
-    //         //             writeToDisk: true,
-    //         //         },
-    //         //         hotClient: {
-    //         //             hmr: false,
-    //         //             // reload: true,
-    //         //             // server: this._server
-    //         //         }
-    //         //     }).then((middleware) => this._koa.use(middleware));
-    //         // }
-    //     }
-    //     return Promise.resolve();
-    // }
-    _configureWebPackDevMiddleware() {
-        // if (ConfigurationManager.getConfig<string>("env") === "dev" && this._webpackDevMiddlewareConfig != null)
-        // {
-        //     const webpack = require("webpack");
-        //     const webpackDevMiddleware = require("webpack-dev-middleware");
-        //     const webpackHotMiddleware = require("webpack-hot-middleware");
-        //     const config = require(this._webpackDevMiddlewareConfig.webpackConfigPath!);
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //     const compiler = webpack(config);
-        //     const HmrHelper = require("./hmr-helper").HmrHelper;
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //     HmrHelper.configure(this._webpackDevMiddlewareConfig);
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //     const devMiddleware = webpackDevMiddleware(compiler, {
-        //         publicPath: this._webpackDevMiddlewareConfig.publicPath!,
-        //         outputFileSystem: HmrHelper.devFs
-        //     });
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //     const hotMiddleware = webpackHotMiddleware(compiler, {
-        //         hmr: true,
-        //         reload: true,
-        //         server: this._server
-        //     });
-        //     this._koa.use(async (ctx, next) =>
-        //     {
-        //         // wait for webpack-dev-middleware to signal that the build is ready
-        //         const ready = new Promise((resolve, reject) =>
-        //         {
-        //             for (const comp of [].concat(compiler.compilers || compiler))
-        //             {
-        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //                 (<any>comp).hooks?.failed.tap("n-web-webpack-dev-middleware", (error: any) =>
-        //                 {
-        //                     reject(error);
-        //                 });
-        //             }
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //             devMiddleware.waitUntilValid(() =>
-        //             {
-        //                 resolve(true);
-        //             });
-        //         });
-        //         // tell webpack-dev-middleware to handle the request
-        //         const init = new Promise<void>((resolve) =>
-        //         {
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //             devMiddleware(
-        //                 ctx.req,
-        //                 {
-        //                     end: (content: any) =>
-        //                     {
-        //                         // eslint-disable-next-line no-param-reassign
-        //                         ctx.body = content;
-        //                         resolve();
-        //                     },
-        //                     getHeader: ctx.get.bind(ctx),
-        //                     setHeader: ctx.set.bind(ctx),
-        //                     locals: ctx.state
-        //                 },
-        //                 () => resolve(next())
-        //             );
-        //         });
-        //         return Promise.all([ready, init]);
-        //     });
-        //     this._koa.use(async (ctx, next) =>
-        //     {
-        //         const init = new Promise<void>((resolve) =>
-        //         {
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //             hotMiddleware(
-        //                 ctx.req,
-        //                 ctx.res,
-        //                 () => resolve(next())
-        //             );
-        //         });
-        //         return init;
-        //     });
-        //     const disposeAction = (): Promise<void> =>
-        //     {
-        //         return new Promise<void>((resolve, reject) =>
-        //         {
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //             hotMiddleware.close();
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //             devMiddleware.close((err: any) =>
-        //             {
-        //                 if (err)
-        //                     reject(err);
-        //                 else
-        //                     resolve();
-        //             });
-        //         });
-        //     };
-        //     this._disposeActions.push(disposeAction);
-        // }
-        return Promise.resolve();
     }
     _configureShutDown() {
-        // if (ConfigurationManager.getConfig<string>("env") === "dev")
-        //     return;
         this.registerDisposeAction(async () => {
             await this._logger.logInfo("CLEANING UP. PLEASE WAIT...");
             // return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
@@ -791,55 +468,6 @@ export class WebApp {
                 }
             }
         ]);
-        // const shutDown = (signal: string): void =>
-        // {
-        //     if (this._isShutDown)
-        //         return;
-        //     this._isShutDown = true;
-        //     (this._socketServer?.dispose() ?? Promise.resolve())
-        //         .catch((e) => console.error(e))
-        //         .finally(() =>
-        //         {
-        //             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        //             Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 15).then(() =>
-        //             {
-        //                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        //                 this._server.close(async () =>
-        //                 {
-        //                     console.warn(`SERVER STOPPING (${signal}).`);
-        //                     if (this._hasShutdownScript)
-        //                     {
-        //                         console.log("Shutdown script executing.");
-        //                         try
-        //                         {
-        //                             await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
-        //                             console.log("Shutdown script complete.");
-        //                         }
-        //                         catch (error)
-        //                         {
-        //                             console.warn("Shutdown script error.");
-        //                             console.error(error);
-        //                         }
-        //                     }
-        //                     console.log("Dispose actions executing.");
-        //                     try
-        //                     {
-        //                         await Promise.all(this._disposeActions.map(t => t()));
-        //                         console.log("Dispose actions complete.");
-        //                     }
-        //                     catch (error)
-        //                     {
-        //                         console.warn("Dispose actions error.");
-        //                         console.error(error);
-        //                     }
-        //                     console.warn(`SERVER STOPPED (${signal}).`);
-        //                     process.exit(0);
-        //                 }); 
-        //             });
-        //         });
-        // };
-        // process.on("SIGTERM", () => shutDown("SIGTERM"));
-        // process.on("SIGINT", () => shutDown("SIGINT"));
     }
 }
 //# sourceMappingURL=web-app.js.map

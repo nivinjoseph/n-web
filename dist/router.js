@@ -1,12 +1,16 @@
-import KoaRouter from "koa-router";
+import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { given } from "@nivinjoseph/n-defensive";
-import { ControllerRegistration } from "./controller-registration.js";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { HttpMethods } from "./http-method.js";
+import { Container } from "@nivinjoseph/n-ject";
+import { Profiler, Templator } from "@nivinjoseph/n-util";
+import Koa from "koa";
+import KoaRouter from "koa-router";
+import { ControllerRegistration } from "./controller-registration.js";
+import { Controller } from "./controller.js";
 import { HttpException } from "./exceptions/http-exception.js";
 import { HttpRedirectException } from "./exceptions/http-redirect-exception.js";
-import { ConfigurationManager } from "@nivinjoseph/n-config";
-import { Templator } from "@nivinjoseph/n-util";
+import { HttpMethods } from "./http-method.js";
+import { RouteInfo } from "./route-info.js";
 export class Router {
     _koa;
     _container;
@@ -130,11 +134,6 @@ export class Router {
                 vm = { value: result };
             let view = (await registration.retrieveView());
             const viewLayout = await registration.retrieveViewLayout();
-            // if (viewLayout !== null)
-            //     // tslint:disable
-            //     view = eval("`" + viewLayout + "`");
-            // let html = eval("`" + view + "`") as string;
-            // // tslint:enable
             if (viewLayout !== null)
                 view = viewLayout.replaceAll("${view}", view);
             let html = new Templator(view).render(vm);

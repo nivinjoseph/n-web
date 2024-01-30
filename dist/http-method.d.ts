@@ -1,4 +1,4 @@
-import { Controller, ControllerClass } from "./controller.js";
+import { Controller, type ControllerClass } from "./controller.js";
 export declare class HttpMethods {
     private static readonly _get;
     private static readonly _post;

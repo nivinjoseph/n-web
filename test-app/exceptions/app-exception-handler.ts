@@ -1,9 +1,9 @@
-import { ExceptionHandler, HttpException } from "./../../src/index.js";
-import { Exception } from "@nivinjoseph/n-exception";
-import { TodoNotFoundException } from "./todo-not-found-exception.js";
-import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
-import { Logger } from "@nivinjoseph/n-log";
+import { Exception } from "@nivinjoseph/n-exception";
+import { inject } from "@nivinjoseph/n-ject";
+import { type Logger } from "@nivinjoseph/n-log";
+import { HttpException, type ExceptionHandler } from "./../../src/index.js";
+import { TodoNotFoundException } from "./todo-not-found-exception.js";
 
 
 @inject("Logger")

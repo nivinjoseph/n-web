@@ -1,10 +1,10 @@
-import { TodoManager } from "./../../services/todo-manager/todo-manager.js";
 import { given } from "@nivinjoseph/n-defensive";
-import { httpPut, route, Controller, HttpException, Utils } from "./../../../src/index.js";
-import * as Routes from "./../routes.js";
-import { ConfigService } from "./../../services/config-service/config-service.js";
 import { inject } from "@nivinjoseph/n-ject";
 import { Validator, strval } from "@nivinjoseph/n-validate";
+import { Controller, HttpException, Utils, httpPut, route } from "./../../../src/index.js";
+import { type ConfigService } from "./../../services/config-service/config-service.js";
+import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
+import * as Routes from "./../routes.js";
 
 @httpPut
 @route(Routes.updateTodo) 

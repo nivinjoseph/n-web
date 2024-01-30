@@ -1,4 +1,4 @@
-import { httpGet, route, Controller, view, viewLayout } from "./../../../../src/index.js";
+import { Controller, httpGet, route, view, viewLayout } from "./../../../../src/index.js";
 import * as routes from "./../../routes.js";
 
 @httpGet

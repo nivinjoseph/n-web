@@ -1,12 +1,12 @@
-import { Container, ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
-import { AuthenticationHandler } from "./security/authentication-handler.js";
-import { ExceptionHandler } from "./exceptions/exception-handler.js";
-import { Logger } from "@nivinjoseph/n-log";
-import { ClassHierarchy } from "@nivinjoseph/n-util";
-import { ApplicationScript } from "./application-script.js";
+import { Container, type ComponentInstaller, type Registry } from "@nivinjoseph/n-ject";
+import { type Logger } from "@nivinjoseph/n-log";
+import { type ClassHierarchy } from "@nivinjoseph/n-util";
+import type { RedisClientType } from "redis";
+import type { ApplicationScript } from "./application-script.js";
 import { Controller } from "./controller.js";
-import { AuthorizationHandler } from "./security/authorization-handler.js";
-import { RedisClientType } from "redis";
+import type { ExceptionHandler } from "./exceptions/exception-handler.js";
+import type { AuthenticationHandler } from "./security/authentication-handler.js";
+import type { AuthorizationHandler } from "./security/authorization-handler.js";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -67,7 +67,6 @@ export declare class WebApp {
     private _configureBodyParser;
     private _configureRouting;
     private _configureWebSockets;
-    private _configureWebPackDevMiddleware;
     private _configureShutDown;
 }
 //# sourceMappingURL=web-app.d.ts.map

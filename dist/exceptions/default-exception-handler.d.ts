@@ -1,7 +1,7 @@
 import { Exception } from "@nivinjoseph/n-exception";
-import { ExceptionHandler } from "./exception-handler.js";
-import { Logger } from "@nivinjoseph/n-log";
-import { ClassDefinition } from "@nivinjoseph/n-util";
+import type { Logger } from "@nivinjoseph/n-log";
+import type { ClassDefinition } from "@nivinjoseph/n-util";
+import type { ExceptionHandler } from "./exception-handler.js";
 export declare class DefaultExceptionHandler implements ExceptionHandler {
     private readonly _logger;
     private readonly _logEverything;

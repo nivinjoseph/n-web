@@ -1,5 +1,5 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { InvalidArgumentException, ApplicationException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { ApplicationException, InvalidArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
 import { TypeHelper } from "@nivinjoseph/n-util";
 import { HttpException } from "./exceptions/http-exception.js";
 export class RouteParam {
@@ -77,13 +77,9 @@ export class RouteParam {
     }
     _parseNumber(value) {
         try {
-            // const num = value.contains(".") ? Number.parseFloat(value) : Number.parseInt(value);
-            // if (!Number.isNaN(num))
-            //     return num;    
             const num = TypeHelper.parseNumber(value);
             if (num != null)
                 return num;
-            // throw "PARSE ERROR";
             throw new HttpException(404);
         }
         catch (error) {

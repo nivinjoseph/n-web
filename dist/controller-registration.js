@@ -2,7 +2,8 @@ import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { given } from "@nivinjoseph/n-defensive";
 import { ApplicationException, ArgumentException } from "@nivinjoseph/n-exception";
 import "@nivinjoseph/n-ext";
-import fs from "node:fs";
+import { Claim } from "@nivinjoseph/n-sec";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { HttpMethods, httpMethodSymbol } from "./http-method.js";
 import { RouteInfo } from "./route-info.js";
@@ -30,8 +31,6 @@ export class ControllerRegistration {
     get route() { return this._route; }
     get hasView() { return this._viewFilePath != null; }
     get hasViewLayout() { return this._viewLayoutFilePath != null; }
-    // public get view(): string | null { return this._retrieveView(); }
-    // public get viewLayout(): string | null { return this._retrieveViewLayout(); }
     get authorizeClaims() { return this._authorizeClaims; }
     constructor(controller) {
         given(controller, "controller").ensureHasValue().ensureIsFunction();
@@ -67,7 +66,7 @@ export class ControllerRegistration {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             // return HmrHelper.isConfigured
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8").toString()
-            return fs.readFileSync(this._viewFilePath, "utf8");
+            return readFileSync(this._viewFilePath, "utf8");
         }
         return this._viewFileData;
     }
@@ -81,7 +80,7 @@ export class ControllerRegistration {
             //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")
             //     : fs.readFileSync(this._viewLayoutFilePath!, "utf8");
-            return fs.readFileSync(this._viewLayoutFilePath, "utf8");
+            return readFileSync(this._viewLayoutFilePath, "utf8");
         }
         return this._viewLayoutFileData;
     }
@@ -103,7 +102,7 @@ export class ControllerRegistration {
                 this._viewFilePath = viewFilePath;
             }
             if (!this._isDev())
-                this._viewFileData = fs.readFileSync(this._viewFilePath, "utf8");
+                this._viewFileData = readFileSync(this._viewFilePath, "utf8");
             const viewLayout = this._controller[Symbol.metadata][viewLayoutSymbol];
             if (viewLayout != null) {
                 let viewLayoutFileName = viewLayout;
@@ -121,15 +120,15 @@ export class ControllerRegistration {
                     this._viewLayoutFilePath = viewLayoutFilePath;
                 }
                 if (!this._isDev())
-                    this._viewLayoutFileData = fs.readFileSync(this._viewLayoutFilePath, "utf8");
+                    this._viewLayoutFileData = readFileSync(this._viewLayoutFilePath, "utf8");
             }
         }
     }
     _resolvePath(startPoint, fileName) {
         if (startPoint.endsWith(fileName))
             return startPoint;
-        if (fs.statSync(startPoint).isDirectory()) {
-            const files = fs.readdirSync(startPoint);
+        if (statSync(startPoint).isDirectory()) {
+            const files = readdirSync(startPoint);
             for (const file of files) {
                 if (file.startsWith(".") || file.startsWith("node_modules"))
                     continue;

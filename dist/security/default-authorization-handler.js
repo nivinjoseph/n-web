@@ -1,3 +1,5 @@
+import { Claim, ClaimsIdentity } from "@nivinjoseph/n-sec";
+import {} from "./authorization-handler.js";
 // public
 export class DefaultAuthorizationHandler {
     authorize(identity, authorizeClaims) {
