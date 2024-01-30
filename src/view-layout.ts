@@ -1,5 +1,5 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { Controller, ControllerClass } from "./controller.js";
+import { Controller, type ControllerClass } from "./controller.js";
 
 export const viewLayoutSymbol = Symbol.for("@nivinjoseph/n-web/viewLayout");
 

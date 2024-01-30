@@ -25,6 +25,7 @@
         "noImplicitOverride": true,
         "pretty": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true, 
+        "verbatimModuleSyntax": true,
     }
 }

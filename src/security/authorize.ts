@@ -1,6 +1,6 @@
-import { Claim } from "@nivinjoseph/n-sec";
-import { Controller, ControllerClass } from "../controller.js";
 import { given } from "@nivinjoseph/n-defensive";
+import { Claim } from "@nivinjoseph/n-sec";
+import { Controller, type ControllerClass } from "../controller.js";
 
 
 export const authorizeSymbol = Symbol.for("@nivinjoseph/n-web/authorize");

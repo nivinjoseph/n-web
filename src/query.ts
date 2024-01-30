@@ -1,6 +1,6 @@
-import { Controller, ControllerClass } from "./controller.js";
-import { httpMethodSymbol, HttpMethods } from "./http-method.js";
 import { given } from "@nivinjoseph/n-defensive";
+import { Controller, type ControllerClass } from "./controller.js";
+import { HttpMethods, httpMethodSymbol } from "./http-method.js";
 
 
 // public

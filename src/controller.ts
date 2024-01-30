@@ -1,6 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
+import type { ClassDefinition } from "@nivinjoseph/n-util";
 import { HttpRedirectException } from "./exceptions/http-redirect-exception.js";
-import { ClassDefinition } from "@nivinjoseph/n-util";
 
 // public
 export abstract class Controller

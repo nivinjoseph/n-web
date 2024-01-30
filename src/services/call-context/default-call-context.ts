@@ -1,10 +1,10 @@
-import { CallContext } from "./call-context.js";
-import { Scope } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
+import type { Scope } from "@nivinjoseph/n-ject";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import { URL } from "node:url";
 import { Profiler } from "@nivinjoseph/n-util";
-import { Context } from "koa";
+import type { Context } from "koa";
+import { URL } from "node:url";
+import type { CallContext } from "./call-context.js";
 
 
 export class DefaultCallContext implements CallContext

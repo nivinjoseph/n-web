@@ -1,1 +1,0 @@
-// export type WebpackDevMiddlewareConfig = { publicPath?: string; webpackConfigPath?: string; };

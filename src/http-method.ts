@@ -1,5 +1,5 @@
-import { Controller, ControllerClass } from "./controller.js";
 import { given } from "@nivinjoseph/n-defensive";
+import { Controller, type ControllerClass } from "./controller.js";
 
 export class HttpMethods
 {
