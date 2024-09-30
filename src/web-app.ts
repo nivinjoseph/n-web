@@ -96,7 +96,7 @@ export class WebApp
     public get containerRegistry(): Registry { return this._container; }
     
     
-    public constructor(port: number, host: string | null, container?: Container | null, logger?: Logger | null)
+    public constructor(port: number, host: string | null, container?: Container | null, logger?: Logger | null, useProxy?: boolean | null)
     {
         given(port, "port").ensureHasValue().ensureIsNumber();
         this._port = port;
@@ -121,7 +121,9 @@ export class WebApp
             useJsonFormat: ConfigurationManager.getConfig<string>("env") !== "dev"
         });
         
-        this._koa = new Koa();
+        this._koa = new Koa({
+            proxy: useProxy ?? false
+        });
         
         this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
         
