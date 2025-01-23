@@ -1,3 +1,2 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+import { Exception } from "@nivinjoseph/n-exception";
 //# sourceMappingURL=exception-handler.js.map

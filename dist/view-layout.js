@@ -1,13 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.viewLayout = exports.viewLayoutSymbol = void 0;
-require("reflect-metadata");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-exports.viewLayoutSymbol = Symbol.for("@nivinjoseph/n-web/viewLayout");
+import { given } from "@nivinjoseph/n-defensive";
+import { Controller } from "./controller.js";
+export const viewLayoutSymbol = Symbol.for("@nivinjoseph/n-web/viewLayout");
 // public
-function viewLayout(file) {
-    (0, n_defensive_1.given)(file, "file").ensureHasValue().ensureIsString();
-    return (target) => Reflect.defineMetadata(exports.viewLayoutSymbol, file.trim(), target);
+export function viewLayout(file) {
+    given(file, "file").ensureHasValue().ensureIsString();
+    const decorator = function (target, context) {
+        given(context, "context")
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            .ensure(t => t.kind === "class", "viewLayout decorator should only be used on a class");
+        const className = context.name;
+        given(className, className).ensureHasValue().ensureIsString()
+            .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with viewLayout must extend Controller class`);
+        context.metadata[viewLayoutSymbol] = file;
+    };
+    return decorator;
 }
-exports.viewLayout = viewLayout;
 //# sourceMappingURL=view-layout.js.map

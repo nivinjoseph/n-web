@@ -1,42 +1,38 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultExceptionHandler = void 0;
-const tslib_1 = require("tslib");
-const n_exception_1 = require("@nivinjoseph/n-exception");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const http_exception_1 = require("./http-exception");
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException, Exception } from "@nivinjoseph/n-exception";
+import { HttpException } from "./http-exception.js";
 // public
-class DefaultExceptionHandler {
+export class DefaultExceptionHandler {
+    _logger;
+    _logEverything;
+    _handlers = {};
     constructor(logger, logEverything = true) {
-        this._handlers = {};
-        (0, n_defensive_1.given)(logger, "logger").ensureHasValue().ensureIsObject();
+        given(logger, "logger").ensureHasValue().ensureIsObject();
         this._logger = logger;
         this._logEverything = !!logEverything;
     }
-    handle(exp) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this._logEverything)
-                yield this.log(exp);
-            const name = exp.getTypeName();
-            const handler = this._handlers[name];
-            if (handler)
-                return handler(exp);
-            else
-                throw new http_exception_1.HttpException(500, "There was an error processing your request.");
-        });
+    async handle(exp) {
+        if (this._logEverything)
+            await this.log(exp);
+        const name = exp.getTypeName();
+        const handler = this._handlers[name];
+        if (handler)
+            return handler(exp);
+        else
+            throw new HttpException(500, "There was an error processing your request.");
     }
     registerHandler(exceptionType, handler) {
-        (0, n_defensive_1.given)(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
-        (0, n_defensive_1.given)(handler, "handler").ensureHasValue().ensureIsFunction();
+        given(exceptionType, "exceptionType").ensureHasValue().ensureIsFunction();
+        given(handler, "handler").ensureHasValue().ensureIsFunction();
         const name = exceptionType.getTypeName();
         if (this._handlers[name])
-            throw new n_exception_1.ApplicationException(`Duplicate handler registration for Exception type '${name}'.`);
+            throw new ApplicationException(`Duplicate handler registration for Exception type '${name}'.`);
         this._handlers[name] = handler;
     }
     log(exp) {
         try {
             let logMessage = "";
-            if (exp instanceof n_exception_1.Exception)
+            if (exp instanceof Exception)
                 logMessage = exp.toString();
             else if (exp instanceof Error)
                 logMessage = exp.stack;
@@ -49,5 +45,4 @@ class DefaultExceptionHandler {
         }
     }
 }
-exports.DefaultExceptionHandler = DefaultExceptionHandler;
 //# sourceMappingURL=default-exception-handler.js.map

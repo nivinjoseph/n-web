@@ -1,6 +1,6 @@
 /// <reference types="koa-bodyparser" />
-import * as Koa from "koa";
 import { Container } from "@nivinjoseph/n-ject";
+import Koa from "koa";
 export declare class Router {
     private readonly _koa;
     private readonly _container;
@@ -18,3 +18,4 @@ export declare class Router {
     private _handleRequest;
     private _createRouteArgs;
 }
+//# sourceMappingURL=router.d.ts.map

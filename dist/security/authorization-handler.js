@@ -1,3 +1,2 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 //# sourceMappingURL=authorization-handler.js.map

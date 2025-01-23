@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.HttpRedirectException = void 0;
-const n_exception_1 = require("@nivinjoseph/n-exception");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-class HttpRedirectException extends n_exception_1.Exception {
+import { given } from "@nivinjoseph/n-defensive";
+import { Exception } from "@nivinjoseph/n-exception";
+export class HttpRedirectException extends Exception {
+    _url;
+    get url() { return this._url; }
     constructor(url) {
-        (0, n_defensive_1.given)(url, "url").ensureHasValue().ensureIsString();
+        given(url, "url").ensureHasValue().ensureIsString();
         super("HTTP redirect");
         this._url = url;
     }
-    get url() { return this._url; }
 }
-exports.HttpRedirectException = HttpRedirectException;
 //# sourceMappingURL=http-redirect-exception.js.map

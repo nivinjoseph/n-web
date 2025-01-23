@@ -1,10 +1,10 @@
-/// <reference types="node" />
-import { CallContext } from "./call-context";
-import { Scope } from "@nivinjoseph/n-ject";
-import * as Koa from "koa";
+/// <reference types="node" resolution-mode="require"/>
+import type { Scope } from "@nivinjoseph/n-ject";
 import { ClaimsIdentity } from "@nivinjoseph/n-sec";
-import { URL } from "url";
 import { Profiler } from "@nivinjoseph/n-util";
+import type { Context } from "koa";
+import { URL } from "node:url";
+import type { CallContext } from "./call-context.js";
 export declare class DefaultCallContext implements CallContext {
     private _ctx;
     private _authHeaders;
@@ -24,10 +24,11 @@ export declare class DefaultCallContext implements CallContext {
     get isAuthenticated(): boolean;
     get identity(): ClaimsIdentity | null;
     get profiler(): Profiler | undefined;
-    configure(ctx: Koa.Context, authHeaders: ReadonlyArray<string>): void;
+    configure(ctx: Context, authHeaders: ReadonlyArray<string>): void;
     getRequestHeader(header: string): string;
     setResponseType(responseType: string): void;
     setResponseContentDisposition(contentDisposition: string): void;
     setResponseHeader(header: string, value: string): void;
     private _populateSchemeAndToken;
 }
+//# sourceMappingURL=default-call-context.d.ts.map

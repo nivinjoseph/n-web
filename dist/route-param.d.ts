@@ -17,3 +17,4 @@ export declare class RouteParam {
     private _parseNumber;
     private _parseBoolean;
 }
+//# sourceMappingURL=route-param.d.ts.map
