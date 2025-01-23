@@ -21,7 +21,7 @@
         "node-watch": "node --watch --inspect=4000 --enable-source-maps ./test-app/server.js env=dev",
         "setup-redis-server": "docker run --name test-redis -p 6379:6379 -d redis:7.0 && sleep 5",
         "dev": "yarn ts-build && concurrently -p \"[{name}]\" -n \"TS,APP\" -c \"blue.bold,green.bold\"  \"yarn ts-compile-watch\" \"yarn node-watch\"",
-        "publish-package": "yarn ts-build-dist && git add . && git commit -m 'preparing to publish new version' && yarn version patch && git push && yarn npm publish --access=public"
+        "publish-package": "yarn ts-build-dist && git add . && git commit -m 'preparing to publish new version' && yarn version patch && git push && npm publish --access=public"
     },
     "repository": {
         "type": "git",
