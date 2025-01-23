@@ -1,12 +1,13 @@
-import { Container, type ComponentInstaller, type Registry } from "@nivinjoseph/n-ject";
-import { type Logger } from "@nivinjoseph/n-log";
-import { type ClassHierarchy } from "@nivinjoseph/n-util";
-import type { RedisClientType } from "redis";
-import type { ApplicationScript } from "./application-script.js";
-import { Controller } from "./controller.js";
-import type { ExceptionHandler } from "./exceptions/exception-handler.js";
-import type { AuthenticationHandler } from "./security/authentication-handler.js";
-import type { AuthorizationHandler } from "./security/authorization-handler.js";
+import { Container, ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
+import { AuthenticationHandler } from "./security/authentication-handler";
+import { ExceptionHandler } from "./exceptions/exception-handler";
+import { Logger } from "@nivinjoseph/n-log";
+import { ClassHierarchy } from "@nivinjoseph/n-util";
+import { ApplicationScript } from "./application-script";
+import { Controller } from "./controller";
+import { AuthorizationHandler } from "./security/authorization-handler";
+import * as Redis from "redis";
+import { WebpackDevMiddlewareConfig } from "./webpack-dev-middleware-config";
 export declare class WebApp {
     private readonly _port;
     private readonly _host;
@@ -29,6 +30,7 @@ export declare class WebApp {
     private _enableCors;
     private _enableCompression;
     private _viewResolutionRoot;
+    private _webpackDevMiddlewareConfig;
     private _enableWebSockets;
     private _corsOrigin;
     private _socketServerRedisClient;
@@ -51,7 +53,13 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
     useViewResolutionRoot(path: string): this;
-    enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any>): this;
+    enableWebSockets(corsOrigin: string, socketServerRedisClient: Redis.RedisClient): this;
+    /**
+     *
+     * @param publicPath Webpack publicPath value
+     * @description Requires dev dependencies [webpack-dev-middleware, webpack-hot-middleware]
+     */
+    enableWebPackDevMiddleware(config?: WebpackDevMiddlewareConfig): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private _configureCors;
@@ -67,6 +75,6 @@ export declare class WebApp {
     private _configureBodyParser;
     private _configureRouting;
     private _configureWebSockets;
+    private _configureWebPackDevMiddleware;
     private _configureShutDown;
 }
-//# sourceMappingURL=web-app.d.ts.map

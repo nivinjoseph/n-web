@@ -7,4 +7,3 @@ export declare class HttpException extends Exception {
     get body(): unknown;
     constructor(statusCode: number, body?: unknown);
 }
-//# sourceMappingURL=http-exception.d.ts.map

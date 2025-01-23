@@ -1,9 +1,11 @@
-import { Claim, ClaimsIdentity } from "@nivinjoseph/n-sec";
-import {} from "./authorization-handler.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DefaultAuthorizationHandler = void 0;
 // public
-export class DefaultAuthorizationHandler {
+class DefaultAuthorizationHandler {
     authorize(identity, authorizeClaims) {
         return Promise.resolve(authorizeClaims.every(t => identity.hasClaim(t)));
     }
 }
+exports.DefaultAuthorizationHandler = DefaultAuthorizationHandler;
 //# sourceMappingURL=default-authorization-handler.js.map

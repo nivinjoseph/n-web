@@ -4,4 +4,3 @@ export declare class HttpRedirectException extends Exception {
     get url(): string;
     constructor(url: string);
 }
-//# sourceMappingURL=http-redirect-exception.d.ts.map
