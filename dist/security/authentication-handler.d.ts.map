@@ -1,1 +1,0 @@
-{"version":3,"file":"authentication-handler.d.ts","sourceRoot":"","sources":["../../src/security/authentication-handler.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAE,MAAM,oBAAoB,CAAC;AAIpD,MAAM,WAAW,qBAAqB;IAElC,YAAY,CAAC,MAAM,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,GAAG,OAAO,CAAC,cAAc,GAAG,IAAI,CAAC,CAAC;CAC/E"}
