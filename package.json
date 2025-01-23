@@ -17,7 +17,7 @@
         "clean-test-app": "find ./test-app -name '*.js' -delete -o -name '*.map' -delete",
         "clean-dist": "find ./dist -name '*.js' -delete -o -name '*.map' -delete -o -name '*.ts' -delete",
         "clean-all": "yarn clean-src && yarn clean-test && yarn clean-test-app && yarn clean-dist",
-        "test": "yarn ts-build && node --test --enable-source-maps ./test",
+        "test": "yarn ts-build && node --test --enable-source-maps ./test/*.test.js",
         "node-watch": "node --watch --inspect=4000 --enable-source-maps ./test-app/server.js env=dev",
         "setup-redis-server": "docker run --name test-redis -p 6379:6379 -d redis:7.0 && sleep 5",
         "dev": "yarn ts-build && concurrently -p \"[{name}]\" -n \"TS,APP\" -c \"blue.bold,green.bold\"  \"yarn ts-compile-watch\" \"yarn node-watch\"",
