@@ -1,6 +1,6 @@
 {
     "name": "@nivinjoseph/n-web",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "description": "Koa based web application framework",
     "packageManager": "yarn@4.0.2",
     "type": "module",
