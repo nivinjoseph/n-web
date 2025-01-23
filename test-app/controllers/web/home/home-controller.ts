@@ -1,5 +1,5 @@
-import { httpGet, route, Controller, view } from "./../../../../src/index";
-import * as routes from "./../../routes";
+import { httpGet, route, Controller, view } from "./../../../../src/index.js";
+import * as routes from "./../../routes.js";
 
 @httpGet
 @route(routes.home)    

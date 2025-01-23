@@ -1,14 +1,33 @@
-import "reflect-metadata";
 import { given } from "@nivinjoseph/n-defensive";
+import { Controller, type ControllerClass } from "./controller.js";
 
 
 export const httpRouteSymbol = Symbol.for("@nivinjoseph/n-web/httpRoute");
 
 // public
-export function route(route: string): Function
+export function route<This extends Controller>(route: string): ControllerRouteDecorator<This>
 {
     given(route, "route").ensureHasValue().ensureIsString()
         .ensure(t => t.trim().startsWith("/"), "has to begin with '/'");
-    
-    return (target: Function) => Reflect.defineMetadata(httpRouteSymbol, route.trim(), target);
+
+    const decorator: ControllerRouteDecorator<This> = function (target, context)
+    {
+        given(context, "context")
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            .ensure(t => t.kind === "class", "route decorator should only be used on a class");
+
+        const className = context.name!;
+        given(className, className).ensureHasValue().ensureIsString()
+            .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with route must extend Controller class`);
+
+        context.metadata[httpRouteSymbol] = route;
+    };
+
+    return decorator;
 }
+
+
+export type ControllerRouteDecorator<This extends Controller> = (
+    target: ControllerClass<This>,
+    context: ClassDecoratorContext<ControllerClass<This>>
+) => void;
