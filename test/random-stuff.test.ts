@@ -1,9 +1,11 @@
-import * as assert from "assert";
 import "@nivinjoseph/n-ext";
+import assert from "node:assert";
+import { describe, test } from "node:test";
 
-suite("Random stuff", () =>
+
+await describe("Random stuff", async () =>
 {
-    test("Dynamic template string interpolation", () =>
+    await test("Dynamic template string interpolation", () =>
     {
         // @ts-expect-error: used in eval
         const vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
@@ -12,8 +14,8 @@ suite("Random stuff", () =>
         const result = eval("`" + view + "`");
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
-    
-    test("Advanced dynamic template string interpolation", () =>
+
+    await test("Advanced dynamic template string interpolation", () =>
     {
         // @ts-expect-error: used in eval
         const vm = { firstName: "Nivin", lastName: "Joseph", age: 31 };
@@ -25,22 +27,22 @@ suite("Random stuff", () =>
         const result = eval("`" + view + "`");
         assert.strictEqual(result, "User Nivin Joseph is of age 31");
     });
-    
-    test("object keys", () =>
+
+    await test("object keys", () =>
     {
         const query: any = { foo: "bar" };
         for (const key in query)
         {
             console.log("key", key);
             console.log("value", query[key]);
-        }    
+        }
     });
-    
-    test("Object keys", () =>
+
+    await test("Object keys", () =>
     {
         const query = new Object();
         query.setValue("foo", "bar");
-        
+
         for (const key in query)
         {
             console.log("key", key);

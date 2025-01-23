@@ -1,5 +1,5 @@
-import { AuthenticationHandler } from "../../src/index";
-import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
+import { Claim, ClaimsIdentity } from "@nivinjoseph/n-sec";
+import { type AuthenticationHandler } from "../../src/index.js";
 
 
 export class AppAuthenticationHandler implements AuthenticationHandler

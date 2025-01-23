@@ -1,4 +1,4 @@
-import { DefaultAuthorizationHandler } from "../../src/index";
+import { DefaultAuthorizationHandler } from "../../src/index.js";
 import { ClaimsIdentity, Claim } from "@nivinjoseph/n-sec";
 
 
