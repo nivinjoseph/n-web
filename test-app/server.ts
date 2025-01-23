@@ -19,6 +19,7 @@ import { ConsoleLogger, LogDateTimeZone } from "@nivinjoseph/n-log";
 import { SocketService } from "@nivinjoseph/n-sock/server";
 import { Delay, DisposableWrapper } from "@nivinjoseph/n-util";
 import { createClient, type RedisClientType } from "redis";
+import { NotFoundController } from "./controllers/web/not-found/not-found-controller.js";
 // import { InMemoryEventBus, InMemoryEventSubMgr } from "@nivinjoseph/n-eda";
 
 
@@ -42,7 +43,7 @@ class AppInstaller implements ComponentInstaller
 }
 
 const controllers = [GetTodosController, GetTodoController, CreateTodoController,
-    UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController];
+    UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController, NotFoundController];
 
 // const eventHandlers = [TodoCreatedEventHandler];
 
@@ -77,7 +78,7 @@ async function createSRedisClient():
 {
 
     let client: RedisClientType<any, any, any>;
-    try 
+    try
     {
         client = await createClient().connect();
         console.log(client.isReady);
