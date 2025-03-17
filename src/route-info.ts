@@ -144,7 +144,6 @@ export class RouteInfo
         }
 
         this._hasQuery = queryFound;
-        console.log(templateParams);
 
         return templateParams;
     }
