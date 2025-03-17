@@ -39,15 +39,15 @@ export class RouteInfo
         }
 
         this._routeTemplate = routeTemplate;
-        
+
         if (this._routeTemplate.contains("*"))
         {
             this._isCatchAll = true;
-        }   
+        }
         else
         {
             this._isCatchAll = false;
-            
+
             this._populateRouteParams();
 
             if (!isUrlGenerator)
@@ -150,23 +150,39 @@ export class RouteInfo
 
     private _generateKoaRoute(routeTemplate: string): string
     {
-        for (const routeParam of this._routeParams)
+        // remove all query params
+        const hasQueries = this._routeParams.some(t => t.isQuery);
+        if (hasQueries)
         {
-            const asItWas = "{" + routeParam.param + "}";
-            if (!routeTemplate.contains(asItWas))
-                throw new ApplicationException("Invalid route template.");
+            this._routeParams.where(t => t.isQuery)
+                .forEach(t =>
+                {
+                    const asItWas = "{" + t.param + "}";
+                    if (!routeTemplate.contains(asItWas))
+                        throw new ApplicationException("Invalid route template." + asItWas);
 
-            routeTemplate = routeTemplate.replace(asItWas, ":{0}".format(routeParam.paramKey));
+                    routeTemplate = routeTemplate.replace(asItWas, ``);
+                });
+
+            // remove ? and &
+            routeTemplate = routeTemplate.replaceAll("&", "");
+            if (routeTemplate.endsWith("?"))
+                routeTemplate = routeTemplate.slice(0, routeTemplate.length - 1);
         }
 
-        if (routeTemplate.contains("?"))
-        {
-            const splitted = routeTemplate.split("?");
-            if (splitted.length > 2)
-                throw new ApplicationException("Invalid route template. Unresolvable '?' characters detected.");
+        this._routeParams
+            .where(t => !t.isQuery)
+            .forEach(t =>
+            {
+                const asItWas = "{" + t.param + "}";
+                if (!routeTemplate.contains(asItWas))
+                    throw new ApplicationException("Invalid route template." + asItWas);
 
-            routeTemplate = splitted[0];
-        }
+                if (t.isOptional)
+                    routeTemplate = routeTemplate.replace(`/${asItWas}`, `{/:${t.paramKey}}`);
+                else
+                    routeTemplate = routeTemplate.replace(asItWas, `:${t.paramKey}`);
+            });
 
         return routeTemplate;
     }

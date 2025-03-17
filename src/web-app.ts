@@ -162,7 +162,7 @@ export class WebApp
 
         filePath = path.join(process.cwd(), filePath);
 
-        // We skip the defensive check in dev because of webpack HMR 
+        // We skip the defensive check in dev because of webpack HMR
         if (ConfigurationManager.getConfig<string>("env") !== "dev")
         {
             if (!fs.existsSync(filePath))
@@ -294,7 +294,7 @@ export class WebApp
         {
             return new Promise((resolve) =>
             {
-                try 
+                try
                 {
                     disposeAction()
                         .then(() => resolve())
@@ -406,7 +406,7 @@ export class WebApp
             }
 
             ctx.state.scope = this._container.createScope();
-            try 
+            try
             {
                 await next();
             }
@@ -439,7 +439,7 @@ export class WebApp
     {
         this._koa.use(async (ctx, next) =>
         {
-            try 
+            try
             {
                 await next();
             }
@@ -447,6 +447,7 @@ export class WebApp
             {
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 await this._logger.logWarning(`Error during request to URL '${ctx.url ?? "UNKNOWN"}'.`);
+                await this._logger.logWarning(error as any);
 
                 if (error instanceof HttpException)
                 {
@@ -460,7 +461,7 @@ export class WebApp
                 const scope = ctx.state.scope as Scope;
                 const exceptionHandler = scope.resolve<ExceptionHandler>(this._exceptionHandlerKey);
 
-                try 
+                try
                 {
                     const result = await exceptionHandler.handle(error as any);
                     ctx.body = result;
@@ -490,7 +491,7 @@ export class WebApp
     {
         this._koa.use(async (_ctx, next) =>
         {
-            try 
+            try
             {
                 await next();
             }
@@ -586,7 +587,7 @@ export class WebApp
                 if (this._socketServer)
                 {
                     await this._logger.logInfo("CLOSING SOCKET SERVER...");
-                    try 
+                    try
                     {
                         await this._socketServer.dispose();
                         await this._logger.logInfo("SOCKET SERVER CLOSED");

@@ -22,23 +22,23 @@ export class Router
     private readonly _callContextKey: string;
     private readonly _koaRouter: KoaRouter;
     private readonly _controllers = new Array<ControllerRegistration>();
-    
-    
+
+
     public constructor(koa: Koa, container: Container, authorizationHandlerKey: string, callContextKey: string)
     {
         given(koa, "koa").ensureHasValue();
         given(container, "container").ensureHasValue();
         given(authorizationHandlerKey, "authorizationHandlerKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         given(callContextKey, "callContextKey").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        
+
         this._koa = koa;
         this._container = container;
         this._authorizationHandlerKey = authorizationHandlerKey;
         this._callContextKey = callContextKey;
         this._koaRouter = new KoaRouter();
     }
-    
-    
+
+
     public registerControllers(...controllers: Array<Function>): void
     {
         for (const controller of controllers)
@@ -52,26 +52,26 @@ export class Router
             this._container.registerScoped(registration.name, registration.controller);
         }
     }
-    
+
     public configureRouting(viewResolutionRoot?: string): void
     {
         given(viewResolutionRoot as string, "viewResolutionRoot").ensureIsString();
-        
+
         let catchAllRegistration: ControllerRegistration | null = null;
-        
+
         for (const registration of this._controllers)
         {
             registration.complete(viewResolutionRoot);
-            
+
             if (registration.route.isCatchAll)
             {
                 if (catchAllRegistration != null)
                     throw new ApplicationException("Multiple catch all registrations detected");
-                
+
                 catchAllRegistration = registration;
                 continue;
-            }    
-            
+            }
+
             switch (registration.method)
             {
                 case HttpMethods.Get:
@@ -91,7 +91,7 @@ export class Router
 
         this._koa.use(this._koaRouter.routes());
         this._koa.use(this._koaRouter.allowedMethods());
-        
+
         if (catchAllRegistration != null)
         {
             this._koa.use(async (ctx, _next) =>
@@ -108,7 +108,7 @@ export class Router
             await this._handleRequest(ctx, registration, false);
         });
     }
-    
+
     private _configurePost(registration: ControllerRegistration): void
     {
         this._koaRouter.post(registration.route.koaRoute, async (ctx) =>
@@ -132,54 +132,54 @@ export class Router
             await this._handleRequest(ctx, registration, true);
         });
     }
-    
+
     private async _handleRequest(ctx: KoaRouter.IRouterContext, registration: ControllerRegistration,
         processBody: boolean): Promise<void>
     {
         const profiler = <Profiler | null>ctx.state.profiler;
-        
+
         profiler?.trace("Request handling started");
-        
+
         const scope = ctx.state.scope as Scope;
         const callContext = scope.resolve<CallContext>(this._callContextKey);
-        
+
         profiler?.trace("Request callContext resolved");
-        
+
         if (registration.authorizeClaims)
         {
             if (!callContext.isAuthenticated)
                 throw new HttpException(401);
-            
+
             const authorizationHandler = scope.resolve<AuthorizationHandler>(this._authorizationHandlerKey);
             const authorized = await authorizationHandler.authorize(callContext.identity!, registration.authorizeClaims);
             profiler?.trace("Request authorized");
             if (!authorized)
-                throw new HttpException(403);    
-        }    
-        
+                throw new HttpException(403);
+        }
+
         const args = this._createRouteArgs(registration.route, ctx);
-        
+
         if (processBody)
             args.push(ctx.request.body);
-            
+
         profiler?.trace("Request args created");
-        
+
         const controllerInstance = scope.resolve<Controller>(registration.name);
         (<any>controllerInstance).__ctx = ctx;
-        
+
         profiler?.trace("Request controller created");
-        
+
         let result: any;
-        
-        try 
+
+        try
         {
             result = await controllerInstance.execute(...args);
         }
         catch (error)
         {
             if (!(error instanceof HttpRedirectException))
-                throw error;    
-            
+                throw error;
+
             ctx.redirect(error.url);
             return;
         }
@@ -187,21 +187,21 @@ export class Router
         {
             profiler?.trace("Request controller executed");
         }
-        
+
         if (registration.hasView)
         {
             let vm = result;
             if (typeof vm !== "object")
                 vm = { value: result };
-            
+
             let view = (await registration.retrieveView())!;
             const viewLayout = await registration.retrieveViewLayout();
             if (viewLayout !== null)
                 view = viewLayout.replaceAll("${view}", view);
-            
+
             let html = new Templator(view).render(vm);
-            
-            
+
+
             const config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
             html = html.replace("<body>",
                 `
@@ -211,15 +211,15 @@ export class Router
                     </script>
                 `);
             result = html;
-            
+
             profiler?.trace("Request view rendered");
         }
-        
+
         ctx.body = result;
-        
+
         profiler?.trace("Request handling ended");
     }
-    
+
     private _createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>
     {
         const queryParams = ctx.query as Record<string, string | null>;
@@ -239,7 +239,7 @@ export class Router
             {
                 const value = queryParams[key];
                 if (value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
-                    queryParams[key] = null;    
+                    queryParams[key] = null;
             }
         }
 

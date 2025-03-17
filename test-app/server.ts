@@ -20,6 +20,7 @@ import { SocketService } from "@nivinjoseph/n-sock/server";
 import { Delay, DisposableWrapper } from "@nivinjoseph/n-util";
 import { createClient, type RedisClientType } from "redis";
 import { NotFoundController } from "./controllers/web/not-found/not-found-controller.js";
+import { GetController, PostController } from "./controllers/api/http-methods-controller.js";
 // import { InMemoryEventBus, InMemoryEventSubMgr } from "@nivinjoseph/n-eda";
 
 
@@ -43,7 +44,8 @@ class AppInstaller implements ComponentInstaller
 }
 
 const controllers = [GetTodosController, GetTodoController, CreateTodoController,
-    UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController, NotFoundController];
+    UpdateTodoController, DeleteTodoController, HomeController, HomeWithLayoutController, NotFoundController,
+    GetController, PostController];
 
 // const eventHandlers = [TodoCreatedEventHandler];
 
