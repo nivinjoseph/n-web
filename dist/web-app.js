@@ -110,7 +110,7 @@ export class WebApp {
             filePath = filePath.substr(1);
         }
         filePath = path.join(process.cwd(), filePath);
-        // We skip the defensive check in dev because of webpack HMR 
+        // We skip the defensive check in dev because of webpack HMR
         if (ConfigurationManager.getConfig("env") !== "dev") {
             if (!fs.existsSync(filePath))
                 throw new ArgumentException("filePath[{0}]".format(filePath), "does not exist");
@@ -311,6 +311,7 @@ export class WebApp {
             catch (error) {
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 await this._logger.logWarning(`Error during request to URL '${ctx.url ?? "UNKNOWN"}'.`);
+                await this._logger.logWarning(error);
                 if (error instanceof HttpException) {
                     ctx.status = error.statusCode;
                     if (error.body !== undefined && error.body !== null)

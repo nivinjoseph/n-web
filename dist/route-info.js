@@ -103,18 +103,32 @@ export class RouteInfo {
         return templateParams;
     }
     _generateKoaRoute(routeTemplate) {
-        for (const routeParam of this._routeParams) {
-            const asItWas = "{" + routeParam.param + "}";
+        // remove all query params
+        const hasQueries = this._routeParams.some(t => t.isQuery);
+        if (hasQueries) {
+            this._routeParams.where(t => t.isQuery)
+                .forEach(t => {
+                const asItWas = "{" + t.param + "}";
+                if (!routeTemplate.contains(asItWas))
+                    throw new ApplicationException("Invalid route template." + asItWas);
+                routeTemplate = routeTemplate.replace(asItWas, ``);
+            });
+            // remove ? and &
+            routeTemplate = routeTemplate.replaceAll("&", "");
+            if (routeTemplate.endsWith("?"))
+                routeTemplate = routeTemplate.slice(0, routeTemplate.length - 1);
+        }
+        this._routeParams
+            .where(t => !t.isQuery)
+            .forEach(t => {
+            const asItWas = "{" + t.param + "}";
             if (!routeTemplate.contains(asItWas))
-                throw new ApplicationException("Invalid route template.");
-            routeTemplate = routeTemplate.replace(asItWas, ":{0}".format(routeParam.paramKey));
-        }
-        if (routeTemplate.contains("?")) {
-            const splitted = routeTemplate.split("?");
-            if (splitted.length > 2)
-                throw new ApplicationException("Invalid route template. Unresolvable '?' characters detected.");
-            routeTemplate = splitted[0];
-        }
+                throw new ApplicationException("Invalid route template." + asItWas);
+            if (t.isOptional)
+                routeTemplate = routeTemplate.replace(`/${asItWas}`, `{/:${t.paramKey}}`);
+            else
+                routeTemplate = routeTemplate.replace(asItWas, `:${t.paramKey}`);
+        });
         return routeTemplate;
     }
 }

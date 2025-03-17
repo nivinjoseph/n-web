@@ -1,5 +1,5 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { ApplicationException, InvalidArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { InvalidArgumentException, InvalidOperationException } from "@nivinjoseph/n-exception";
 import { TypeHelper } from "@nivinjoseph/n-util";
 import { HttpException } from "./exceptions/http-exception.js";
 export class RouteParam {
@@ -40,8 +40,6 @@ export class RouteParam {
             paramType = ParamTypes.any;
         }
         if (paramKey.endsWith("?")) {
-            if (!isQuery)
-                throw new ApplicationException("Path parameters cannot be optional.");
             paramKey = paramKey.substr(0, paramKey.length - 1);
             isOptional = true;
         }
