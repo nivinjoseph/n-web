@@ -1,5 +1,6 @@
 # n-web
 
+[![MIT License][license-image]][license]  [![NPM version][npm-version-image]][npm-url]
 
 ## Overview
 n-web is a modern, TypeScript-based web framework built on top of Koa.js. It provides a robust set of features for building web applications, including routing, authentication, authorization, exception handling, and more.
@@ -281,6 +282,3 @@ A complete example demonstrating all features can be found in the test-app direc
 
 ## Contributing
 Contributions are welcome! Please follow the existing code style and include tests for new features.
-
-## License
-[Add appropriate license information]
