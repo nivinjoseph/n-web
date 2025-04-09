@@ -281,3 +281,6 @@ A complete example demonstrating all features can be found in the test-app direc
 
 ## Contributing
 Contributions are welcome! Please follow the existing code style and include tests for new features.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
