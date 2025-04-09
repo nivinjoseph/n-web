@@ -32,7 +32,7 @@ import { WebApp } from "@nivinjoseph/n-web";
 const app = new WebApp(3000, "localhost");
 
 // Register controllers
-app.registerControllers(VersionController);
+app.registerControllers(GetUsersController, GetUserController, CreateUserController);
 
 // Enable features
 app.enableCors()
@@ -56,7 +56,7 @@ import { Controller, route, query } from "@nivinjoseph/n-web";
 import { given } from "@nivinjoseph/n-defensive";
 
 @query
-@route("api/users")
+@route("/api/users")
 export class GetUsersController extends Controller {
     public async execute(): Promise<Array<UserModel>> {
         // Get all users logic here
@@ -84,7 +84,7 @@ import { Controller, route, command } from "@nivinjoseph/n-web";
 import { given } from "@nivinjoseph/n-defensive";
 
 @command
-@route("api/createUser")
+@route("/api/createUser")
 export class CreateUserController extends Controller {
     public async execute(model: UserModel): Promise<UserModel> {
         given(model, "model").ensureHasValue().ensureIsObject();
@@ -107,7 +107,7 @@ For more granular control, you can use specific HTTP method decorators.
 ```typescript
 // GET Example - Get user by ID
 @httpGet
-@route("api/users/{id: string}")
+@route("/api/user/{id: string}")
 export class GetUserController extends Controller {
     public async execute(id: string): Promise<UserModel> {
         given(id, "id").ensureHasValue().ensureIsString();
@@ -123,7 +123,7 @@ export class GetUserController extends Controller {
 
 // POST Example - Create new user
 @httpPost
-@route("api/users")
+@route("/api/createUser")
 export class CreateUserController extends Controller {
     public async execute(model: UserModel): Promise<UserModel> {
         given(model, "model").ensureHasValue().ensureIsObject();
@@ -136,7 +136,7 @@ export class CreateUserController extends Controller {
 
 // PUT Example - Update user
 @httpPut
-@route("api/users/{id: string}")
+@route("/api/user/{id: string}")
 export class UpdateUserController extends Controller {
     public async execute(id: string, model: UserModel): Promise<UserModel> {
         given(id, "id").ensureHasValue().ensureIsString();
@@ -149,7 +149,7 @@ export class UpdateUserController extends Controller {
 
 // DELETE Example - Delete user
 @httpDelete
-@route("api/users/{id: string}")
+@route("/api/user/{id: string}")
 export class DeleteUserController extends Controller {
     public async execute(id: string): Promise<void> {
         given(id, "id").ensureHasValue().ensureIsString();
@@ -168,13 +168,13 @@ Path parameters are defined using `{paramName: type}` syntax. Supported types ar
 
 ```typescript
 // Required path parameters
-@route("api/users/{id: string}")
+@route("/api/users/{id: string}")
 
 // Multiple path parameters
-@route("api/users/{userId: string}/posts/{postId: number}")
+@route("/api/users/{userId: string}/posts/{postId: number}")
 
 // Optional path parameters
-@route("api/users/{userId: string}/posts/{page?: number}")
+@route("/api/users/{userId: string}/posts/{page?: number}")
 
 ```
 
@@ -184,20 +184,20 @@ Query parameters are defined using `{paramName: type}` syntax. Supported types a
 
 ```typescript
 // Required query parameters
-@route("api/searchUsers?{search: string}")
+@route("/api/searchUsers?{search: string}")
 
 // Multiple query parameters
-@route("api/searchUsers?{search: string}&{pageNumber: number}")
+@route("/api/searchUsers?{search: string}&{pageNumber: number}")
 
 // Optional query parameters
-@route("api/search?{query: string}&{page?: number}&{isExactMatch?: boolean}")
+@route("/api/search?{query: string}&{page?: number}&{isExactMatch?: boolean}")
 ```
 
 #### Combined Parameters
 Path and query parameters can be combined in the same route:
 
 ```typescript
-@route("api/users/{id: string}/posts?{category: string}&{isPublished?: boolean}")
+@route("/api/users/{id: string}/posts?{category: string}&{isPublished?: boolean}")
 ```
 
 ### Dependency Injection
@@ -218,7 +218,7 @@ container
 
 // 3. Use in controllers
 @query
-@route("api/users")
+@route("/api/users")
 @inject("UserRepository") 
 export class UsersController extends Controller {
     private readonly _userRepository: UserRepository;
