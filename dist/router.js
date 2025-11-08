@@ -29,6 +29,7 @@ export class Router {
         this._callContextKey = callContextKey;
         this._koaRouter = new KoaRouter();
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     registerControllers(...controllers) {
         for (const controller of controllers) {
             if (this._controllers.some(t => t.controller === controller))

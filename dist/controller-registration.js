@@ -13,6 +13,7 @@ import { viewLayoutSymbol } from "./view-layout.js";
 import { viewSymbol } from "./view.js";
 export class ControllerRegistration {
     _name;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     _controller;
     _method;
     _route;
@@ -26,12 +27,14 @@ export class ControllerRegistration {
     _viewLayoutFileData = null;
     _authorizeClaims = null;
     get name() { return this._name; }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     get controller() { return this._controller; }
     get method() { return this._method; }
     get route() { return this._route; }
     get hasView() { return this._viewFilePath != null; }
     get hasViewLayout() { return this._viewLayoutFilePath != null; }
     get authorizeClaims() { return this._authorizeClaims; }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     constructor(controller) {
         given(controller, "controller").ensureHasValue().ensureIsFunction();
         this._name = controller.getTypeName();
@@ -63,7 +66,6 @@ export class ControllerRegistration {
             return null;
         if (this._isDev()) {
             // const HmrHelper = (await import("./hmr-helper.js")).HmrHelper;// require("./hmr-helper").HmrHelper;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             // return HmrHelper.isConfigured
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8").toString()
             return readFileSync(this._viewFilePath, "utf8");
@@ -75,7 +77,6 @@ export class ControllerRegistration {
             return null;
         if (this._isDev()) {
             // const HmrHelper = require("./hmr-helper.js").HmrHelper;
-            // // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             // return HmrHelper.isConfigured
             //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")

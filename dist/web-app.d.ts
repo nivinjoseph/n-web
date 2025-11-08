@@ -51,7 +51,7 @@ export declare class WebApp {
     registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
     useViewResolutionRoot(path: string): this;
-    enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any>): this;
+    enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any, any, any>): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
     bootstrap(): void;
     private _configureCors;

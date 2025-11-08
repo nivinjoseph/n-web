@@ -422,7 +422,7 @@ export class WebApp {
             },
             () => {
                 return new Promise((resolve, reject) => {
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/no-floating-promises
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     this._logger.logInfo("CLOSING WEB SERVER...").finally(async () => {
                         if (!this._serverClosed) {
                             // eslint-disable-next-line @typescript-eslint/no-misused-promises

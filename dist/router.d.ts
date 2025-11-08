@@ -1,4 +1,3 @@
-/// <reference types="koa-bodyparser" />
 import { Container } from "@nivinjoseph/n-ject";
 import Koa from "koa";
 export declare class Router {
