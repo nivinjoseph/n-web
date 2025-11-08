@@ -74,7 +74,7 @@ export class WebApp
 
     private _enableWebSockets = false;
     private _corsOrigin: string | null = null;
-    private _socketServerRedisClient: RedisClientType<any, any, any> | null = null;
+    private _socketServerRedisClient: RedisClientType<any, any, any, any, any> | null = null;
     private _socketServer: SocketServer | null = null;
 
     private readonly _disposeActions = new Array<() => Promise<void>>();
@@ -267,7 +267,7 @@ export class WebApp
         return this;
     }
 
-    public enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any>): this
+    public enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any, any, any>): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("enableWebSockets");
@@ -603,7 +603,7 @@ export class WebApp
             {
                 return new Promise((resolve, reject) =>
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/no-floating-promises
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     this._logger.logInfo("CLOSING WEB SERVER...").finally(async () =>
                     {
                         if (!this._serverClosed)

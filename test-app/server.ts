@@ -74,12 +74,12 @@ app.bootstrap();
 
 async function createSRedisClient():
     Promise<{
-        client: RedisClientType<any, any, any>;
+        client: RedisClientType<any, any, any, any, any>;
         disposable: DisposableWrapper;
     }>
 {
 
-    let client: RedisClientType<any, any, any>;
+    let client: RedisClientType<any, any, any, any, any>;
     try
     {
         client = await createClient().connect();

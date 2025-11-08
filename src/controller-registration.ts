@@ -15,6 +15,7 @@ import { viewSymbol } from "./view.js";
 export class ControllerRegistration
 {
     private readonly _name: string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     private readonly _controller: Function;
     private _method!: string;
     private _route!: RouteInfo;
@@ -30,6 +31,7 @@ export class ControllerRegistration
 
 
     public get name(): string { return this._name; }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     public get controller(): Function { return this._controller; }
     public get method(): string { return this._method; }
     public get route(): RouteInfo { return this._route; }
@@ -38,6 +40,7 @@ export class ControllerRegistration
     public get authorizeClaims(): ReadonlyArray<Claim> | null { return this._authorizeClaims; }
 
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     public constructor(controller: Function)
     {
         given(controller, "controller").ensureHasValue().ensureIsFunction();
@@ -86,7 +89,6 @@ export class ControllerRegistration
         if (this._isDev())
         {
             // const HmrHelper = (await import("./hmr-helper.js")).HmrHelper;// require("./hmr-helper").HmrHelper;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             // return HmrHelper.isConfigured
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewFileName!), "utf8").toString()
             return readFileSync(this._viewFilePath!, "utf8");
@@ -103,7 +105,6 @@ export class ControllerRegistration
         if (this._isDev())
         {
             // const HmrHelper = require("./hmr-helper.js").HmrHelper;
-            // // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             // return HmrHelper.isConfigured
             //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             //     ? HmrHelper.devFs.readFileSync(path.resolve(HmrHelper.outputPath, this._viewLayoutFileName!), "utf8")

@@ -39,6 +39,7 @@ export class Router
     }
 
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     public registerControllers(...controllers: Array<Function>): void
     {
         for (const controller of controllers)
@@ -96,7 +97,7 @@ export class Router
         {
             this._koa.use(async (ctx, _next) =>
             {
-                await this._handleRequest(ctx as KoaRouter.IRouterContext, catchAllRegistration!, false);
+                await this._handleRequest(ctx as unknown as KoaRouter.IRouterContext, catchAllRegistration, false);
             });
         }
     }
