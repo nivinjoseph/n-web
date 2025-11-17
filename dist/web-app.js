@@ -20,6 +20,7 @@ import { HttpException } from "./exceptions/http-exception.js";
 import { Router } from "./router.js";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
 import { DefaultCallContext } from "./services/call-context/default-call-context.js";
+import { HealthCheckController } from "./controllers/health-check-controller.js";
 // public
 export class WebApp {
     _port;
@@ -80,6 +81,7 @@ export class WebApp {
         });
         this._koa = new Koa();
         this._router = new Router(this._koa, this._container, this._authorizationHandlerKey, this._callContextKey);
+        this._router.registerControllers(HealthCheckController);
         this._container.registerScoped(this._callContextKey, DefaultCallContext);
         this._container.registerScoped(this._authorizationHandlerKey, DefaultAuthorizationHandler);
         this._container.registerInstance(this._exceptionHandlerKey, new DefaultExceptionHandler(this._logger));
