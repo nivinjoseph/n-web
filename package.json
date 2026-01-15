@@ -1,6 +1,6 @@
 {
     "name": "@nivinjoseph/n-web",
-    "version": "5.0.7",
+    "version": "5.0.8",
     "description": "Koa based web application framework",
     "packageManager": "yarn@4.0.2",
     "type": "module",
@@ -21,7 +21,7 @@
         "node-watch": "node --watch --inspect=4000 --enable-source-maps ./test-app/server.js env=dev",
         "setup-redis-server": "docker run --name test-redis -p 6379:6379 -d redis:7.0 && sleep 5",
         "dev": "yarn ts-build && concurrently -p \"[{name}]\" -n \"TS,APP\" -c \"blue.bold,green.bold\"  \"yarn ts-compile-watch\" \"yarn node-watch\"",
-        "publish-package": "yarn ts-build-dist && git add . && git commit -m 'preparing to publish new version' && npm version patch && git push && npm publish --access=public"
+        "publish-package": "yarn ts-build-dist && git add . && git commit -m 'preparing to publish new version' && git push && npm publish --access=public"
     },
     "repository": {
         "type": "git",
@@ -39,7 +39,7 @@
     "homepage": "https://github.com/nivinjoseph/n-web#readme",
     "devDependencies": {
         "@eslint/js": "^9.39.1",
-        "@nivinjoseph/n-sock": "2.0.5",
+        "@nivinjoseph/n-sock": "2.0.6",
         "@nivinjoseph/n-validate": "^2.0.2",
         "@stylistic/eslint-plugin": "^5.5.0",
         "@types/kcors": "^2.2.9",
@@ -53,20 +53,20 @@
         "eslint": "^9.39.1",
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
-        "redis": "^5.9.0",
+        "redis": "^5.10.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.46.3"
     },
     "dependencies": {
-        "@nivinjoseph/n-config": "^2.0.2",
+        "@nivinjoseph/n-config": "^2.0.3",
         "@nivinjoseph/n-defensive": "^2.0.2",
         "@nivinjoseph/n-exception": "^2.0.2",
         "@nivinjoseph/n-ext": "^2.0.2",
-        "@nivinjoseph/n-ject": "^3.0.3",
-        "@nivinjoseph/n-log": "3.0.5",
-        "@nivinjoseph/n-sec": "^6.0.2",
-        "@nivinjoseph/n-svc": "3.0.3",
-        "@nivinjoseph/n-util": "^3.0.2",
+        "@nivinjoseph/n-ject": "^3.0.4",
+        "@nivinjoseph/n-log": "3.0.6",
+        "@nivinjoseph/n-sec": "^6.0.3",
+        "@nivinjoseph/n-svc": "3.0.6",
+        "@nivinjoseph/n-util": "^3.2.0",
         "kcors": "^2.2.2",
         "koa": "^3.1.1",
         "koa-bodyparser": "^4.4.1",
