@@ -1,4 +1,3 @@
-export interface ApplicationScript
-{
-    run(): Promise<void>;
-}
+import type { ServiceLocator } from "@nivinjoseph/n-ject";
+
+export type ApplicationScript = (serviceLocator: ServiceLocator) => Promise<void>;

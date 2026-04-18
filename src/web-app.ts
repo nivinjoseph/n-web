@@ -61,11 +61,8 @@ export class WebApp
 
     private readonly _logger: Logger;
 
-    private readonly _startupScriptKey = "$startupScript";
-    private _hasStartupScript = false;
-
-    private readonly _shutdownScriptKey = "$shutdownScript";
-    private _hasShutdownScript = false;
+    private  _startupScript: ApplicationScript | null = null;
+    private  _shutdownScript: ApplicationScript | null = null;
 
 
     private readonly _staticFilePaths = new Array<{ path: string; cache: boolean; defer: boolean; }>();
@@ -198,27 +195,25 @@ export class WebApp
         return this;
     }
 
-    public registerStartupScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this
+    public registerStartupScript(startupScript: ApplicationScript): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerStartupScript");
 
-        given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        given(startupScript, "startupScript").ensureHasValue().ensureIsFunction();
 
-        this._container.registerSingleton(this._startupScriptKey, applicationScriptClass);
-        this._hasStartupScript = true;
+        this._startupScript = startupScript;
         return this;
     }
 
-    public registerShutdownScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this
+    public registerShutdownScript(shutdownScript: ApplicationScript): this
     {
         if (this._isBootstrapped)
             throw new InvalidOperationException("registerShutdownScript");
 
-        given(applicationScriptClass, "applicationScriptClass").ensureHasValue().ensureIsFunction();
+        given(shutdownScript, "shutdownScript").ensureHasValue().ensureIsFunction();
 
-        this._container.registerSingleton(this._shutdownScriptKey, applicationScriptClass);
-        this._hasShutdownScript = true;
+        this._shutdownScript = shutdownScript;
         return this;
     }
 
@@ -391,8 +386,21 @@ export class WebApp
     {
         await this._logger.logInfo("WEB SERVER STARTING...");
 
-        if (this._hasStartupScript)
-            await this._container.resolve<ApplicationScript>(this._startupScriptKey).run();
+        if (this._startupScript != null)
+        {
+            await this._logger.logInfo("STARTUP SCRIPT EXECUTING...");
+            try
+            {
+                await this._startupScript(this._container);
+                await this._logger.logInfo("STARTUP SCRIPT COMPLETE");
+            }
+            catch (error)
+            {
+                await this._logger.logWarning("STARTUP SCRIPT ERROR");
+                await this._logger.logError(error as any);
+                throw error;
+            }
+        }
     }
 
     // this is the first
@@ -635,12 +643,12 @@ export class WebApp
             },
             async (): Promise<void> =>
             {
-                if (this._hasShutdownScript)
+                if (this._shutdownScript != null)
                 {
                     await this._logger.logInfo("SHUTDOWN SCRIPT EXECUTING...");
                     try
                     {
-                        await this._container.resolve<ApplicationScript>(this._shutdownScriptKey).run();
+                        await this._shutdownScript(this._container);
                         await this._logger.logInfo("SHUTDOWN SCRIPT COMPLETE");
                     }
                     catch (error)
