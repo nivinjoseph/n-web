@@ -21,10 +21,8 @@ export declare class WebApp {
     private _authHeaders;
     private readonly _authorizationHandlerKey;
     private readonly _logger;
-    private readonly _startupScriptKey;
-    private _hasStartupScript;
-    private readonly _shutdownScriptKey;
-    private _hasShutdownScript;
+    private _startupScript;
+    private _shutdownScript;
     private readonly _staticFilePaths;
     private _enableCors;
     private _enableCompression;
@@ -45,8 +43,8 @@ export declare class WebApp {
     registerStaticFilePath(filePath: string, cache?: boolean, defer?: boolean): this;
     registerControllers(...controllerClasses: ReadonlyArray<ClassHierarchy<Controller>>): this;
     useInstaller(installer: ComponentInstaller): this;
-    registerStartupScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this;
-    registerShutdownScript(applicationScriptClass: ClassHierarchy<ApplicationScript>): this;
+    registerStartupScript(startupScript: ApplicationScript): this;
+    registerShutdownScript(shutdownScript: ApplicationScript): this;
     registerExceptionHandler(exceptionHandlerClass: ClassHierarchy<ExceptionHandler>): this;
     registerAuthenticationHandler(authenticationHandler: ClassHierarchy<AuthenticationHandler>, ...authHeaders: Array<string>): this;
     registerAuthorizationHandler(authorizationHandler: ClassHierarchy<AuthorizationHandler>): this;
