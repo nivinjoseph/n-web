@@ -4,7 +4,7 @@ import { ApplicationException } from "@nivinjoseph/n-exception";
 import { Container, type Scope } from "@nivinjoseph/n-ject";
 import { Profiler, Templator } from "@nivinjoseph/n-util";
 import Koa from "koa";
-import KoaRouter from "koa-router";
+import { Router as KoaRouter, type RouterContext } from "@koa/router";
 import { ControllerRegistration } from "./controller-registration.js";
 import { Controller } from "./controller.js";
 import { HttpException } from "./exceptions/http-exception.js";
@@ -97,7 +97,7 @@ export class Router
         {
             this._koa.use(async (ctx, _next) =>
             {
-                await this._handleRequest(ctx as unknown as KoaRouter.IRouterContext, catchAllRegistration, false);
+                await this._handleRequest(ctx as unknown as RouterContext, catchAllRegistration, false);
             });
         }
     }
@@ -134,7 +134,7 @@ export class Router
         });
     }
 
-    private async _handleRequest(ctx: KoaRouter.IRouterContext, registration: ControllerRegistration,
+    private async _handleRequest(ctx: RouterContext, registration: ControllerRegistration,
         processBody: boolean): Promise<void>
     {
         const profiler = <Profiler | null>ctx.state.profiler;
@@ -221,7 +221,7 @@ export class Router
         profiler?.trace("Request handling ended");
     }
 
-    private _createRouteArgs(route: RouteInfo, ctx: KoaRouter.IRouterContext): Array<any>
+    private _createRouteArgs(route: RouteInfo, ctx: RouterContext): Array<any>
     {
         const queryParams = ctx.query as Record<string, string | null>;
         const pathParams = ctx.params;

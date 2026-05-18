@@ -53,3 +53,5 @@ test-app/**/*.map
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+**/.DS_Store
