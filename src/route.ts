@@ -16,9 +16,10 @@ export function route<This extends Controller>(route: string): ControllerRouteDe
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             .ensure(t => t.kind === "class", "route decorator should only be used on a class");
 
-        const className = context.name!;
-        given(className, className).ensureHasValue().ensureIsString()
-            .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with route must extend Controller class`);
+        const className = context.name || "<anonymous>";
+        given(target, "target")
+            .ensureHasValue()
+            .ensure(t => t.prototype instanceof Controller, `class '${className}' decorated with route must extend Controller class`);
 
         context.metadata[httpRouteSymbol] = route;
     };

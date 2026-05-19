@@ -11,9 +11,10 @@ export function command<This extends Controller>(target: ControllerClass<This>,
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         .ensure(t => t.kind === "class", "command decorator should only be used on a class");
 
-    const className = context.name!;
-    given(className, className).ensureHasValue().ensureIsString()
-        .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with command must extend Controller class`);
+    const className = context.name || "<anonymous>";
+    given(target, "target")
+        .ensureHasValue()
+        .ensure(t => t.prototype instanceof Controller, `class '${className}' decorated with command must extend Controller class`);
 
 
     context.metadata[httpMethodSymbol] = HttpMethods.Post;
