@@ -4,7 +4,7 @@ import { ApplicationException } from "@nivinjoseph/n-exception";
 import { Container } from "@nivinjoseph/n-ject";
 import { Profiler, Templator } from "@nivinjoseph/n-util";
 import Koa from "koa";
-import KoaRouter from "koa-router";
+import { Router as KoaRouter } from "@koa/router";
 import { ControllerRegistration } from "./controller-registration.js";
 import { Controller } from "./controller.js";
 import { HttpException } from "./exceptions/http-exception.js";

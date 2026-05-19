@@ -10,9 +10,10 @@ export function authorize(...claims) {
         given(context, "context")
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             .ensure(t => t.kind === "class", "authorize decorator should only be used on a class");
-        const className = context.name;
-        given(className, className).ensureHasValue().ensureIsString()
-            .ensure(_ => target.prototype instanceof Controller, `class '${className}' decorated with authorize must extend Controller class`);
+        const className = context.name || "<anonymous>";
+        given(target, "target")
+            .ensureHasValue()
+            .ensure(t => t.prototype instanceof Controller, `class '${className}' decorated with authorize must extend Controller class`);
         context.metadata[authorizeSymbol] = claims;
     };
     return decorator;
