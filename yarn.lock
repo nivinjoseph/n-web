@@ -297,9 +297,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nivinjoseph/n-sock@npm:2.0.8":
-  version: 2.0.8
-  resolution: "@nivinjoseph/n-sock@npm:2.0.8"
+"@nivinjoseph/n-sock@npm:2.0.11":
+  version: 2.0.11
+  resolution: "@nivinjoseph/n-sock@npm:2.0.11"
   dependencies:
     "@nivinjoseph/n-defensive": "npm:2.0.3"
     "@nivinjoseph/n-exception": "npm:2.0.3"
@@ -312,7 +312,7 @@ __metadata:
     socket.io: "npm:4.8.3"
     socket.io-client: "npm:4.8.3"
     utf-8-validate: "npm:6.0.6"
-  checksum: 10c0/1943e58ee2512fa3068a674e831c65b6066d1b29a5979e4eddb1e4c10e84bbd3da231f22da806953a3214db7373f3fb7ef7a6bce6fbc0616b5d6fd6aafcce4e7
+  checksum: 10c0/842f88c3f1490e7d09ff1d26f2f73ae5a15a4ea4ec5cc030e3154b577202b59eb4190a975317d44daf43ef17dfee696b8d0d60e893dc77199eb4e1b45921e8b6
   languageName: node
   linkType: hard
 
@@ -371,7 +371,7 @@ __metadata:
     "@nivinjoseph/n-ject": "npm:3.0.6"
     "@nivinjoseph/n-log": "npm:3.0.8"
     "@nivinjoseph/n-sec": "npm:7.0.2"
-    "@nivinjoseph/n-sock": "npm:2.0.8"
+    "@nivinjoseph/n-sock": "npm:2.0.11"
     "@nivinjoseph/n-svc": "npm:3.0.8"
     "@nivinjoseph/n-util": "npm:4.0.2"
     "@nivinjoseph/n-validate": "npm:3.0.1"

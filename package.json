@@ -39,7 +39,6 @@
     "homepage": "https://github.com/nivinjoseph/n-web#readme",
     "devDependencies": {
         "@eslint/js": "9.39.1",
-        "@nivinjoseph/n-sock": "2.0.8",
         "@nivinjoseph/n-validate": "3.0.1",
         "@stylistic/eslint-plugin": "5.5.0",
         "@types/kcors": "2.2.9",
@@ -65,6 +64,7 @@
         "@nivinjoseph/n-ject": "3.0.6",
         "@nivinjoseph/n-log": "3.0.8",
         "@nivinjoseph/n-sec": "7.0.2",
+        "@nivinjoseph/n-sock": "2.0.11",
         "@nivinjoseph/n-svc": "3.0.8",
         "@nivinjoseph/n-util": "4.0.2",
         "kcors": "2.2.2",

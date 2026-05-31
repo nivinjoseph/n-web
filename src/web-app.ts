@@ -334,22 +334,19 @@ export class WebApp
                 this._configureRouting(); // must be last
                 // this is the request response pipeline END
 
+                this._server = Http.createServer();
+                
+                return this._configureWebSockets();
+            })
+            .then(async () =>
+            {
                 const appEnv = ConfigurationManager.getConfig<string>("env");
                 const appName = ConfigurationManager.getConfig<string>("package.name");
                 const appVersion = ConfigurationManager.getConfig<string>("package.version");
                 const appDescription = ConfigurationManager.getConfig<string>("package.description");
-
-                return this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-            })
-            .then(async () =>
-            {
-                this._server = Http.createServer();
-                this._server.on("close", () =>
-                {
-                    this._serverClosed = true;
-                });
                 
-                this._configureWebSockets();
+                await this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
+                
                 this._configureShutDown();
 
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -584,16 +581,23 @@ export class WebApp
         this._router.configureRouting(this._viewResolutionRoot ?? undefined);
     }
 
-    private _configureWebSockets(): void
+    private async _configureWebSockets(): Promise<void>
     {
         if (!this._enableWebSockets)
             return;
 
-        this._socketServer = new SocketServer(this._server, this._corsOrigin!, this._socketServerRedisClient!);
+        const socketServer = new SocketServer(this._server, this._corsOrigin!, this._socketServerRedisClient!);
+        await socketServer.initialize();
+        this._socketServer = socketServer;
     }
 
     private _configureShutDown(): void
     {
+        this._server.on("close", () =>
+        {
+            this._serverClosed = true;
+        });
+        
         this.registerDisposeAction(async () =>
         {
             await this._logger.logInfo("CLEANING UP. PLEASE WAIT...");
