@@ -5,7 +5,7 @@ export class DefaultConfigService implements ConfigService
 {
     public getBaseUrl(): Promise<string>
     {
-        const value = ConfigurationManager.getConfig<string>("baseUrl");
+        const value = ConfigurationManager.requireStringConfig("baseUrl");
         return Promise.resolve(value);
     }
 }

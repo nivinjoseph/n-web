@@ -200,7 +200,7 @@ export class Router
             if (viewLayout !== null)
                 view = viewLayout.replaceAll("${view}", view);
 
-            let html = new Templator(view).render(vm);
+            let html = new Templator(view).renderHtml(vm);
 
 
             const config = Object.assign({ env: ConfigurationManager.getConfig("env") }, vm.config || {});
