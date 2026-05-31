@@ -63,9 +63,7 @@ export class DefaultCallContext {
                 let authorization = this._ctx.header[authHeader];
                 if (authorization.isEmptyOrWhiteSpace())
                     continue;
-                authorization = authorization.trim();
-                while (authorization.contains("  ")) // double space
-                    authorization = authorization.replaceAll("  ", " ");
+                authorization = authorization.trim().replace(/ {2,}/g, " ");
                 const splitted = authorization.split(" ");
                 if (splitted.length !== 2)
                     continue;

@@ -220,11 +220,6 @@ export class WebApp {
         this._configureContainer();
         this._configureStartup()
             .then(() => {
-            this._server = Http.createServer();
-            this._server.listen(this._port, this._host ?? undefined);
-            this._server.on("close", () => {
-                this._serverClosed = true;
-            });
             // this is the request response pipeline START
             this._configureScoping(); // must be first
             this._configureCallContext();
@@ -233,23 +228,36 @@ export class WebApp {
             this._configureErrorTrapping();
             this._configureAuthentication();
             this._configureStaticFileServing();
-        })
-            .then(async () => {
             this._configureBodyParser();
             this._configureRouting(); // must be last
             // this is the request response pipeline END
+            this._server = Http.createServer();
+            return this._configureWebSockets();
+        })
+            .then(async () => {
             const appEnv = ConfigurationManager.getConfig("env");
             const appName = ConfigurationManager.getConfig("package.name");
             const appVersion = ConfigurationManager.getConfig("package.version");
             const appDescription = ConfigurationManager.getConfig("package.description");
             await this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-            // this._server = Http.createServer(this._koa.callback());
-            this._configureWebSockets();
             this._configureShutDown();
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             this._server.on("request", this._koa.callback());
+            await new Promise((resolve, reject) => {
+                const onError = (err) => {
+                    this._server.off("listening", onListening);
+                    reject(err);
+                };
+                const onListening = () => {
+                    this._server.off("error", onError);
+                    resolve();
+                };
+                this._server.once("error", onError);
+                this._server.once("listening", onListening);
+                this._server.listen(this._port, this._host ?? undefined);
+            });
             this._isBootstrapped = true;
-            await this._logger.logInfo("WEB SERVER STARTED");
+            return this._logger.logInfo("WEB SERVER STARTED");
         })
             .catch(async (e) => {
             await this._logger.logWarning("WEB SERVER STARTUP FAILED");
@@ -398,12 +406,17 @@ export class WebApp {
     _configureRouting() {
         this._router.configureRouting(this._viewResolutionRoot ?? undefined);
     }
-    _configureWebSockets() {
+    async _configureWebSockets() {
         if (!this._enableWebSockets)
             return;
-        this._socketServer = new SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
+        const socketServer = new SocketServer(this._server, this._corsOrigin, this._socketServerRedisClient);
+        await socketServer.initialize();
+        this._socketServer = socketServer;
     }
     _configureShutDown() {
+        this._server.on("close", () => {
+            this._serverClosed = true;
+        });
         this.registerDisposeAction(async () => {
             await this._logger.logInfo("CLEANING UP. PLEASE WAIT...");
             // return Delay.seconds(ConfigurationManager.getConfig<string>("env") === "dev" ? 2 : 20);
