@@ -321,13 +321,6 @@ export class WebApp
         this._configureStartup()
             .then(() =>
             {
-                this._server = Http.createServer();
-                this._server.listen(this._port, this._host ?? undefined);
-                this._server.on("close", () =>
-                {
-                    this._serverClosed = true;
-                });
-
                 // this is the request response pipeline START
                 this._configureScoping(); // must be first
                 this._configureCallContext();
@@ -336,9 +329,7 @@ export class WebApp
                 this._configureErrorTrapping();
                 this._configureAuthentication();
                 this._configureStaticFileServing();
-            })
-            .then(async () =>
-            {
+                
                 this._configureBodyParser();
                 this._configureRouting(); // must be last
                 // this is the request response pipeline END
@@ -348,16 +339,41 @@ export class WebApp
                 const appVersion = ConfigurationManager.getConfig<string>("package.version");
                 const appDescription = ConfigurationManager.getConfig<string>("package.description");
 
-                await this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
-                // this._server = Http.createServer(this._koa.callback());
+                return this._logger.logInfo(`ENV: ${appEnv}; NAME: ${appName}; VERSION: ${appVersion}; DESCRIPTION: ${appDescription}.`);
+            })
+            .then(async () =>
+            {
+                this._server = Http.createServer();
+                this._server.on("close", () =>
+                {
+                    this._serverClosed = true;
+                });
+                
                 this._configureWebSockets();
                 this._configureShutDown();
 
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 this._server.on("request", this._koa.callback());
 
+                await new Promise<void>((resolve, reject) =>
+                {
+                    const onError = (err: Error): void =>
+                    {
+                        this._server.off("listening", onListening);
+                        reject(err);
+                    };
+                    const onListening = (): void =>
+                    {
+                        this._server.off("error", onError);
+                        resolve();
+                    };
+                    this._server.once("error", onError);
+                    this._server.once("listening", onListening);
+                    this._server.listen(this._port, this._host ?? undefined);
+                });
+
                 this._isBootstrapped = true;
-                await this._logger.logInfo("WEB SERVER STARTED");
+                return this._logger.logInfo("WEB SERVER STARTED");
             })
             .catch(async e =>
             {

@@ -39,8 +39,8 @@
     "homepage": "https://github.com/nivinjoseph/n-web#readme",
     "devDependencies": {
         "@eslint/js": "9.39.1",
-        "@nivinjoseph/n-sock": "2.0.6",
-        "@nivinjoseph/n-validate": "2.0.2",
+        "@nivinjoseph/n-sock": "2.0.8",
+        "@nivinjoseph/n-validate": "3.0.1",
         "@stylistic/eslint-plugin": "5.5.0",
         "@types/kcors": "2.2.9",
         "@types/koa": "3.0.1",
@@ -52,7 +52,7 @@
         "eslint": "9.39.1",
         "eslint-import-resolver-typescript": "4.4.4",
         "eslint-plugin-import": "2.32.0",
-        "redis": "5.10.0",
+        "redis": "5.12.1",
         "typescript": "5.9.3",
         "typescript-eslint": "8.46.3"
     },

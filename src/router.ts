@@ -223,24 +223,29 @@ export class Router
 
     private _createRouteArgs(route: RouteInfo, ctx: RouterContext): Array<any>
     {
-        const queryParams = ctx.query as Record<string, string | null>;
+        const queryParams = ctx.query;
         const pathParams = ctx.params;
         const model: { [index: string]: any; } = {};
 
         for (const key in queryParams)
         {
+            const rawValue = queryParams[key];
+
+            // Single-valued route params do not accept repeated query keys (e.g. ?id=1&id=2).
+            if (Array.isArray(rawValue))
+                throw new HttpException(400, `Query parameter '${key}' was provided multiple times.`);
+
             const routeParam = route.findRouteParam(key);
             if (routeParam)
             {
-                const parsed = routeParam.parseParam(queryParams[key] as string);
+                const parsed = routeParam.parseParam(rawValue ?? null);
                 model[routeParam.paramKey] = parsed;
-                queryParams[key] = parsed;
+                (queryParams as Record<string, any>)[key] = parsed;
             }
             else
             {
-                const value = queryParams[key];
-                if (value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null")
-                    queryParams[key] = null;
+                if (rawValue == null || rawValue.isEmptyOrWhiteSpace() || rawValue.trim().toLowerCase() === "null")
+                    (queryParams as Record<string, any>)[key] = null;
             }
         }
 

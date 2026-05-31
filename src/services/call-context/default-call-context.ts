@@ -95,9 +95,7 @@ export class DefaultCallContext implements CallContext
                 if (authorization.isEmptyOrWhiteSpace())
                     continue;
                 
-                authorization = authorization.trim();
-                while (authorization.contains("  ")) // double space
-                    authorization = authorization.replaceAll("  ", " ");
+                authorization = authorization.trim().replace(/ {2,}/g, " ");
 
                 const splitted = authorization.split(" ");
                 if (splitted.length !== 2)
