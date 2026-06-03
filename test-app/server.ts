@@ -33,13 +33,15 @@ const redisServiceClient = await createSRedisClient();
 
 class AppInstaller implements ComponentInstaller
 {
-    public install(registry: Registry): void
+    public install(registry: Registry): Promise<void>
     {
         registry
             .registerSingleton("TodoManager", InmemoryTodoManager)
             .registerSingleton("ConfigService", DefaultConfigService)
             .registerInstance("Logger", logger)
             .registerInstance("SocketService", new SocketService(redisServiceClient.client));
+        
+        return Promise.resolve();
     }
 }
 
@@ -69,7 +71,7 @@ const app = new WebApp(ConfigurationManager.requireNumberConfig("port"), null, n
     .registerDisposeAction(() => redisServerClient.disposable.dispose())
     .registerDisposeAction(() => redisServiceClient.disposable.dispose());
 
-app.bootstrap();
+await app.bootstrap();
 
 
 async function createSRedisClient():
