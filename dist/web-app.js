@@ -213,13 +213,13 @@ export class WebApp {
         });
         return this;
     }
-    bootstrap() {
+    async bootstrap() {
         if (this._isBootstrapped)
             throw new InvalidOperationException("bootstrap");
         this._configureCors();
-        this._configureContainer();
-        this._configureStartup()
-            .then(() => {
+        await this._configureContainer();
+        try {
+            await this._configureStartup();
             // this is the request response pipeline START
             this._configureScoping(); // must be first
             this._configureCallContext();
@@ -232,9 +232,7 @@ export class WebApp {
             this._configureRouting(); // must be last
             // this is the request response pipeline END
             this._server = Http.createServer();
-            return this._configureWebSockets();
-        })
-            .then(async () => {
+            await this._configureWebSockets();
             const appEnv = ConfigurationManager.getConfig("env");
             const appName = ConfigurationManager.getConfig("package.name");
             const appVersion = ConfigurationManager.getConfig("package.version");
@@ -257,21 +255,21 @@ export class WebApp {
                 this._server.listen(this._port, this._host ?? undefined);
             });
             this._isBootstrapped = true;
-            return this._logger.logInfo("WEB SERVER STARTED");
-        })
-            .catch(async (e) => {
+            await this._logger.logInfo("WEB SERVER STARTED");
+        }
+        catch (error) {
             await this._logger.logWarning("WEB SERVER STARTUP FAILED");
-            await this._logger.logError(e);
-            throw e;
-        });
+            await this._logger.logError(error);
+            throw error;
+        }
     }
     _configureCors() {
         if (this._enableCors)
             this._koa.use(cors());
     }
-    _configureContainer() {
+    async _configureContainer() {
         if (this._ownsContainer)
-            this._container.bootstrap();
+            await this._container.bootstrap();
         this.registerDisposeAction(() => this._container.dispose());
     }
     async _configureStartup() {

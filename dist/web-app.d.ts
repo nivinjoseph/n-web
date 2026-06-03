@@ -51,7 +51,7 @@ export declare class WebApp {
     useViewResolutionRoot(path: string): this;
     enableWebSockets(corsOrigin: string, socketServerRedisClient: RedisClientType<any, any, any, any, any>): this;
     registerDisposeAction(disposeAction: () => Promise<void>): this;
-    bootstrap(): void;
+    bootstrap(): Promise<void>;
     private _configureCors;
     private _configureContainer;
     private _configureStartup;
