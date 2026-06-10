@@ -1,6 +1,8 @@
 import "@nivinjoseph/n-ext";
 import { command } from "./command.js";
+import { CommandController } from "./command-controller.js";
 import { Controller } from "./controller.js";
+import { QueryController } from "./query-controller.js";
 import { httpDelete, httpGet, httpPost, httpPut } from "./http-method.js";
 import { query } from "./query.js";
 import { route } from "./route.js";
@@ -17,7 +19,5 @@ import {} from "./security/authentication-handler.js";
 import {} from "./security/authorization-handler.js";
 import { authorize } from "./security/authorize.js";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
-//@ts-expect-error polyfill to use metadata object
-Symbol.metadata ??= Symbol("Symbol.metadata");
-export { authorize, command, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete, HttpException, httpGet, httpPost, httpPut, query, route, Utils, view, viewLayout, WebApp };
+export { authorize, command, CommandController, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete, HttpException, httpGet, httpPost, httpPut, query, QueryController, route, Utils, view, viewLayout, WebApp };
 //# sourceMappingURL=index.js.map
