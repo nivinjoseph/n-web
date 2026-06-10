@@ -1,16 +1,16 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { inject } from "@nivinjoseph/n-ject";
-import { Controller, Utils, httpGet, route, type CallContext } from "./../../../src/index.js";
+import { QueryController, Utils, route, type CallContext } from "./../../../src/index.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
 import * as Routes from "./../routes.js";
 
-@httpGet
+// the GET http method is inherited from QueryController
 @route(Routes.getTodos)
-// @route("/*")    
+// @route("/*")
 // @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "CallContext")
-export class GetTodosController extends Controller
+export class GetTodosController extends QueryController<TodoListResponse>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
@@ -28,7 +28,7 @@ export class GetTodosController extends Controller
         this._callContext = callContext;
     }
 
-    public async execute($search?: string, _$pageNumber?: number, _$pageSize?: number): Promise<object>
+    public override async execute($search?: string, _$pageNumber?: number, _$pageSize?: number): Promise<TodoListResponse>
     {
         // if (!$search)
         //     throw new ApplicationException("this is a test1");
@@ -69,4 +69,19 @@ export class GetTodosController extends Controller
             }
         };
     }
+}
+
+export interface TodoListResponse
+{
+    items: Array<{
+        id: number;
+        title: string;
+        links: {
+            self: string;
+        };
+    }>;
+    links: {
+        create: string;
+        test: string;
+    };
 }

@@ -3,7 +3,7 @@ import { inject } from "@nivinjoseph/n-ject";
 import { SocketService } from "@nivinjoseph/n-sock/server";
 import { Validator, strval } from "@nivinjoseph/n-validate";
 import { AppClaims } from "../../security/app-claims.js";
-import { Controller, HttpException, Utils, authorize, command, route } from "./../../../src/index.js";
+import { CommandController, HttpException, Utils, authorize, route } from "./../../../src/index.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
 import * as Routes from "./../routes.js";
@@ -11,11 +11,11 @@ import * as Routes from "./../routes.js";
 // import { EventBus } from "@nivinjoseph/n-eda";
 
 
-@command
+// the POST http method is inherited from CommandController
 @route(Routes.createTodo)
 @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "SocketService")
-export class CreateTodoController extends Controller
+export class CreateTodoController extends CommandController<CreateTodoRequest, CreateTodoResponse>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
@@ -37,7 +37,7 @@ export class CreateTodoController extends Controller
     }
 
 
-    public async execute(model: Model): Promise<any>
+    public override async execute(model: CreateTodoRequest): Promise<CreateTodoResponse>
     {
         this._validateModel(model);
 
@@ -59,9 +59,9 @@ export class CreateTodoController extends Controller
         };
     }
 
-    private _validateModel(model: Model): void
+    private _validateModel(model: CreateTodoRequest): void
     {
-        const validator = new Validator<Model>();
+        const validator = new Validator<CreateTodoRequest>();
         validator.prop("title").isRequired().useValidationRule(strval.hasMaxLength(10));
         validator.prop("description").isOptional().useValidationRule(strval.hasMaxLength(100));
 
@@ -71,8 +71,20 @@ export class CreateTodoController extends Controller
     }
 }
 
-interface Model
+export interface CreateTodoRequest
 {
     title: string;
     description: string;
+}
+
+export interface CreateTodoResponse
+{
+    id: number;
+    title: string;
+    description: string;
+    links: {
+        self: string;
+        update: string;
+        delete: string;
+    };
 }

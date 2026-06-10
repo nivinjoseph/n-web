@@ -1,6 +1,8 @@
 import "@nivinjoseph/n-ext";
 import { command } from "./command.js";
+import { CommandController, type CommandControllerRequestBody, type CommandControllerResponseBody } from "./command-controller.js";
 import { Controller, type ControllerClass } from "./controller.js";
+import { QueryController, type QueryControllerResponseBody } from "./query-controller.js";
 import { httpDelete, httpGet, httpPost, httpPut } from "./http-method.js";
 import { query } from "./query.js";
 import { route, type ControllerRouteDecorator } from "./route.js";
@@ -23,19 +25,18 @@ import { authorize, type ControllerAuthorizeDecorator } from "./security/authori
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
 
 
-//@ts-expect-error polyfill to use metadata object
-Symbol.metadata ??= Symbol("Symbol.metadata");
-
 export
 {
-    authorize, command, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete,
-    HttpException, httpGet, httpPost, httpPut, query, route, Utils, view, viewLayout, WebApp
+    authorize, command, CommandController, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete,
+    HttpException, httpGet, httpPost, httpPut, query, QueryController, route, Utils, view, viewLayout, WebApp
 };
 export type {
     ApplicationScript,
 
-    AuthenticationHandler, AuthorizationHandler, CallContext, ControllerAuthorizeDecorator,
-    ControllerClass, ControllerRouteDecorator, ControllerViewDecorator, ControllerViewLayoutDecorator, ExceptionHandler
+    AuthenticationHandler, AuthorizationHandler, CallContext,
+    CommandControllerRequestBody, CommandControllerResponseBody, ControllerAuthorizeDecorator,
+    ControllerClass, ControllerRouteDecorator, ControllerViewDecorator, ControllerViewLayoutDecorator,
+    ExceptionHandler, QueryControllerResponseBody
 };
 
 

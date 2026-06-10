@@ -1,15 +1,15 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { inject } from "@nivinjoseph/n-ject";
-import { Controller, Utils, query, route } from "./../../../src/index.js";
+import { QueryController, Utils, route } from "./../../../src/index.js";
 import { TodoNotFoundException } from "./../../exceptions/todo-not-found-exception.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
 import * as Routes from "./../routes.js";
 
-@query
-@route(Routes.getTodo)  
-@inject("TodoManager", "ConfigService")    
-export class GetTodoController extends Controller
+// the GET http method is inherited from QueryController
+@route(Routes.getTodo)
+@inject("TodoManager", "ConfigService")
+export class GetTodoController extends QueryController<TodoResponse>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;
@@ -25,7 +25,7 @@ export class GetTodoController extends Controller
     }
     
     
-    public async execute(id: number): Promise<any>
+    public override async execute(id: number): Promise<TodoResponse>
     {
         const todos = await this._todoManager.getTodos();
         const todo = todos.find(t => t.id === id);
@@ -44,4 +44,16 @@ export class GetTodoController extends Controller
             }
         };
     }
+}
+
+export interface TodoResponse
+{
+    id: number;
+    title: string;
+    description: string;
+    links: {
+        self: string;
+        update: string;
+        delete: string;
+    };
 }

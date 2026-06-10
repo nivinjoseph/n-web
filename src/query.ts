@@ -1,11 +1,11 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { Controller, type ControllerClass } from "./controller.js";
+import { type AbstractControllerClass, Controller } from "./controller.js";
 import { HttpMethods, httpMethodSymbol } from "./http-method.js";
 
 
 // public
-export function query<This extends Controller>(target: ControllerClass<This>,
-    context: ClassDecoratorContext<ControllerClass<This>>): void
+export function query<This extends Controller>(target: AbstractControllerClass<This>,
+    context: ClassDecoratorContext<AbstractControllerClass<This>>): void
 {
     given(context, "context")
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
