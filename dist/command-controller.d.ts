@@ -1,6 +1,6 @@
 import { Controller } from "./controller.js";
 import type { ControllerRoute, ControllerRouteParams } from "./route-params.js";
-export declare abstract class CommandController<TReqBody, TResBody, TRoute extends string = string> extends Controller {
+export declare abstract class CommandController<TReqBody, TResBody, TRoute extends string> extends Controller {
     readonly __route?: TRoute;
     abstract execute(...params: [...routeParams: Array<any>, body: TReqBody]): Promise<TResBody>;
 }
