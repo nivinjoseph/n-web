@@ -276,15 +276,15 @@ app.registerShutdownScript(MyShutdownScript);
 
 A route template already encodes its parameter names and types (`{id: string}`, `{$search?: string}`), and a controller already declares its request/response body types. n-web lets you **reuse both as the source of truth** to build a client SDK that is fully type-checked against the server — rename a route param or change a controller's body type and the SDK (and every call site) stops compiling until it's fixed.
 
-The pieces fit together as: **route literal + controller → an endpoint type → one generic argument to `RpcClient`**. A pure client doesn't need the server framework, so all of this ships from a lightweight `/client` entry point.
+The pieces fit together as: **a controller declares the route it serves → an endpoint type derives the route, params, and bodies from that controller → one generic argument to `RpcClient`**. Because the route lives on the controller (and `@route` is forced to match it), nothing downstream can drift. A pure client doesn't need the server framework, so all of this ships from a lightweight `/client` entry point.
 
 ### The building blocks
 
 | Export | From | Purpose |
 | --- | --- | --- |
 | `RpcClient` | `@nivinjoseph/n-web/client` | A type-safe HTTP client. `query`/`command` each take a **single endpoint type** as their generic, so the route, params, request body, and response body are all validated together. Handles url generation, base-url joining, JSON, timeouts, and error handling. |
-| `QueryEndpoint<typeof route, TController>` | `@nivinjoseph/n-web/client` | Bundles a route literal with the `QueryController` that serves it into one contract — `{ route, params, res }`. `res` is derived from the controller, so it can't drift from the server. |
-| `CommandEndpoint<typeof route, TController>` | `@nivinjoseph/n-web/client` | Like `QueryEndpoint`, plus `req` — bundles `{ route, params, req, res }` from the `CommandController`. |
+| `QueryEndpoint<TController>` | `@nivinjoseph/n-web/client` | Derives a full contract — `{ route, params, res }` — from the `QueryController` that serves it. The route comes from the controller's *own declared route*, so there is no route argument that can be wrong. |
+| `CommandEndpoint<TController>` | `@nivinjoseph/n-web/client` | Like `QueryEndpoint`, plus `req` — `{ route, params, req, res }`, all derived from the `CommandController`. |
 | `RpcException` / `RpcErrorHandler` / `RpcExceptionData` | `@nivinjoseph/n-web/client` | The error thrown by `RpcClient` on a non-2xx response, plus the optional global error-handler hook. |
 | `Utils.generateUrl(route, params, baseUrl)` | `@nivinjoseph/n-web/client` | Builds a URL from a route template; `params` is type-checked against the route literal, and omitted/`null` optional params are dropped. Used internally by `RpcClient`; available directly too. |
 | `ControllerRouteParams<typeof route>` | `@nivinjoseph/n-web/client` | Resolves a route template literal to its typed params object — `{ id: string }`, or `{ $search?: string \| null }` for optional query params. |
@@ -312,7 +312,7 @@ export class Routes {
 
 ### Step 2 — use the typed controller base classes
 
-For the contract types to be extractable, controllers must extend `QueryController<TResBody>` or `CommandController<TReqBody, TResBody>` (rather than the bare `Controller`), and reference the shared routes:
+Controllers extend `QueryController<TResBody, TRoute>` or `CommandController<TReqBody, TResBody, TRoute>` (rather than the bare `Controller`), where `TRoute` is the route they serve — supplied as `typeof Routes...`. Declaring `TRoute` does two things: it lets the endpoint types derive the route straight from the controller, and it makes `@route` **enforce** that the decorator's route matches.
 
 ```typescript
 import { QueryController, CommandController, httpGet, httpPost, route } from "@nivinjoseph/n-web";
@@ -320,20 +320,27 @@ import { Routes } from "./routes.js";
 
 @httpGet
 @route(Routes.query.getUser)
-export class GetUserController extends QueryController<UserModel> {
+export class GetUserController extends QueryController<UserModel, typeof Routes.query.getUser> {
     public override async execute(id: string): Promise<UserModel> { /* ... */ }
 }
 
 @httpPost
 @route(Routes.command.createUser)
-export class CreateUserController extends CommandController<CreateUserBody, UserModel> {
+export class CreateUserController extends CommandController<CreateUserBody, UserModel, typeof Routes.command.createUser> {
     public override async execute(body: CreateUserBody): Promise<UserModel> { /* ... */ }
 }
 ```
 
+> **The decorator can't drift from the type.** If the `@route(...)` argument doesn't match the declared `TRoute`, it's a compile error that names both routes:
+> ```typescript
+> @route(Routes.command.deleteUser)   // ❌ Route drift: @route(/api/deleteUser) does not match
+> export class GetUserController extends QueryController<UserModel, typeof Routes.query.getUser> { … }
+> ```
+> `TRoute` defaults to `string`, so it's optional and backward-compatible — but declaring it is what unlocks both the drift check and the single-generic endpoints below. Plain `Controller` subclasses (e.g. view controllers) carry no route type and accept any `@route`.
+
 ### Step 3 — derive the contract in one module
 
-Create a contract module that derives one **endpoint type** per route, bound to the controller that serves it. An endpoint bundles the route, its resolved params, the response body (and, for commands, the request body) into the single type each `RpcClient` call needs. The controller imports are **type-only**, so they are erased at build time and add no runtime dependency.
+Create a contract module that derives one **endpoint type** per route from the controller that serves it — a single generic. Because the controller already declares its route (Step 2), the endpoint reads the route, its resolved params, the response body (and, for commands, the request body) straight off the controller; there is no route argument here that could drift. The controller imports are **type-only**, so they are erased at build time and add no runtime dependency.
 
 ```typescript
 // sdk-contract.ts
@@ -345,9 +352,9 @@ import { Routes } from "./routes.js";
 // re-export the route table so clients consume routes and types from one place
 export { Routes };
 
-// one endpoint contract per route, bound to the controller that serves it
-export type GetUserEndpoint = QueryEndpoint<typeof Routes.query.getUser, GetUserController>;
-export type CreateUserEndpoint = CommandEndpoint<typeof Routes.command.createUser, CreateUserController>;
+// one endpoint contract per route, derived entirely from the controller that serves it
+export type GetUserEndpoint = QueryEndpoint<GetUserController>;
+export type CreateUserEndpoint = CommandEndpoint<CreateUserController>;
 
 // granular aliases projected from the endpoints, for ergonomic method signatures
 export type GetUserParams = GetUserEndpoint["params"];  // { id: string }

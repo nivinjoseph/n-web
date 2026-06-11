@@ -15,7 +15,7 @@ import { Routes } from "./../routes.js";
 @route(Routes.command.createTodo)
 @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "SocketService")
-export class CreateTodoController extends CommandController<CreateTodoRequest, CreateTodoResponse>
+export class CreateTodoController extends CommandController<CreateTodoRequest, CreateTodoResponse, typeof Routes.command.createTodo>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;

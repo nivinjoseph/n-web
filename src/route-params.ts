@@ -55,3 +55,14 @@ type Prettify<T> = { [K in keyof T]: T[K] } & {};
  *   // -> { $search?: string | null; $pageSize?: number | null }
  */
 export type ControllerRouteParams<S extends string> = Prettify<RequiredParams<S> & OptionalParams<S>>;
+
+
+type ControllerInstance<T> = T extends abstract new (...args: Array<any>) => infer TInstance ? TInstance : T;
+
+/**
+ * Resolves a controller (class or instance type) to the route it is declared for, read from the
+ * phantom `__route` brand that `QueryController`/`CommandController` carry via their `TRoute` type
+ * parameter. Falls back to `string` for controllers that don't declare a specific route.
+ */
+export type ControllerRoute<T> =
+    ControllerInstance<T> extends { readonly __route?: infer TRoute extends string; } ? TRoute : string;

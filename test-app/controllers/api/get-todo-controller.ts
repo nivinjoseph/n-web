@@ -9,7 +9,7 @@ import {Routes} from "./../routes.js";
 // the GET http method is inherited from QueryController
 @route(Routes.query.getTodo)
 @inject("TodoManager", "ConfigService")
-export class GetTodoController extends QueryController<TodoResponse>
+export class GetTodoController extends QueryController<TodoResponse, typeof Routes.query.getTodo>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;

@@ -15,12 +15,13 @@ import { Routes } from "./routes.js";
 // Re-exported so the client SDK consumes the route table from the same contract module as its types.
 export { Routes };
 
-// Endpoint contracts: each bundles a route literal with the controller that serves it, so the route,
-// its resolved params, the request body, and the response body are all validated together against
-// the server. These are the single source of truth for the client SDK.
-export type GetTodoEndpoint = QueryEndpoint<typeof Routes.query.getTodo, GetTodoController>;
-export type GetTodosEndpoint = QueryEndpoint<typeof Routes.query.getTodos, GetTodosController>;
-export type CreateTodoEndpoint = CommandEndpoint<typeof Routes.command.createTodo, CreateTodoController>;
+// Endpoint contracts derived entirely from the controller that serves each route — the route comes
+// from the controller's own declared route (its TRoute type param, which `@route` is forced to
+// match), so there is no route argument here that could drift. These are the single source of truth
+// for the client SDK.
+export type GetTodoEndpoint = QueryEndpoint<GetTodoController>;
+export type GetTodosEndpoint = QueryEndpoint<GetTodosController>;
+export type CreateTodoEndpoint = CommandEndpoint<CreateTodoController>;
 
 // Granular aliases derived from the endpoints above, for ergonomic SDK method signatures. Change a
 // route param or a controller body and these (and every consumer) become compile errors until updated.

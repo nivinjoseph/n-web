@@ -1,11 +1,16 @@
 import { Controller } from "./controller.js";
 import { query } from "./query.js";
-import type { ControllerRouteParams } from "./route-params.js";
+import type { ControllerRoute, ControllerRouteParams } from "./route-params.js";
 
 // public
 @query
-export abstract class QueryController<TResBody> extends Controller
+export abstract class QueryController<TResBody, TRoute extends string = string> extends Controller
 {
+    // Phantom marker carrying the route this controller is declared for (supplied via TRoute).
+    // It lets `@route` verify the decorator argument and lets `QueryEndpoint` derive the route.
+    // `declare` means it is type-only — nothing is emitted.
+    declare public readonly __route?: TRoute;
+
     public abstract override execute(...params: Array<any>): Promise<TResBody>;
 }
 
@@ -14,25 +19,23 @@ export abstract class QueryController<TResBody> extends Controller
 // given either the class (constructor) or an instance type.
 export type QueryControllerResponseBody<T> =
     T extends abstract new (...args: Array<any>) => infer TInstance
-        ? TInstance extends QueryController<infer TResBody> ? TResBody : never
-        : T extends QueryController<infer TResBody> ? TResBody : never;
+        ? TInstance extends QueryController<infer TResBody, any> ? TResBody : never
+        : T extends QueryController<infer TResBody, any> ? TResBody : never;
 
 /**
- * Endpoint contract for a query (read) operation. Bundles a route literal with the concrete
- * `QueryController` that serves it, so a single endpoint type is the only generic a client needs to
- * pass (e.g. to an `RpcClient.query`) — the route, its resolved params, and the response body are
- * all validated together against the server. The response body is derived from the controller via
- * {@link QueryControllerResponseBody}, so it can never drift from what the controller returns.
+ * Endpoint contract for a query (read) operation, derived entirely from the concrete
+ * `QueryController` that serves it: the route (from the controller's declared route), its resolved
+ * params, and the response body. A single generic is all a client passes (e.g. to `RpcClient.query`),
+ * and there is no separate route argument that could drift from the controller.
  *
  * @example
- * type GetTodo = QueryEndpoint<typeof Routes.query.getTodo, GetTodoController>;
- *   // route: "/api/.../{id: number}"; params: { id: number }; res: <GetTodoController's response body>
+ * type GetTodo = QueryEndpoint<GetTodoController>;
+ *   // route: <GetTodoController's declared route>; params: { id: number }; res: <its response body>
  */
 export type QueryEndpoint<
-    TRoute extends string,
-    TController extends QueryController<any> | (abstract new (...args: Array<any>) => QueryController<any>)
+    TController extends QueryController<any, any> | (abstract new (...args: Array<any>) => QueryController<any, any>)
 > = {
-    readonly route: TRoute;
-    readonly params: ControllerRouteParams<TRoute>;
+    readonly route: ControllerRoute<TController>;
+    readonly params: ControllerRouteParams<ControllerRoute<TController>>;
     readonly res: QueryControllerResponseBody<TController>;
 };

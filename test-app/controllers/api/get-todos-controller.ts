@@ -10,7 +10,7 @@ import {Routes} from "./../routes.js";
 // @route("/*")
 // @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "CallContext")
-export class GetTodosController extends QueryController<TodoListResponse>
+export class GetTodosController extends QueryController<TodoListResponse, typeof Routes.query.getTodos>
 {
     private readonly _todoManager: TodoManager;
     private readonly _configService: ConfigService;

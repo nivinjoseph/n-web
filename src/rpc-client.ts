@@ -1,11 +1,14 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { type CommandEndpoint } from "./command-controller.js";
-import { type QueryEndpoint } from "./query-controller.js";
 import { RpcException, type RpcExceptionData } from "./rpc-exception.js";
 import { Utils } from "./utils.js";
 
 // public
 export type RpcErrorHandler = (exp: RpcException) => boolean;
+
+// Structural shapes of the endpoint contracts (QueryEndpoint / CommandEndpoint). RpcClient reads
+// them structurally so it never depends on the controller types the endpoints are derived from.
+type QueryEndpointShape = { readonly route: string; readonly params: object; readonly res: unknown; };
+type CommandEndpointShape = QueryEndpointShape & { readonly req: unknown; };
 
 // A route with no params (`{}`) takes no params argument; one with params requires it.
 // `keyof TParams extends never` distinguishes the two.
@@ -52,7 +55,7 @@ export class RpcClient
         this._errorHandler = handler;
     }
 
-    public async query<TEndpoint extends QueryEndpoint<string, any>>(
+    public async query<TEndpoint extends QueryEndpointShape>(
         route: TEndpoint["route"],
         ...args: ParamsArg<TEndpoint["params"]>
     ): Promise<TEndpoint["res"]>
@@ -62,7 +65,7 @@ export class RpcClient
         return this._request<TEndpoint["res"]>("GET", url, null);
     }
 
-    public async command<TEndpoint extends CommandEndpoint<string, any>>(
+    public async command<TEndpoint extends CommandEndpointShape>(
         route: TEndpoint["route"],
         body: TEndpoint["req"],
         ...args: ParamsArg<TEndpoint["params"]>
