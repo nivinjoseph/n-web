@@ -8,13 +8,15 @@ export async function demo(): Promise<void>
     const sdk = new TodoSdk("http://localhost:8080");
 
     // GetTodosResult -> { items: Array<{ id; title; links: { self } }>; links: { create; test } }
-    const list = await sdk.getTodos("groceries");
+    // params are typed from the route: { $search?; $pageNumber?; $pageSize? }
+    const list = await sdk.getTodos({ $search: "groceries" });
     for (const item of list.items)
         console.log(item.id, item.title, item.links.self);
     console.log(list.links.create, list.links.test);
 
     // GetTodoResult -> { id; title; description; links: { self; update; delete } }
-    const todo = await sdk.getTodo(1);
+    // params are typed from the route: { id: number }
+    const todo = await sdk.getTodo({ id: 1 });
     console.log(todo.id, todo.title, todo.description, todo.links.update, todo.links.delete);
 
     // CreateTodoBody -> { title; description }  (extracted TReqBody)

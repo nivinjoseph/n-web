@@ -11,6 +11,7 @@ export declare class RouteInfo {
     get params(): ReadonlyArray<RouteParam>;
     get isCatchAll(): boolean;
     constructor(routeTemplate: string, isUrlGenerator?: boolean);
+    private static _tidyQuery;
     findRouteParam(key: string): RouteParam | null;
     generateUrl(values: Object): string;
     private _populateRouteParams;

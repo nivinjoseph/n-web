@@ -6,6 +6,7 @@ import { QueryController, type QueryControllerResponseBody } from "./query-contr
 import { httpDelete, httpGet, httpPost, httpPut } from "./http-method.js";
 import { query } from "./query.js";
 import { route, type ControllerRouteDecorator } from "./route.js";
+import { type ControllerRouteParams } from "./route-params.js";
 import { Utils } from "./utils.js";
 import { viewLayout, type ControllerViewLayoutDecorator } from "./view-layout.js";
 import { view, type ControllerViewDecorator } from "./view.js";
@@ -20,5 +21,5 @@ import { type AuthorizationHandler } from "./security/authorization-handler.js";
 import { authorize, type ControllerAuthorizeDecorator } from "./security/authorize.js";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
 export { authorize, command, CommandController, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete, HttpException, httpGet, httpPost, httpPut, query, QueryController, route, Utils, view, viewLayout, WebApp };
-export type { ApplicationScript, AuthenticationHandler, AuthorizationHandler, CallContext, CommandControllerRequestBody, CommandControllerResponseBody, ControllerAuthorizeDecorator, ControllerClass, ControllerRouteDecorator, ControllerViewDecorator, ControllerViewLayoutDecorator, ExceptionHandler, QueryControllerResponseBody };
+export type { ApplicationScript, AuthenticationHandler, AuthorizationHandler, CallContext, CommandControllerRequestBody, CommandControllerResponseBody, ControllerAuthorizeDecorator, ControllerClass, ControllerRouteDecorator, ControllerViewDecorator, ControllerViewLayoutDecorator, ExceptionHandler, QueryControllerResponseBody, ControllerRouteParams };
 //# sourceMappingURL=index.d.ts.map

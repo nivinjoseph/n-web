@@ -36,6 +36,14 @@ export class RouteInfo {
                 this._koaRoute = this._generateKoaRoute(this._routeTemplate);
         }
     }
+    static _tidyQuery(url) {
+        const queryIndex = url.indexOf("?");
+        if (queryIndex < 0)
+            return url;
+        const path = url.substring(0, queryIndex);
+        const segments = url.substring(queryIndex + 1).split("&").filter(segment => segment.length > 0);
+        return segments.length > 0 ? `${path}?${segments.join("&")}` : path;
+    }
     findRouteParam(key) {
         given(key, "key").ensureHasValue().ensureIsString();
         return this._routeParamsRegistry[key.trim().toLowerCase()];
@@ -44,19 +52,25 @@ export class RouteInfo {
         let url = this._routeTemplate;
         let hasQuery = this._hasQuery;
         for (const key in values) {
+            const value = values.getValue(key);
+            if (value == null) // null/undefined => param omitted (optional tokens are tidied away below)
+                continue;
             const routeParam = this.findRouteParam(key);
             if (routeParam) {
                 const param = "{" + routeParam.param + "}";
                 const replacement = routeParam.isQuery
-                    ? "{0}={1}".format(key, encodeURIComponent(values.getValue(key)))
-                    : encodeURIComponent(values.getValue(key));
+                    ? "{0}={1}".format(key, encodeURIComponent(value))
+                    : encodeURIComponent(value);
                 url = url.replace(param, replacement);
             }
             else {
-                url = `${url}${hasQuery ? "&" : "?"}${"{0}={1}".format(key, encodeURIComponent(values.getValue(key)))}`;
+                url = `${url}${hasQuery ? "&" : "?"}${"{0}={1}".format(key, encodeURIComponent(value))}`;
                 hasQuery = true;
             }
         }
+        // drop any optional params ({...?: type}) that were not supplied, then tidy up query separators
+        url = url.replace(/\{[^}]*\?\s*:[^}]*\}/g, "");
+        url = RouteInfo._tidyQuery(url);
         return url;
     }
     _populateRouteParams() {

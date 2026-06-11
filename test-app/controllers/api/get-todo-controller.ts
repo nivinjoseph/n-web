@@ -4,10 +4,10 @@ import { QueryController, Utils, route } from "./../../../src/index.js";
 import { TodoNotFoundException } from "./../../exceptions/todo-not-found-exception.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
-import * as Routes from "./../routes.js";
+import {Routes} from "./../routes.js";
 
 // the GET http method is inherited from QueryController
-@route(Routes.getTodo)
+@route(Routes.query.getTodo)
 @inject("TodoManager", "ConfigService")
 export class GetTodoController extends QueryController<TodoResponse>
 {
@@ -38,9 +38,9 @@ export class GetTodoController extends QueryController<TodoResponse>
             title: todo.title,
             description: todo.description,
             links: {
-                self: Utils.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
-                update: Utils.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
-                delete: Utils.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
+                self: Utils.generateUrl(Routes.query.getTodo, { id: todo.id }, baseUrl),
+                update: Utils.generateUrl(Routes.command.updateTodo, { id: todo.id }, baseUrl),
+                delete: Utils.generateUrl(Routes.command.deleteTodo, { id: todo.id }, baseUrl)
             }
         };
     }

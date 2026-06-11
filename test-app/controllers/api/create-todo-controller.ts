@@ -6,13 +6,13 @@ import { AppClaims } from "../../security/app-claims.js";
 import { CommandController, HttpException, Utils, authorize, route } from "./../../../src/index.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
-import * as Routes from "./../routes.js";
+import { Routes } from "./../routes.js";
 // import { TodoCreated } from "../../events/todo-created";
 // import { EventBus } from "@nivinjoseph/n-eda";
 
 
 // the POST http method is inherited from CommandController
-@route(Routes.createTodo)
+@route(Routes.command.createTodo)
 @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "SocketService")
 export class CreateTodoController extends CommandController<CreateTodoRequest, CreateTodoResponse>
@@ -52,9 +52,9 @@ export class CreateTodoController extends CommandController<CreateTodoRequest, C
             title: todo.title,
             description: todo.description,
             links: {
-                self: Utils.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
-                update: Utils.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
-                delete: Utils.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
+                self: Utils.generateUrl(Routes.query.getTodo, { id: todo.id }, baseUrl),
+                update: Utils.generateUrl(Routes.command.updateTodo, { id: todo.id }, baseUrl),
+                delete: Utils.generateUrl(Routes.command.deleteTodo, { id: todo.id }, baseUrl)
             }
         };
     }

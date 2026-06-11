@@ -1,22 +1,17 @@
 import { given } from "@nivinjoseph/n-defensive";
-import type {
-    CommandControllerRequestBody,
-    CommandControllerResponseBody,
-    QueryControllerResponseBody
-} from "./../../src/index.js";
-// type-only imports: the SDK derives its contract purely from the controller types and
-// has no runtime dependency on the server-side controller implementations.
-import type { CreateTodoController } from "./../controllers/api/create-todo-controller.js";
-import type { GetTodoController } from "./../controllers/api/get-todo-controller.js";
-import type { GetTodosController } from "./../controllers/api/get-todos-controller.js";
+// Utils comes from the client-only entry point: just lightweight url generation, never the full
+// server framework (WebApp, koa, DI, controllers).
+import { Utils } from "./../../src/index.client.js";
+// The Routes table (runtime, for url generation) and all derived contract types (type-only) come
+// from the single controllers/sdk.ts contract module.
+import {
+    Routes,
+    type CreateTodoReq, type CreateTodoRes, type GetTodoParams, type GetTodoRes, type GetTodosParams, type GetTodosRes
+} from "../controllers/sdk-contract.js";
 
 
-// Request/response contracts extracted directly from the controllers via the n-web utility types.
-// If a controller's TReqBody/TResBody changes, these (and the SDK method signatures) update automatically.
-export type GetTodoRes = QueryControllerResponseBody<GetTodoController>;
-export type GetTodosRes = QueryControllerResponseBody<GetTodosController>;
-export type CreateTodoReq = CommandControllerRequestBody<CreateTodoController>;
-export type CreateTodoRes = CommandControllerResponseBody<CreateTodoController>;
+// Re-exported so that consumers of the SDK can pull the contract types from a single place.
+export type { CreateTodoReq, CreateTodoRes, GetTodoParams, GetTodoRes, GetTodosParams, GetTodosRes };
 
 
 export class TodoSdk
@@ -31,27 +26,31 @@ export class TodoSdk
     }
 
 
-    public async getTodos(search?: string): Promise<GetTodosRes>
+    public async getTodos(params?: GetTodosParams): Promise<GetTodosRes>
     {
-        const url = new URL(`${this._baseUrl}/api/Todos`);
-        if (search != null)
-            url.searchParams.set("$search", search);
+        // params is typed from the route: { $search?: string | null; $pageNumber?: number | null; $pageSize?: number | null }
+        const url = Utils.generateUrl(Routes.query.getTodos, params ?? {}, this._baseUrl);
 
-        return this._get<GetTodosRes>(url.toString());
+        return this._get<GetTodosRes>(url);
     }
 
-    public async getTodo(id: number): Promise<GetTodoRes>
+    public async getTodo(params: GetTodoParams): Promise<GetTodoRes>
     {
-        given(id, "id").ensureHasValue().ensureIsNumber();
+        // params is typed from the route: { id: number }
+        given(params, "params").ensureHasValue().ensureIsObject();
 
-        return this._get<GetTodoRes>(`${this._baseUrl}/api/Todo/${id}`);
+        const url = Utils.generateUrl(Routes.query.getTodo, params, this._baseUrl);
+
+        return this._get<GetTodoRes>(url);
     }
 
     public async createTodo(body: CreateTodoReq): Promise<CreateTodoRes>
     {
         given(body, "body").ensureHasValue().ensureIsObject();
 
-        return this._post<CreateTodoRes>(`${this._baseUrl}/api/CreateTodo`, body);
+        const url = Utils.generateUrl(Routes.command.createTodo, undefined, this._baseUrl);
+
+        return this._post<CreateTodoRes>(url, body);
     }
 
 
@@ -77,6 +76,3 @@ export class TodoSdk
         return await response.json() as T;
     }
 }
-
-
-

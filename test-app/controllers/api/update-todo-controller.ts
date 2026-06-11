@@ -4,10 +4,10 @@ import { Validator, strval } from "@nivinjoseph/n-validate";
 import { Controller, HttpException, Utils, httpPut, route } from "./../../../src/index.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
-import * as Routes from "./../routes.js";
+import { Routes } from "./../routes.js";
 
 @httpPut
-@route(Routes.updateTodo) 
+@route(Routes.command.updateTodo) 
 @inject("TodoManager", "ConfigService")    
 export class UpdateTodoController extends Controller
 {
@@ -37,9 +37,9 @@ export class UpdateTodoController extends Controller
             title: todo.title,
             description: todo.description,
             links: {
-                self: Utils.generateUrl(Routes.getTodo, { id: todo.id }, baseUrl),
-                update: Utils.generateUrl(Routes.updateTodo, { id: todo.id }, baseUrl),
-                delete: Utils.generateUrl(Routes.deleteTodo, { id: todo.id }, baseUrl)
+                self: Utils.generateUrl(Routes.query.getTodo, { id: todo.id }, baseUrl),
+                update: Utils.generateUrl(Routes.command.updateTodo, { id: todo.id }, baseUrl),
+                delete: Utils.generateUrl(Routes.command.deleteTodo, { id: todo.id }, baseUrl)
             }
         };
     }

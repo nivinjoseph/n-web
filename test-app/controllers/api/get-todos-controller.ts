@@ -3,10 +3,10 @@ import { inject } from "@nivinjoseph/n-ject";
 import { QueryController, Utils, route, type CallContext } from "./../../../src/index.js";
 import { type ConfigService } from "./../../services/config-service/config-service.js";
 import { type TodoManager } from "./../../services/todo-manager/todo-manager.js";
-import * as Routes from "./../routes.js";
+import {Routes} from "./../routes.js";
 
 // the GET http method is inherited from QueryController
-@route(Routes.getTodos)
+@route(Routes.query.getTodos)
 // @route("/*")
 // @authorize(AppClaims.claim1)
 @inject("TodoManager", "ConfigService", "CallContext")
@@ -59,13 +59,13 @@ export class GetTodosController extends QueryController<TodoListResponse>
                     id: t.id,
                     title: t.title,
                     links: {
-                        self: Utils.generateUrl(Routes.getTodo, { id: t.id }, baseUrl)
+                        self: Utils.generateUrl(Routes.query.getTodo, { id: t.id }, baseUrl)
                     }
                 };
             }),
             links: {
-                create: Utils.generateUrl(Routes.createTodo, undefined, baseUrl),
-                test: Utils.generateUrl(Routes.getTodos, { $search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd" }, baseUrl)
+                create: Utils.generateUrl(Routes.command.createTodo, undefined, baseUrl),
+                test: Utils.generateUrl(Routes.query.getTodos, { $search: null, $pageNumber: 1, $pageSize: 500, productCategoryId: "abcd" }, baseUrl)
             }
         };
     }

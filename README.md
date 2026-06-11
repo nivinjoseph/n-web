@@ -12,7 +12,8 @@ n-web is a modern, TypeScript-based web framework built on top of Koa.js. It pro
    - [Routing](#routing)
    - [Dependency Injection](#dependency-injection)
 4. [Advanced Features](#advanced-features)
-5. [Complete Example](#complete-example)
+5. [Type-Safe Client SDKs](#type-safe-client-sdks)
+6. [Complete Example](#complete-example)
 
 ## Installation
 
@@ -200,6 +201,8 @@ Path and query parameters can be combined in the same route:
 @route("/api/users/{id: string}/posts?{category: string}&{isPublished?: boolean}")
 ```
 
+> These same typed templates can be reused on the client to build a fully type-checked SDK — see [Type-Safe Client SDKs](#type-safe-client-sdks).
+
 ### Dependency Injection
 
 n-web uses the n-ject package for IOC (Inversion of Control) container-based dependency injection. This allows for loose coupling and easier testing of components.
@@ -268,6 +271,162 @@ app.enableWebSockets("*", redisClient);
 app.registerStartupScript(MyStartupScript);
 app.registerShutdownScript(MyShutdownScript);
 ```
+
+## Type-Safe Client SDKs
+
+A route template already encodes its parameter names and types (`{id: string}`, `{$search?: string}`), and a controller already declares its request/response body types. n-web lets you **reuse both as the source of truth** to build a client SDK that is fully type-checked against the server — rename a route param or change a controller's body type and the SDK (and every call site) stops compiling until it's fixed.
+
+A pure client also doesn't need the server framework, so n-web ships a lightweight entry point for it.
+
+### The building blocks
+
+| Export | From | Purpose |
+| --- | --- | --- |
+| `Utils.generateUrl(route, params, baseUrl)` | `@nivinjoseph/n-web/client` | Builds a URL from a route template. The `params` argument is **type-checked against the route literal**. Optional params that are omitted (or `null`/`undefined`) are dropped, producing a clean URL. |
+| `ControllerRouteParams<typeof route>` | `@nivinjoseph/n-web/client` | Resolves a route template literal to its typed params object — e.g. `{ id: string }`, or `{ $search?: string \| null }` for optional query params. |
+| `QueryControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extracts the response body type from a `QueryController` subclass. |
+| `CommandControllerRequestBody<T>` / `CommandControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extract the request / response body types from a `CommandController` subclass. |
+
+> **Client vs. server entry point.** `@nivinjoseph/n-web/client` exposes only `Utils` plus the contract types above. Importing it never pulls in Koa, the DI container, `WebApp`, or your controllers — so a browser/client bundle stays small. Use the full `@nivinjoseph/n-web` entry point only on the server.
+
+### Step 1 — define routes in one shared table
+
+Put route templates in a single module that both the server (controllers) and clients (SDKs) import.
+
+```typescript
+// routes.ts
+export class Routes {
+    public static readonly query = {
+        getUsers: "/api/users?{$search?: string}&{$pageNumber?: number}",
+        getUser: "/api/users/{id: string}"
+    } as const; // ⚠️ `as const` is required — see the note at the end of this section
+
+    public static readonly command = {
+        createUser: "/api/createUser"
+    } as const;
+}
+```
+
+### Step 2 — use the typed controller base classes
+
+For the contract types to be extractable, controllers must extend `QueryController<TResBody>` or `CommandController<TReqBody, TResBody>` (rather than the bare `Controller`), and reference the shared routes:
+
+```typescript
+import { QueryController, CommandController, httpGet, httpPost, route } from "@nivinjoseph/n-web";
+import { Routes } from "./routes.js";
+
+@httpGet
+@route(Routes.query.getUser)
+export class GetUserController extends QueryController<UserModel> {
+    public override async execute(id: string): Promise<UserModel> { /* ... */ }
+}
+
+@httpPost
+@route(Routes.command.createUser)
+export class CreateUserController extends CommandController<CreateUserBody, UserModel> {
+    public override async execute(body: CreateUserBody): Promise<UserModel> { /* ... */ }
+}
+```
+
+### Step 3 — derive the contract in one module
+
+Create a contract module that derives every client-facing type from the controllers and the routes. The controller imports are **type-only**, so they are erased at build time and add no runtime dependency.
+
+```typescript
+// sdk-contract.ts
+import type {
+    ControllerRouteParams,
+    QueryControllerResponseBody,
+    CommandControllerRequestBody,
+    CommandControllerResponseBody
+} from "@nivinjoseph/n-web/client";
+import type { GetUserController } from "./get-user-controller.js";
+import type { CreateUserController } from "./create-user-controller.js";
+import { Routes } from "./routes.js";
+
+// re-export the route table so clients consume routes and types from one place
+export { Routes };
+
+// response/request bodies, pulled straight from the controllers
+export type GetUserRes = QueryControllerResponseBody<GetUserController>;
+export type CreateUserReq = CommandControllerRequestBody<CreateUserController>;
+export type CreateUserRes = CommandControllerResponseBody<CreateUserController>;
+
+// request params, pulled straight from the route literals
+export type GetUserParams = ControllerRouteParams<typeof Routes.query.getUser>;   // { id: string }
+export type GetUsersParams = ControllerRouteParams<typeof Routes.query.getUsers>; // { $search?: string | null; $pageNumber?: number | null }
+```
+
+### Step 4 — write the client SDK
+
+The SDK is a pure client: it imports `Utils` from the `/client` entry point and the derived types from the contract module. It never references controllers or the server framework.
+
+```typescript
+// user-sdk.ts
+import { Utils } from "@nivinjoseph/n-web/client";
+import {
+    Routes,
+    type GetUserParams, type GetUserRes,
+    type CreateUserReq, type CreateUserRes
+} from "./sdk-contract.js";
+
+export class UserSdk {
+    public constructor(private readonly _baseUrl: string) { }
+
+    public async getUser(params: GetUserParams): Promise<GetUserRes> {
+        // params is typed `{ id: string }` straight from the route
+        const url = Utils.generateUrl(Routes.query.getUser, params, this._baseUrl);
+        return this._get<GetUserRes>(url);
+    }
+
+    public async createUser(body: CreateUserReq): Promise<CreateUserRes> {
+        const url = Utils.generateUrl(Routes.command.createUser, undefined, this._baseUrl);
+        return this._post<CreateUserRes>(url, body);
+    }
+
+    private async _get<T>(url: string): Promise<T> {
+        const res = await fetch(url, { method: "GET", headers: { accept: "application/json" } });
+        if (!res.ok) throw new Error(`GET ${url} failed with status ${res.status}.`);
+        return await res.json() as T;
+    }
+
+    private async _post<T>(url: string, body: unknown): Promise<T> {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "content-type": "application/json", "accept": "application/json" },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`POST ${url} failed with status ${res.status}.`);
+        return await res.json() as T;
+    }
+}
+```
+
+Now the contract is enforced by the compiler:
+
+```typescript
+const sdk = new UserSdk("https://api.example.com");
+
+await sdk.getUser({ id: "u_123" });   // ✅
+await sdk.getUser({});                 // ❌ compile error: 'id' is required
+await sdk.getUser({ id: 123 });        // ❌ compile error: 'id' must be a string
+```
+
+### Why `as const` is required
+
+TypeScript widens object and class properties to their base type — so without `as const`, `Routes.query.getUser` is inferred as plain `string`, which discards the literal route text that `ControllerRouteParams` parses. Adding `as const` pins each route to its exact string-literal type.
+
+```typescript
+public static readonly query = {
+    getUser: "/api/users/{id: string}"
+};            // typeof Routes.query.getUser === string  → ControllerRouteParams yields no checking
+
+public static readonly query = {
+    getUser: "/api/users/{id: string}"
+} as const;   // typeof Routes.query.getUser === "/api/users/{id: string}"  → { id: string }
+```
+
+> Plain module-level constants — `export const getUser = "/api/users/{id: string}";` — keep their literal type automatically and do **not** need `as const`. The assertion is only needed for object/class members.
 
 ## Complete Example
 

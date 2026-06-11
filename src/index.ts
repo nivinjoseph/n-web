@@ -6,6 +6,7 @@ import { QueryController, type QueryControllerResponseBody } from "./query-contr
 import { httpDelete, httpGet, httpPost, httpPut } from "./http-method.js";
 import { query } from "./query.js";
 import { route, type ControllerRouteDecorator } from "./route.js";
+import { type ControllerRouteParams } from "./route-params.js";
 import { Utils } from "./utils.js";
 import { viewLayout, type ControllerViewLayoutDecorator } from "./view-layout.js";
 import { view, type ControllerViewDecorator } from "./view.js";
@@ -36,7 +37,7 @@ export type {
     AuthenticationHandler, AuthorizationHandler, CallContext,
     CommandControllerRequestBody, CommandControllerResponseBody, ControllerAuthorizeDecorator,
     ControllerClass, ControllerRouteDecorator, ControllerViewDecorator, ControllerViewLayoutDecorator,
-    ExceptionHandler, QueryControllerResponseBody
+    ExceptionHandler, QueryControllerResponseBody, ControllerRouteParams
 };
 
 

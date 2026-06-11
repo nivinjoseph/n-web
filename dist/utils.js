@@ -9,21 +9,21 @@ export class Utils // static class
             given(params, "params").ensureIsObject();
         if (baseUrl)
             given(baseUrl, "baseUrl").ensureIsString();
-        route = route.trim().replaceAll(" ", "");
+        let url = route.trim().replaceAll(" ", "");
         if (baseUrl != null && baseUrl.isNotEmptyOrWhiteSpace()) {
             baseUrl = baseUrl.trim().replaceAll(" ", "");
             if (baseUrl.endsWith("/"))
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
-            if (route.startsWith("/"))
-                route = route.substr(1, route.length - 1);
+            if (url.startsWith("/"))
+                url = url.substr(1, url.length - 1);
             // special treatment for the sake of docker routing on ECS
             const splittedBaseUrl = baseUrl.split("/");
             const popped = splittedBaseUrl.pop()?.toLowerCase();
-            if (popped != null && route.toLowerCase().startsWith(popped))
+            if (popped != null && url.toLowerCase().startsWith(popped))
                 baseUrl = splittedBaseUrl.join("/");
-            route = baseUrl + "/" + route;
+            url = baseUrl + "/" + url;
         }
-        return params ? new RouteInfo(route, true).generateUrl(params) : route;
+        return params ? new RouteInfo(url, true).generateUrl(params) : url;
     }
 }
 //# sourceMappingURL=utils.js.map

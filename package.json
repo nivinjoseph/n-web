@@ -4,7 +4,16 @@
     "description": "Koa based web application framework",
     "packageManager": "yarn@4.14.1",
     "type": "module",
-    "exports": "./dist/index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./client": {
+            "types": "./dist/index.client.d.ts",
+            "default": "./dist/index.client.js"
+        }
+    },
     "types": "./dist/index.d.ts",
     "scripts": {
         "ts-compile": "tsc -p .",

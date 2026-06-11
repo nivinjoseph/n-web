@@ -1,8 +1,8 @@
 import { Controller, httpGet, route, view, viewLayout } from "./../../../../src/index.js";
-import * as routes from "./../../routes.js";
+import { Routes} from "./../../routes.js";
 
 @httpGet
-@route(routes.homeWithLayout)
+@route(Routes.ui.homeWithLayout)
 @view("home-with-layout-view")
 @viewLayout("layout")    
 export class HomeWithLayoutController extends Controller
