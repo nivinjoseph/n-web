@@ -6,7 +6,6 @@ import { QueryController } from "./query-controller.js";
 import { httpDelete, httpGet, httpPost, httpPut } from "./http-method.js";
 import { query } from "./query.js";
 import { route } from "./route.js";
-import {} from "./route-params.js";
 import { Utils } from "./utils.js";
 import { viewLayout } from "./view-layout.js";
 import { view } from "./view.js";
