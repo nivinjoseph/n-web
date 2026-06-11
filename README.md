@@ -276,18 +276,21 @@ app.registerShutdownScript(MyShutdownScript);
 
 A route template already encodes its parameter names and types (`{id: string}`, `{$search?: string}`), and a controller already declares its request/response body types. n-web lets you **reuse both as the source of truth** to build a client SDK that is fully type-checked against the server — rename a route param or change a controller's body type and the SDK (and every call site) stops compiling until it's fixed.
 
-A pure client also doesn't need the server framework, so n-web ships a lightweight entry point for it.
+The pieces fit together as: **route literal + controller → an endpoint type → one generic argument to `RpcClient`**. A pure client doesn't need the server framework, so all of this ships from a lightweight `/client` entry point.
 
 ### The building blocks
 
 | Export | From | Purpose |
 | --- | --- | --- |
-| `Utils.generateUrl(route, params, baseUrl)` | `@nivinjoseph/n-web/client` | Builds a URL from a route template. The `params` argument is **type-checked against the route literal**. Optional params that are omitted (or `null`/`undefined`) are dropped, producing a clean URL. |
-| `ControllerRouteParams<typeof route>` | `@nivinjoseph/n-web/client` | Resolves a route template literal to its typed params object — e.g. `{ id: string }`, or `{ $search?: string \| null }` for optional query params. |
-| `QueryControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extracts the response body type from a `QueryController` subclass. |
-| `CommandControllerRequestBody<T>` / `CommandControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extract the request / response body types from a `CommandController` subclass. |
+| `RpcClient` | `@nivinjoseph/n-web/client` | A type-safe HTTP client. `query`/`command` each take a **single endpoint type** as their generic, so the route, params, request body, and response body are all validated together. Handles url generation, base-url joining, JSON, timeouts, and error handling. |
+| `QueryEndpoint<typeof route, TController>` | `@nivinjoseph/n-web/client` | Bundles a route literal with the `QueryController` that serves it into one contract — `{ route, params, res }`. `res` is derived from the controller, so it can't drift from the server. |
+| `CommandEndpoint<typeof route, TController>` | `@nivinjoseph/n-web/client` | Like `QueryEndpoint`, plus `req` — bundles `{ route, params, req, res }` from the `CommandController`. |
+| `RpcException` / `RpcErrorHandler` / `RpcExceptionData` | `@nivinjoseph/n-web/client` | The error thrown by `RpcClient` on a non-2xx response, plus the optional global error-handler hook. |
+| `Utils.generateUrl(route, params, baseUrl)` | `@nivinjoseph/n-web/client` | Builds a URL from a route template; `params` is type-checked against the route literal, and omitted/`null` optional params are dropped. Used internally by `RpcClient`; available directly too. |
+| `ControllerRouteParams<typeof route>` | `@nivinjoseph/n-web/client` | Resolves a route template literal to its typed params object — `{ id: string }`, or `{ $search?: string \| null }` for optional query params. |
+| `QueryControllerResponseBody<T>` / `CommandControllerRequestBody<T>` / `CommandControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extract the response / request body types from a controller. These underpin the endpoint types; available directly too. |
 
-> **Client vs. server entry point.** `@nivinjoseph/n-web/client` exposes only `Utils` plus the contract types above. Importing it never pulls in Koa, the DI container, `WebApp`, or your controllers — so a browser/client bundle stays small. Use the full `@nivinjoseph/n-web` entry point only on the server.
+> **Client vs. server entry point.** Everything above is exported from `@nivinjoseph/n-web/client` only — importing it never pulls in Koa, the DI container, `WebApp`, or your controllers, so a browser/client bundle stays small. The full `@nivinjoseph/n-web` entry point is for the server; the only export shared by both is `Utils` (the server uses it for link generation).
 
 ### Step 1 — define routes in one shared table
 
@@ -330,16 +333,11 @@ export class CreateUserController extends CommandController<CreateUserBody, User
 
 ### Step 3 — derive the contract in one module
 
-Create a contract module that derives every client-facing type from the controllers and the routes. The controller imports are **type-only**, so they are erased at build time and add no runtime dependency.
+Create a contract module that derives one **endpoint type** per route, bound to the controller that serves it. An endpoint bundles the route, its resolved params, the response body (and, for commands, the request body) into the single type each `RpcClient` call needs. The controller imports are **type-only**, so they are erased at build time and add no runtime dependency.
 
 ```typescript
 // sdk-contract.ts
-import type {
-    ControllerRouteParams,
-    QueryControllerResponseBody,
-    CommandControllerRequestBody,
-    CommandControllerResponseBody
-} from "@nivinjoseph/n-web/client";
+import type { QueryEndpoint, CommandEndpoint } from "@nivinjoseph/n-web/client";
 import type { GetUserController } from "./get-user-controller.js";
 import type { CreateUserController } from "./create-user-controller.js";
 import { Routes } from "./routes.js";
@@ -347,69 +345,62 @@ import { Routes } from "./routes.js";
 // re-export the route table so clients consume routes and types from one place
 export { Routes };
 
-// response/request bodies, pulled straight from the controllers
-export type GetUserRes = QueryControllerResponseBody<GetUserController>;
-export type CreateUserReq = CommandControllerRequestBody<CreateUserController>;
-export type CreateUserRes = CommandControllerResponseBody<CreateUserController>;
+// one endpoint contract per route, bound to the controller that serves it
+export type GetUserEndpoint = QueryEndpoint<typeof Routes.query.getUser, GetUserController>;
+export type CreateUserEndpoint = CommandEndpoint<typeof Routes.command.createUser, CreateUserController>;
 
-// request params, pulled straight from the route literals
-export type GetUserParams = ControllerRouteParams<typeof Routes.query.getUser>;   // { id: string }
-export type GetUsersParams = ControllerRouteParams<typeof Routes.query.getUsers>; // { $search?: string | null; $pageNumber?: number | null }
+// granular aliases projected from the endpoints, for ergonomic method signatures
+export type GetUserParams = GetUserEndpoint["params"];  // { id: string }
+export type GetUserRes = GetUserEndpoint["res"];
+export type CreateUserReq = CreateUserEndpoint["req"];
+export type CreateUserRes = CreateUserEndpoint["res"];
 ```
 
-### Step 4 — write the client SDK
+### Step 4 — write the client SDK with `RpcClient`
 
-The SDK is a pure client: it imports `Utils` from the `/client` entry point and the derived types from the contract module. It never references controllers or the server framework.
+`RpcClient` does the HTTP work — url generation from the route literal, base-url joining, JSON, timeouts, and error handling. Each `query`/`command` call is parameterized by a single endpoint type, so the route argument, the params, the request body, and the returned response are all validated together. The SDK is a thin, fully-typed wrapper:
 
 ```typescript
 // user-sdk.ts
-import { Utils } from "@nivinjoseph/n-web/client";
+import { RpcClient } from "@nivinjoseph/n-web/client";
 import {
     Routes,
-    type GetUserParams, type GetUserRes,
-    type CreateUserReq, type CreateUserRes
+    type GetUserEndpoint, type GetUserParams, type GetUserRes,
+    type CreateUserEndpoint, type CreateUserReq, type CreateUserRes
 } from "./sdk-contract.js";
 
 export class UserSdk {
-    public constructor(private readonly _baseUrl: string) { }
+    private readonly _rpc: RpcClient;
 
-    public async getUser(params: GetUserParams): Promise<GetUserRes> {
-        // params is typed `{ id: string }` straight from the route
-        const url = Utils.generateUrl(Routes.query.getUser, params, this._baseUrl);
-        return this._get<GetUserRes>(url);
+    public constructor(baseUrl: string) {
+        this._rpc = new RpcClient(baseUrl);
     }
 
-    public async createUser(body: CreateUserReq): Promise<CreateUserRes> {
-        const url = Utils.generateUrl(Routes.command.createUser, undefined, this._baseUrl);
-        return this._post<CreateUserRes>(url, body);
+    public getUser(params: GetUserParams): Promise<GetUserRes> {
+        // a single endpoint generic ties the route, params, and response together
+        return this._rpc.query<GetUserEndpoint>(Routes.query.getUser, params);
     }
 
-    private async _get<T>(url: string): Promise<T> {
-        const res = await fetch(url, { method: "GET", headers: { accept: "application/json" } });
-        if (!res.ok) throw new Error(`GET ${url} failed with status ${res.status}.`);
-        return await res.json() as T;
-    }
-
-    private async _post<T>(url: string, body: unknown): Promise<T> {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: { "content-type": "application/json", "accept": "application/json" },
-            body: JSON.stringify(body)
-        });
-        if (!res.ok) throw new Error(`POST ${url} failed with status ${res.status}.`);
-        return await res.json() as T;
+    public createUser(body: CreateUserReq): Promise<CreateUserRes> {
+        return this._rpc.command<CreateUserEndpoint>(Routes.command.createUser, body);
     }
 }
 ```
 
-Now the contract is enforced by the compiler:
+> `RpcClient` also supports per-request headers (`setHeader`), a request timeout, and a global error handler (`registerErrorHandler`) that receives an `RpcException` carrying the HTTP status and error body on a non-2xx response. A route with no params takes no params argument; one with params requires it.
+
+You don't even need the wrapper — the endpoint generic gives the same guarantees when calling `RpcClient` directly, and the compiler enforces the whole contract:
 
 ```typescript
-const sdk = new UserSdk("https://api.example.com");
+const rpc = new RpcClient("https://api.example.com");
 
-await sdk.getUser({ id: "u_123" });   // ✅
-await sdk.getUser({});                 // ❌ compile error: 'id' is required
-await sdk.getUser({ id: 123 });        // ❌ compile error: 'id' must be a string
+const user = await rpc.query<GetUserEndpoint>(Routes.query.getUser, { id: "u_123" }); // ✅ typed as GetUserRes
+// @ts-expect-error 'id' is required
+await rpc.query<GetUserEndpoint>(Routes.query.getUser);
+// @ts-expect-error 'id' must be a string
+await rpc.query<GetUserEndpoint>(Routes.query.getUser, { id: 123 });
+// @ts-expect-error wrong route literal for this endpoint
+await rpc.query<GetUserEndpoint>(Routes.command.createUser, { id: "u_123" });
 ```
 
 ### Why `as const` is required

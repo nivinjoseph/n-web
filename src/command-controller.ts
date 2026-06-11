@@ -1,5 +1,6 @@
 import { command } from "./command.js";
 import { Controller } from "./controller.js";
+import type { ControllerRouteParams } from "./route-params.js";
 
 // public
 @command
@@ -25,3 +26,23 @@ export type CommandControllerResponseBody<T> =
         ? TInstance extends CommandController<any, infer TResBody> ? TResBody : never
         : T extends CommandController<any, infer TResBody> ? TResBody : never;
 
+
+/**
+ * Endpoint contract for a command (write) operation. Like `QueryEndpoint` but bound to the concrete
+ * `CommandController` that serves it: a single endpoint type validates the route, its resolved
+ * params, the request body, and the response body together (e.g. for an `RpcClient.command`). The
+ * request and response bodies are derived from the controller via {@link CommandControllerRequestBody}
+ * and {@link CommandControllerResponseBody}, so they can never drift from the controller.
+ *
+ * @example
+ * type CreateTodo = CommandEndpoint<typeof Routes.command.createTodo, CreateTodoController>;
+ */
+export type CommandEndpoint<
+    TRoute extends string,
+    TController extends CommandController<any, any> | (abstract new (...args: Array<any>) => CommandController<any, any>)
+> = {
+    readonly route: TRoute;
+    readonly params: ControllerRouteParams<TRoute>;
+    readonly req: CommandControllerRequestBody<TController>;
+    readonly res: CommandControllerResponseBody<TController>;
+};
