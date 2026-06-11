@@ -4,7 +4,7 @@ import type { ControllerRoute, ControllerRouteParams } from "./route-params.js";
 
 // public
 @command
-export abstract class CommandController<TReqBody, TResBody, TRoute extends string = string> extends Controller
+export abstract class CommandController<TReqBody, TResBody, TRoute extends string> extends Controller
 {
     // Phantom marker carrying the route this controller is declared for (supplied via TRoute).
     // It lets `@route` verify the decorator argument and lets `CommandEndpoint` derive the route.

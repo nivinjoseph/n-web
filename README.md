@@ -312,7 +312,7 @@ export class Routes {
 
 ### Step 2 — use the typed controller base classes
 
-Controllers extend `QueryController<TResBody, TRoute>` or `CommandController<TReqBody, TResBody, TRoute>` (rather than the bare `Controller`), where `TRoute` is the route they serve — supplied as `typeof Routes...`. Declaring `TRoute` does two things: it lets the endpoint types derive the route straight from the controller, and it makes `@route` **enforce** that the decorator's route matches.
+Controllers extend `QueryController<TResBody, TRoute>` or `CommandController<TReqBody, TResBody, TRoute>` (rather than the bare `Controller`), where `TRoute` is the route they serve — supplied as `typeof Routes...`. `TRoute` is **required**: every query/command controller must declare the route it serves. That does two things: it lets the endpoint types derive the route straight from the controller, and it makes `@route` **enforce** that the decorator's route matches.
 
 ```typescript
 import { QueryController, CommandController, httpGet, httpPost, route } from "@nivinjoseph/n-web";
@@ -336,7 +336,7 @@ export class CreateUserController extends CommandController<CreateUserBody, User
 > @route(Routes.command.deleteUser)   // ❌ Route drift: @route(/api/deleteUser) does not match
 > export class GetUserController extends QueryController<UserModel, typeof Routes.query.getUser> { … }
 > ```
-> `TRoute` defaults to `string`, so it's optional and backward-compatible — but declaring it is what unlocks both the drift check and the single-generic endpoints below. Plain `Controller` subclasses (e.g. view controllers) carry no route type and accept any `@route`.
+> Because `TRoute` is required, a `QueryController<Res>` / `CommandController<Req, Res>` that omits it is a compile error — so the drift check and the single-generic endpoints below apply to every query/command controller, not just opted-in ones. Plain `Controller` subclasses (e.g. view controllers) carry no route type and accept any `@route`.
 
 ### Step 3 — derive the contract in one module
 
