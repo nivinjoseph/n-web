@@ -391,6 +391,7 @@ __metadata:
     koa-bodyparser: "npm:4.4.1"
     koa-compress: "npm:5.2.1"
     koa-static: "npm:5.0.0"
+    mobx: "npm:6.15.3"
     redis: "npm:5.12.1"
     typescript: "npm:5.9.3"
     typescript-eslint: "npm:8.46.3"
@@ -3666,6 +3667,13 @@ __metadata:
   dependencies:
     minipass: "npm:^7.1.2"
   checksum: 10c0/5aad75ab0090b8266069c9aabe582c021ae53eb33c6c691054a13a45db3b4f91a7fb1bd79151e6b4e9e9a86727b522527c0a06ec7d45206b745d54cd3097bcec
+  languageName: node
+  linkType: hard
+
+"mobx@npm:6.15.3":
+  version: 6.15.3
+  resolution: "mobx@npm:6.15.3"
+  checksum: 10c0/3a49d0d9ad2d9f9d28842b1f49147a2b074629120150f9cbe3d99b5c1d84528f8f43a72d084e97892407238d4f5140e03c90e434d7004c4167efd2d11fb198b1
   languageName: node
   linkType: hard
 
