@@ -13,8 +13,9 @@ import "@nivinjoseph/n-ext";
 import { Utils } from "./utils.js";
 import { RpcClient } from "./rpc-client.js";
 import { RpcException } from "./rpc-exception.js";
+import { ProxyBase } from "./proxy-base.js";
 import {} from "./command-controller.js";
 import {} from "./query-controller.js";
 import {} from "./route-params.js";
-export { RpcClient, RpcException, Utils };
+export { RpcClient, RpcException, Utils, ProxyBase };
 //# sourceMappingURL=index.client.js.map
