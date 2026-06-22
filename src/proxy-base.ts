@@ -1,5 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { makeObservable, observable, runInAction } from "mobx";
+import type { RpcClient } from "./rpc-client.js";
 
 /**
  * Base for proxies that wrap a server DTO and re-fetch on mutate. The whole
@@ -10,8 +11,11 @@ import { makeObservable, observable, runInAction } from "mobx";
  */
 export abstract class ProxyBase<TDto extends object>
 {
+    private readonly _rpcClient: RpcClient;
     private _dto: TDto;
 
+    protected get rpcClient(): RpcClient { return this._rpcClient; }
+    
     protected get dto(): TDto
     {
         return this._dto;
@@ -25,13 +29,19 @@ export abstract class ProxyBase<TDto extends object>
         });
     }
 
-    protected constructor(dto: TDto)
+    protected constructor(rpcClient: RpcClient, dto?: TDto)
     {
+        given(rpcClient, "rpcClient").ensureHasValue().ensureIsObject();
+        this._rpcClient = rpcClient;
+        
+        dto ??= {} as any;
         given(dto as object, "dto").ensureHasValue().ensureIsObject();
-        this._dto = dto;
+        this._dto = dto!;
 
         makeObservable<ProxyBase<TDto>, "_dto">(this, {
             _dto: observable.ref,
         });
     }
+    
+    protected abstract refresh(): Promise<void>;
 }
