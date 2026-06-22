@@ -8,7 +8,9 @@ import { makeObservable, observable, runInAction } from "mobx";
  * does the `runInAction` write.
  */
 export class ProxyBase {
+    _rpcClient;
     _dto;
+    get rpcClient() { return this._rpcClient; }
     get dto() {
         return this._dto;
     }
@@ -18,7 +20,10 @@ export class ProxyBase {
             this._dto = value;
         });
     }
-    constructor(dto) {
+    constructor(rpcClient, dto) {
+        given(rpcClient, "rpcClient").ensureHasValue().ensureIsObject();
+        this._rpcClient = rpcClient;
+        dto ??= {};
         given(dto, "dto").ensureHasValue().ensureIsObject();
         this._dto = dto;
         makeObservable(this, {
