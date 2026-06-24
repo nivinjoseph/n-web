@@ -286,6 +286,7 @@ The pieces fit together as: **a controller declares the route it serves → an e
 | `QueryEndpoint<TController>` | `@nivinjoseph/n-web/client` | Derives a full contract — `{ route, params, res }` — from the `QueryController` that serves it. The route comes from the controller's *own declared route*, so there is no route argument that can be wrong. |
 | `CommandEndpoint<TController>` | `@nivinjoseph/n-web/client` | Like `QueryEndpoint`, plus `req` — `{ route, params, req, res }`, all derived from the `CommandController`. |
 | `RpcException` / `RpcErrorHandler` / `RpcExceptionData` | `@nivinjoseph/n-web/client` | The error thrown by `RpcClient` on a non-2xx response, plus the optional global error-handler hook. |
+| `ProxyBase<TDto>` | `@nivinjoseph/n-web/client` | Abstract base for a MobX-observable client-side proxy that wraps a server DTO. Subclasses re-fetch through an `RpcClient` and expose typed `computed` getters; the base handles the observable swap, deep-clone snapshots (`cloneValue` / `copyValue`), and optimistic-edit rollback (`backupValue` / `restoreValue`). See below. |
 | `Utils.generateUrl(route, params, baseUrl)` | `@nivinjoseph/n-web/client` | Builds a URL from a route template; `params` is type-checked against the route literal, and omitted/`null` optional params are dropped. Used internally by `RpcClient`; available directly too. |
 | `ControllerRouteParams<typeof route>` | `@nivinjoseph/n-web/client` | Resolves a route template literal to its typed params object — `{ id: string }`, or `{ $search?: string \| null }` for optional query params. |
 | `QueryControllerResponseBody<T>` / `CommandControllerRequestBody<T>` / `CommandControllerResponseBody<T>` | `@nivinjoseph/n-web/client` | Extract the response / request body types from a controller. These underpin the endpoint types; available directly too. |
@@ -299,16 +300,21 @@ Put route templates in a single module that both the server (controllers) and cl
 ```typescript
 // routes.ts
 export class Routes {
+    private static readonly _queryPrefix = "/api/query";
+    private static readonly _commandPrefix = "/api/command";
+
     public static readonly query = {
-        getUsers: "/api/users?{$search?: string}&{$pageNumber?: number}",
-        getUser: "/api/users/{id: string}"
+        getUsers: `${Routes._queryPrefix}/users?{$search?: string}&{$pageNumber?: number}`,
+        getUser: `${Routes._queryPrefix}/users/{id: string}`
     } as const; // ⚠️ `as const` is required — see the note at the end of this section
 
     public static readonly command = {
-        createUser: "/api/createUser"
+        createUser: `${Routes._commandPrefix}/createUser`
     } as const;
 }
 ```
+
+> **Composing routes from a shared prefix** — interpolating a `private static readonly` prefix (as above) is the standard way to keep API routes grouped without repeating the base path. It composes cleanly with `as const`: because the prefix is itself a literal-typed `readonly` field, the template literal still resolves to its exact string-literal type (e.g. `typeof Routes.query.getUser === "/api/query/users/{id: string}"`), so all the route-param parsing downstream keeps working.
 
 ### Step 2 — use the typed controller base classes
 
@@ -425,6 +431,42 @@ public static readonly query = {
 ```
 
 > Plain module-level constants — `export const getUser = "/api/users/{id: string}";` — keep their literal type automatically and do **not** need `as const`. The assertion is only needed for object/class members.
+
+### Observable proxies with `ProxyBase`
+
+An SDK call returns a plain DTO. `ProxyBase<TDto>` wraps that DTO in a **MobX-observable** client-side proxy so a UI can bind to it and re-render when it changes. The whole DTO is tracked by reference (`observable.ref`) and swapped wholesale on refresh, so subclasses just expose `computed` getters over `dto` and re-fetch through their `RpcClient`:
+
+```typescript
+import { ProxyBase, RpcClient } from "@nivinjoseph/n-web/client";
+import { computed } from "mobx";
+import { Routes, type GetUserEndpoint, type GetUserRes } from "./sdk-contract.js";
+
+export class UserProxy extends ProxyBase<GetUserRes> {
+    public constructor(rpcClient: RpcClient, private readonly _id: string, dto?: GetUserRes) {
+        super(rpcClient, dto);
+    }
+
+    // subclasses annotate their own field accessors as `computed`
+    @computed public get firstName(): string { return this.dto.firstName; }
+    @computed public get lastName(): string { return this.dto.lastName; }
+
+    // the one method a subclass must implement: re-fetch and swap the DTO in
+    protected override async refreshValue(): Promise<void> {
+        this.dto = await this.rpcClient.query<GetUserEndpoint>(Routes.query.getUser, { id: this._id });
+    }
+}
+```
+
+The base provides the rest:
+
+| Member | Visibility | Purpose |
+| --- | --- | --- |
+| `cloneValue()` | public | Deep clone of the entire backing DTO, in DTO shape. |
+| `copyValue(...keys)` | public | Deep clone of the named proxy properties, in proxy shape — only data (non-method) keys are accepted. |
+| `backupValue()` / `restoreValue()` | protected | Push / pop a deep snapshot on a LIFO stack — the basis for optimistic-edit rollback. `restoreValue()` warns and no-ops with nothing backed up. |
+| `refreshValue()` | protected abstract | Implemented by the subclass to re-fetch the DTO and assign it through the `dto` setter. |
+
+> All snapshotting uses `structuredClone`, so `TDto` (and any copied property) must be structured-cloneable — plain data, `Date`, `Map`, `Set`, typed arrays, etc. Functions and class instances throw at runtime.
 
 ## Complete Example
 

@@ -7,17 +7,26 @@ export async function demo(): Promise<void>
 {
     const sdk = new TodoSdk("http://localhost:8080");
 
-    // GetTodosResult -> { items: Array<{ id; title; links: { self } }>; links: { create; test } }
+    // getTodos returns a collection of live, observable TodoProxy objects (each fully loaded).
     // params are typed from the route: { $search?; $pageNumber?; $pageSize? }
-    const list = await sdk.getTodos({ $search: "groceries" });
-    for (const item of list.items)
-        console.log(item.id, item.title, item.links.self);
-    console.log(list.links.create, list.links.test);
+    const todos = await sdk.getTodos({ $search: "groceries" });
+    for (const t of todos)
+        console.log(t.id, t.title, t.links.self);
 
-    // GetTodoResult -> { id; title; description; links: { self; update; delete } }
+    // getTodo returns a live, observable TodoProxy (not a raw DTO). Its `computed` getters project
+    // the backing DTO: { id; title; description; links: { self; update; delete } }
     // params are typed from the route: { id: number }
     const todo = await sdk.getTodo({ id: 1 });
     console.log(todo.id, todo.title, todo.description, todo.links.update, todo.links.delete);
+
+    // snapshot helpers inherited from ProxyBase
+    const fullClone = todo.cloneValue();              // deep clone of the whole DTO, in DTO shape
+    const partial = todo.copyValue("title", "links"); // deep clone of named proxy props, in proxy shape
+    console.log(fullClone.description, partial.title, partial.links.self);
+
+    // re-fetch by id and swap the DTO in — the computed getters re-evaluate against the new value
+    await todo.refresh();
+    console.log(todo.title);
 
     // CreateTodoBody -> { title; description }  (extracted TReqBody)
     const newTodo: CreateTodoReq = { title: "buy milk", description: "2%" };
