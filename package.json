@@ -51,7 +51,7 @@
         "@nivinjoseph/n-validate": "3.0.1",
         "@stylistic/eslint-plugin": "5.5.0",
         "@types/kcors": "2.2.9",
-        "@types/koa": "3.0.1",
+        "@types/koa": "3.0.3",
         "@types/koa-bodyparser": "4.3.13",
         "@types/koa-compress": "4.0.7",
         "@types/koa-static": "4.0.4",
@@ -65,23 +65,23 @@
         "typescript-eslint": "8.46.3"
     },
     "dependencies": {
-        "@koa/router": "15.4.0",
+        "@koa/router": "15.7.0",
         "@nivinjoseph/n-config": "2.0.5",
         "@nivinjoseph/n-defensive": "2.0.3",
         "@nivinjoseph/n-exception": "2.0.3",
         "@nivinjoseph/n-ext": "2.0.5",
         "@nivinjoseph/n-ject": "4.0.1",
         "@nivinjoseph/n-log": "3.0.9",
-        "@nivinjoseph/n-sec": "7.0.2",
+        "@nivinjoseph/n-sec": "7.0.3",
         "@nivinjoseph/n-sock": "2.0.11",
         "@nivinjoseph/n-svc": "4.0.1",
         "@nivinjoseph/n-util": "4.0.2",
         "kcors": "2.2.2",
-        "koa": "3.2.0",
+        "koa": "3.2.1",
         "koa-bodyparser": "4.4.1",
-        "koa-compress": "5.2.1",
+        "koa-compress": "5.2.2",
         "koa-static": "5.0.0",
-        "mobx": "6.15.3"
+        "mobx": "6.16.1"
     },
     "engines": {
         "node": ">=24.10"
