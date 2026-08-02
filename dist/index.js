@@ -19,5 +19,6 @@ import {} from "./security/authentication-handler.js";
 import {} from "./security/authorization-handler.js";
 import { authorize } from "./security/authorize.js";
 import { DefaultAuthorizationHandler } from "./security/default-authorization-handler.js";
-export { authorize, command, CommandController, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete, HttpException, httpGet, httpPost, httpPut, query, QueryController, route, Utils, view, viewLayout, WebApp };
+import { discoverControllers } from "./discovery/controller-discovery.js";
+export { authorize, command, CommandController, Controller, DefaultAuthorizationHandler, DefaultExceptionHandler, httpDelete, HttpException, httpGet, httpPost, httpPut, query, QueryController, route, Utils, view, viewLayout, WebApp, discoverControllers };
 //# sourceMappingURL=index.js.map
